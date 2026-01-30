@@ -844,20 +844,31 @@
                 document.getElementById('userBalance').textContent = balance ? formatNumber(ethers.utils.formatEther(balance), 2) : '0.00';
                 document.getElementById('lpBalance').textContent = lpBalance ? formatNumber(ethers.utils.formatEther(lpBalance), 4) : '0.0000';
                 
-                // walletInfo returns a tuple/array, first element is share
+                // walletInfo returns a tuple/array, or maybe just the share directly
+                // From logs: WalletInfo raw value matches balance exactly (0xd3edcf42892f37d402b9)
+                // This suggests walletInfo() is returning just the share as a single value
                 let userShares;
-                if (Array.isArray(walletInfo)) {
-                    userShares = walletInfo[0] || ethers.BigNumber.from(0);
-                } else if (walletInfo.share) {
+                
+                // Check if it's the actual walletInfo struct with .share property
+                if (walletInfo && walletInfo.share !== undefined) {
                     userShares = walletInfo.share;
+                    console.log('Using walletInfo.share');
                 } else {
+                    // It's returning the share value directly
                     userShares = walletInfo || ethers.BigNumber.from(0);
+                    console.log('Using walletInfo directly as share value');
                 }
                 
                 console.log('User shares raw:', userShares.toString());
-                // Shares are in wei (18 decimals) - don't format, just show raw scaled down
+                // Shares are the raw value from contract (already calculated with LP bonus)
+                // Just format it as a regular number
                 const sharesFormatted = parseFloat(userShares.toString()) / 1e18;
-                console.log('Shares formatted:', sharesFormatted);
+                console.log('Shares formatted (div by 1e18):', sharesFormatted);
+                
+                // Actually, looking at your balance: 1000.806 OGT+
+                // And shares: 1000806 (without decimals)
+                // This makes sense! Your shares = balance + (LP * 2)
+                // Show it without decimals since it represents "voting weight"
                 document.getElementById('userShares').textContent = formatNumber(sharesFormatted, 0);
                 
                 // Format unpaid yield - getUnpaidYield already returns in CST base units (6 decimals)
@@ -884,10 +895,16 @@
                 const yieldDebtRaw = yieldDebt ? parseFloat(yieldDebt.toString()) : 0;
                 console.log('YieldDebt raw:', yieldDebtRaw);
                 
-                // yieldDebt is in scaled CST units (CST amount * scale)
-                // Divide by scale to get back to CST base units (with 6 decimals)
-                const totalYieldDebtCST = yieldDebtRaw / scale;
-                console.log('YieldDebt after scale division:', totalYieldDebtCST);
+                // yieldDebt formula from contract: (share * shareYieldRay) / _YIELDX
+                // This gives us a value in "scaled CST base units"
+                // To convert to actual CST: divide by (scale * cstDivisor)
+                // OR divide by scale, then by cstDivisor
+                const totalYieldDebtInScaledUnits = yieldDebtRaw / scale;
+                console.log('YieldDebt after scale division:', totalYieldDebtInScaledUnits);
+                
+                // Now divide by CST divisor to get actual CST
+                const totalYieldDebtCST = totalYieldDebtInScaledUnits / cstDivisor;
+                console.log('YieldDebt in actual CST:', totalYieldDebtCST);
                 
                 // Total claimed = debt - unpaid
                 const totalClaimed = Math.max(0, totalYieldDebtCST - unpaidYieldFormatted);
