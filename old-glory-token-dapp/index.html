@@ -508,23 +508,24 @@
         </div>
 
         <div class="claim-section" id="claimSection" style="display: none;">
-            <h2 class="claim-title">Claim Your CST Yield</h2>
+            <h2 class="claim-title">Your CST Rewards</h2>
             <div class="claim-info">
                 <div class="claim-stat">
                     <div class="claim-stat-label">Your Shares</div>
                     <div class="claim-stat-value" id="userShares">--</div>
                 </div>
                 <div class="claim-stat">
-                    <div class="claim-stat-label">Unpaid Yield</div>
+                    <div class="claim-stat-label">Pending Yield</div>
                     <div class="claim-stat-value" id="unpaidYield">--</div>
                 </div>
                 <div class="claim-stat">
-                    <div class="claim-stat-label">Total Claimed</div>
+                    <div class="claim-stat-label">Total Earned</div>
                     <div class="claim-stat-value" id="totalClaimed">--</div>
                 </div>
             </div>
-            <button class="claim-btn" id="claimBtn" disabled>Claim CST Rewards</button>
-            <div class="countdown" id="countdown"></div>
+            <div class="countdown" id="countdown" style="margin-top: 2rem; font-size: 1.1rem;">
+                💰 Rewards automatically distributed during token transfers
+            </div>
         </div>
 
         <div class="wallet-info" id="walletInfo" style="display: none;">
@@ -543,8 +544,8 @@
                     <div class="info-item-value">2x Multiplier</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-item-label">Next Claim Available</div>
-                    <div class="info-item-value" id="nextClaim">--</div>
+                    <div class="info-item-label">Auto-Payout Status</div>
+                    <div class="info-item-value" id="autoPayoutStatus">Active</div>
                 </div>
             </div>
         </div>
@@ -923,29 +924,19 @@
 
                 console.log('Last claim:', lastClaimTimeNum, 'Min wait:', minWaitSecNum, 'Time until:', timeUntilClaim);
 
-                // Check if user can claim
+                // Update countdown message for auto-payout info
                 const canClaimAmount = unpaidYieldFormatted >= minYieldCST;
-                const canClaimTime = timeUntilClaim <= 0;
                 
                 console.log('Amount check:', canClaimAmount, '(have:', unpaidYieldFormatted, 'need:', minYieldCST, ')');
-                console.log('Time check:', canClaimTime);
 
-                if (!canClaimAmount) {
-                    document.getElementById('nextClaim').textContent = `Need ${minYieldCST.toFixed(4)} CST minimum`;
-                    document.getElementById('claimBtn').disabled = true;
-                    document.getElementById('countdown').textContent = `Hold OGT+ to accumulate more yield`;
-                } else if (timeUntilClaim > 0) {
-                    document.getElementById('nextClaim').textContent = formatTime(timeUntilClaim);
-                    document.getElementById('claimBtn').disabled = true;
-                    startCountdown(timeUntilClaim);
+                if (unpaidYieldFormatted > 0) {
+                    document.getElementById('countdown').innerHTML = '💰 Rewards automatically distributed during token transfers<br><span style="font-size: 0.9rem; opacity: 0.8;">Your pending ' + formatNumber(unpaidYieldFormatted, 4) + ' CST will be paid out automatically</span>';
                 } else {
-                    document.getElementById('nextClaim').textContent = 'Available Now!';
-                    document.getElementById('claimBtn').disabled = false;
-                    document.getElementById('countdown').textContent = 'Click to claim your CST rewards';
+                    document.getElementById('countdown').innerHTML = '💰 Rewards automatically distributed during token transfers<br><span style="font-size: 0.9rem; opacity: 0.8;">Hold OGT+ to earn CST rewards</span>';
                 }
 
                 // Show sections
-                console.log('Showing claim and wallet sections');
+                console.log('Showing rewards and wallet sections');
                 document.getElementById('claimSection').style.display = 'block';
                 document.getElementById('walletInfo').style.display = 'block';
 
@@ -1032,7 +1023,6 @@
             
             // Event listeners
             document.getElementById('connectBtn').addEventListener('click', connectWallet);
-            document.getElementById('claimBtn').addEventListener('click', claimYield);
 
             // Initialize
             generateStars();
