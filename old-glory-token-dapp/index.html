@@ -727,7 +727,6 @@
                 const totalSupply = await contract.totalSupply();
                 const burnBalance = await contract.balanceOf(BURN_ADDRESS);
                 const treasuryBalance = await contract.balanceOf(CONTRACT_ADDRESS);
-                const totalShares = await contract.totalShares();
                 const rewardTokenInfo = await contract.rewardTokens(CST_ADDRESS);
                 
                 document.getElementById('totalSupply').textContent = formatNumber(ethers.utils.formatEther(totalSupply), 0);
@@ -736,15 +735,18 @@
                 const deflationRate = (parseFloat(ethers.utils.formatEther(burnBalance)) / 10000000) * 100;
                 document.getElementById('deflationRate').textContent = deflationRate.toFixed(2) + '%';
                 
-                // Estimate holder count from shares (rough estimate: avg 1M shares per holder)
-                const sharesFloat = parseFloat(ethers.utils.formatEther(totalShares));
-                const estimatedHolders = Math.max(1, Math.floor(sharesFloat / 1000000));
-                document.getElementById('totalHolders').textContent = estimatedHolders > 0 ? '~' + formatNumber(estimatedHolders, 0) : 'Active';
+                // Show "Active" for holders - getting exact count requires off-chain indexing
+                document.getElementById('totalHolders').textContent = 'Active';
                 
-                // Format CST with proper decimals (CST has 18 decimals)
-                const cstDistributed = parseFloat(ethers.utils.formatEther(rewardTokenInfo.totalPaid));
-                document.getElementById('totalDistributed').textContent = cstDistributed > 0 ? formatNumber(cstDistributed, 2) + ' CST' : '0.00 CST';
+                // Get CST decimals from the stored rewardTokenInfo
+                const cstDecimals = parseInt(rewardTokenInfo.decimals);
                 
+                // totalPaid is stored in CST's native units
+                // If CST has 8 decimals, divide by 10^8
+                const divisor = Math.pow(10, cstDecimals);
+                const cstPaid = parseFloat(rewardTokenInfo.totalPaid.toString()) / divisor;
+                
+                document.getElementById('totalDistributed').textContent = formatNumber(cstPaid, 2) + ' CST';
                 document.getElementById('treasuryBalance').textContent = formatNumber(ethers.utils.formatEther(treasuryBalance), 0);
 
                 // User-specific data
@@ -769,10 +771,18 @@
                 const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
                 const lpBalance = await lpContract.balanceOf(userAddress);
 
+                // Get CST decimals
+                const rewardTokenInfo = await contract.rewardTokens(CST_ADDRESS);
+                const cstDecimals = parseInt(rewardTokenInfo.decimals);
+                const cstDivisor = Math.pow(10, cstDecimals);
+
                 document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
                 document.getElementById('lpBalance').textContent = formatNumber(ethers.utils.formatEther(lpBalance), 4);
-                document.getElementById('userShares').textContent = formatNumber(walletInfo.share.toString(), 0);
-                document.getElementById('unpaidYield').textContent = formatNumber(ethers.utils.formatEther(unpaidYield), 4) + ' CST';
+                document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(walletInfo.share), 0);
+                
+                // Format unpaid yield with correct CST decimals (6)
+                const unpaidYieldFormatted = parseFloat(unpaidYield.toString()) / cstDivisor;
+                document.getElementById('unpaidYield').textContent = formatNumber(unpaidYieldFormatted, 4) + ' CST';
 
                 // Calculate next claim time
                 const currentTime = Math.floor(Date.now() / 1000);
