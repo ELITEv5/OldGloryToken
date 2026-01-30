@@ -736,8 +736,15 @@
                 const deflationRate = (parseFloat(ethers.utils.formatEther(burnBalance)) / 10000000) * 100;
                 document.getElementById('deflationRate').textContent = deflationRate.toFixed(2) + '%';
                 
-                document.getElementById('totalHolders').textContent = formatNumber(totalShares.toString(), 0);
-                document.getElementById('totalDistributed').textContent = formatNumber(ethers.utils.formatEther(rewardTokenInfo.totalPaid), 2);
+                // Estimate holder count from shares (rough estimate: avg 1M shares per holder)
+                const sharesFloat = parseFloat(ethers.utils.formatEther(totalShares));
+                const estimatedHolders = Math.max(1, Math.floor(sharesFloat / 1000000));
+                document.getElementById('totalHolders').textContent = estimatedHolders > 0 ? '~' + formatNumber(estimatedHolders, 0) : 'Active';
+                
+                // Format CST with proper decimals (CST has 18 decimals)
+                const cstDistributed = parseFloat(ethers.utils.formatEther(rewardTokenInfo.totalPaid));
+                document.getElementById('totalDistributed').textContent = cstDistributed > 0 ? formatNumber(cstDistributed, 2) + ' CST' : '0.00 CST';
+                
                 document.getElementById('treasuryBalance').textContent = formatNumber(ethers.utils.formatEther(treasuryBalance), 0);
 
                 // User-specific data
