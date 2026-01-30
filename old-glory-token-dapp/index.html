@@ -595,24 +595,72 @@
         // Connect wallet
         async function connectWallet() {
             try {
+                // Check for any Web3 provider (MetaMask, Rabby, Coinbase Wallet, etc.)
                 if (typeof window.ethereum === 'undefined') {
-                    alert('Please install MetaMask or another Web3 wallet');
+                    alert('Please install a Web3 wallet (MetaMask, Rabby, etc.)');
                     return;
                 }
 
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
-                provider = new ethers.providers.Web3Provider(window.ethereum);
+                // Request account access
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                
+                // Create provider - works with all Web3 wallets
+                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+                
+                // Listen for account changes
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) {
+                        location.reload();
+                    } else {
+                        location.reload();
+                    }
+                });
+
+                // Listen for chain changes
+                window.ethereum.on('chainChanged', () => {
+                    location.reload();
+                });
                 
                 const network = await provider.getNetwork();
+                
+                // Check if on PulseChain
                 if (network.chainId !== PULSECHAIN_ID) {
                     try {
+                        // Try to switch to PulseChain
                         await window.ethereum.request({
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: '0x171' }], // 369 in hex
                         });
-                    } catch (error) {
-                        document.getElementById('status').innerHTML = '<div class="error">Please switch to PulseChain network</div>';
-                        return;
+                        // Reload provider after network switch
+                        provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+                    } catch (switchError) {
+                        // If PulseChain not added, try to add it
+                        if (switchError.code === 4902) {
+                            try {
+                                await window.ethereum.request({
+                                    method: 'wallet_addEthereumChain',
+                                    params: [{
+                                        chainId: '0x171',
+                                        chainName: 'PulseChain',
+                                        nativeCurrency: {
+                                            name: 'Pulse',
+                                            symbol: 'PLS',
+                                            decimals: 18
+                                        },
+                                        rpcUrls: ['https://rpc.pulsechain.com'],
+                                        blockExplorerUrls: ['https://scan.pulsechain.com']
+                                    }]
+                                });
+                                // Reload provider after adding network
+                                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+                            } catch (addError) {
+                                document.getElementById('status').innerHTML = '<div class="error">Please add PulseChain network to your wallet</div>';
+                                return;
+                            }
+                        } else {
+                            document.getElementById('status').innerHTML = '<div class="error">Please switch to PulseChain network</div>';
+                            return;
+                        }
                     }
                 }
 
@@ -633,7 +681,13 @@
                 
             } catch (error) {
                 console.error('Connection error:', error);
-                document.getElementById('status').innerHTML = '<div class="error">Connection failed: ' + error.message + '</div>';
+                
+                // User rejected connection
+                if (error.code === 4001) {
+                    document.getElementById('status').innerHTML = '<div class="error">Connection rejected by user</div>';
+                } else {
+                    document.getElementById('status').innerHTML = '<div class="error">Connection failed: ' + error.message + '</div>';
+                }
             }
         }
 
