@@ -876,6 +876,13 @@
                 console.log('Unpaid yield:', unpaidYieldFormatted, 'CST');
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidYieldFormatted, 4) + ' CST';
                 
+                // Get minimum yield requirement from contract
+                const minYield = await contract.minYield();
+                const minYieldScaled = parseFloat(minYield.toString()) / scale;
+                const minYieldCST = minYieldScaled / cstDivisor;
+                console.log('Minimum yield required:', minYieldCST, 'CST');
+                console.log('Can claim?', unpaidYieldFormatted >= minYieldCST);
+                
                 // Calculate total claimed
                 // Looking at your contract: yieldDebt[wallet][token] is stored as:
                 // (share * shareYieldRay) / _YIELDX
@@ -923,18 +930,25 @@
 
                 console.log('Last claim:', lastClaimTimeNum, 'Min wait:', minWaitSecNum, 'Time until:', timeUntilClaim);
 
-                if (timeUntilClaim > 0 && unpaidYieldFormatted > 0) {
+                // Check if user can claim
+                const canClaimAmount = unpaidYieldFormatted >= minYieldCST;
+                const canClaimTime = timeUntilClaim <= 0;
+                
+                console.log('Amount check:', canClaimAmount, '(have:', unpaidYieldFormatted, 'need:', minYieldCST, ')');
+                console.log('Time check:', canClaimTime);
+
+                if (!canClaimAmount) {
+                    document.getElementById('nextClaim').textContent = `Need ${minYieldCST.toFixed(4)} CST minimum`;
+                    document.getElementById('claimBtn').disabled = true;
+                    document.getElementById('countdown').textContent = `Hold OGT+ to accumulate more yield`;
+                } else if (timeUntilClaim > 0) {
                     document.getElementById('nextClaim').textContent = formatTime(timeUntilClaim);
                     document.getElementById('claimBtn').disabled = true;
                     startCountdown(timeUntilClaim);
-                } else if (unpaidYieldFormatted > 0) {
-                    document.getElementById('nextClaim').textContent = 'Available Now';
-                    document.getElementById('claimBtn').disabled = false;
-                    document.getElementById('countdown').textContent = '';
                 } else {
-                    document.getElementById('nextClaim').textContent = 'No yield to claim';
-                    document.getElementById('claimBtn').disabled = true;
-                    document.getElementById('countdown').textContent = 'Hold OGT+ to earn CST rewards';
+                    document.getElementById('nextClaim').textContent = 'Available Now!';
+                    document.getElementById('claimBtn').disabled = false;
+                    document.getElementById('countdown').textContent = 'Click to claim your CST rewards';
                 }
 
                 // Show sections
