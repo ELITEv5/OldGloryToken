@@ -871,6 +871,11 @@
                 // Show it without decimals since it represents "voting weight"
                 document.getElementById('userShares').textContent = formatNumber(sharesFormatted, 0);
                 
+                // Get CST scale and divisor for all calculations
+                const scale = rewardTokenInfo.scale ? parseFloat(rewardTokenInfo.scale.toString()) : Math.pow(10, 18 - cstDecimals);
+                console.log('CST Scale from contract:', scale);
+                console.log('CST Divisor (10^decimals):', cstDivisor);
+                
                 // Format unpaid yield - getUnpaidYield already returns in CST base units (6 decimals)
                 const unpaidYieldFormatted = unpaidYield ? parseFloat(unpaidYield.toString()) / cstDivisor : 0;
                 console.log('Unpaid yield:', unpaidYieldFormatted, 'CST');
@@ -884,20 +889,8 @@
                 console.log('Can claim?', unpaidYieldFormatted >= minYieldCST);
                 
                 // Calculate total claimed
-                // Looking at your contract: yieldDebt[wallet][token] is stored as:
-                // (share * shareYieldRay) / _YIELDX
-                // shareYieldRay is in ray precision (27 decimals)
-                // When we set yieldDebt: yieldDebt = (share * shareYieldRay) / _YIELDX
-                // This gives us a value in the internal scaled units
-                
-                // To convert to actual CST:
-                // The scale factor is 10^(18 - cstDecimals) = 10^12 for CST
-                // yieldDebt is in "scaled CST" units, meaning CST * 10^12
-                // So divide by scale to get CST, then divide by 10^6 to account for CST decimals
-                
-                const scale = rewardTokenInfo.scale ? parseFloat(rewardTokenInfo.scale.toString()) : Math.pow(10, 18 - cstDecimals);
-                console.log('CST Scale from contract:', scale);
-                console.log('CST Divisor (10^decimals):', cstDivisor);
+                // yieldDebt is in scaled CST units (CST amount * scale)
+                // Divide by scale then by cstDivisor to get actual CST
                 
                 const yieldDebtRaw = yieldDebt ? parseFloat(yieldDebt.toString()) : 0;
                 console.log('YieldDebt raw:', yieldDebtRaw);
