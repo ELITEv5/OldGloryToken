@@ -500,7 +500,7 @@
             <div class="stat-card">
                 <div class="stat-label">Treasury Balance</div>
                 <div class="stat-value" id="treasuryBalance">--</div>
-                <div class="stat-subtext">OGT+ Available for Swaps</div>
+                <div class="stat-subtext">OGT+ Collected for Buy & Burn</div>
             </div>
         </div>
 
@@ -621,6 +621,40 @@
             return `${hours}h ${minutes}m ${secs}s`;
         }
 
+        // Get wallet count using binary search (since Solidity array length not exposed)
+        async function getWalletCount() {
+            try {
+                // Binary search for the array length
+                let low = 0;
+                let high = 10000; // Start with reasonable max
+                let count = 0;
+
+                // First check if there are any wallets at all
+                try {
+                    await contract.wallets(0);
+                } catch {
+                    return 0;
+                }
+
+                // Binary search to find the last valid index
+                while (low <= high) {
+                    const mid = Math.floor((low + high) / 2);
+                    try {
+                        await contract.wallets(mid);
+                        count = mid + 1;
+                        low = mid + 1;
+                    } catch {
+                        high = mid - 1;
+                    }
+                }
+
+                return count;
+            } catch (error) {
+                console.error('Error counting wallets:', error);
+                return 0;
+            }
+        }
+
         // Connect wallet
         async function connectWallet() {
             try {
@@ -735,14 +769,16 @@
                 const deflationRate = (parseFloat(ethers.utils.formatEther(burnBalance)) / 10000000) * 100;
                 document.getElementById('deflationRate').textContent = deflationRate.toFixed(2) + '%';
                 
-                // Show "Active" for holders - getting exact count requires off-chain indexing
-                document.getElementById('totalHolders').textContent = 'Active';
+                // Get actual wallet count (runs in background, updates when ready)
+                document.getElementById('totalHolders').textContent = 'Counting...';
+                getWalletCount().then(count => {
+                    document.getElementById('totalHolders').textContent = count > 0 ? formatNumber(count, 0) : '0';
+                });
                 
                 // Get CST decimals from the stored rewardTokenInfo
                 const cstDecimals = parseInt(rewardTokenInfo.decimals);
                 
                 // totalPaid is stored in CST's native units
-                // If CST has 8 decimals, divide by 10^8
                 const divisor = Math.pow(10, cstDecimals);
                 const cstPaid = parseFloat(rewardTokenInfo.totalPaid.toString()) / divisor;
                 
