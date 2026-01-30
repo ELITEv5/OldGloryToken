@@ -855,17 +855,30 @@
                 }
                 
                 console.log('User shares extracted:', userShares.toString());
+                // Shares are in wei (18 decimals)
                 document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(userShares), 0);
                 
                 // Format unpaid yield with correct CST decimals (6)
                 const unpaidYieldFormatted = unpaidYield ? parseFloat(unpaidYield.toString()) / cstDivisor : 0;
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidYieldFormatted, 4) + ' CST';
                 
-                // Calculate total claimed from yieldDebt
-                // yieldDebt represents total yield that has been accounted for (paid or owed)
-                // Total claimed = yieldDebt - unpaid yield
-                const totalYieldDebt = yieldDebt ? parseFloat(yieldDebt.toString()) / cstDivisor : 0;
-                const totalClaimed = Math.max(0, totalYieldDebt - unpaidYieldFormatted);
+                // Calculate total claimed
+                // yieldDebt is stored in scaled CST units (CST amount * scale)
+                // scale = 10^(18 - cstDecimals) = 10^12 for CST (6 decimals)
+                const scale = rewardTokenInfo.scale ? parseFloat(rewardTokenInfo.scale.toString()) : Math.pow(10, 18 - cstDecimals);
+                console.log('CST Scale:', scale);
+                console.log('YieldDebt raw:', yieldDebt.toString());
+                
+                // yieldDebt is in scaled units, divide by scale to get CST amount
+                const totalYieldDebtScaled = yieldDebt ? parseFloat(yieldDebt.toString()) : 0;
+                const totalYieldDebtCST = totalYieldDebtScaled / scale;
+                
+                console.log('YieldDebt scaled:', totalYieldDebtScaled);
+                console.log('YieldDebt in CST:', totalYieldDebtCST);
+                console.log('Unpaid yield:', unpaidYieldFormatted);
+                
+                // Total claimed = what's been accounted for - what's still unpaid
+                const totalClaimed = Math.max(0, totalYieldDebtCST - unpaidYieldFormatted);
                 console.log('Total claimed calculated:', totalClaimed);
                 document.getElementById('totalClaimed').textContent = formatNumber(totalClaimed, 2) + ' CST';
 
