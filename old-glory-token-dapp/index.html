@@ -972,21 +972,49 @@
                 document.getElementById('claimBtn').disabled = true;
                 document.getElementById('claimBtn').innerHTML = '<span class="loading"></span> Claiming...';
                 
+                console.log('Attempting to claim yield...');
                 const tx = await contract.claimYield();
+                console.log('Transaction sent:', tx.hash);
+                
                 await tx.wait();
+                console.log('Transaction confirmed!');
                 
                 document.getElementById('claimBtn').textContent = 'Claimed Successfully!';
+                document.getElementById('status').innerHTML = '<div style="color: #4ade80;">Claim successful! Refreshing data...</div>';
+                
                 setTimeout(() => {
                     loadUserData();
                 }, 2000);
                 
             } catch (error) {
                 console.error('Claim error:', error);
-                document.getElementById('claimBtn').textContent = 'Claim Failed';
+                console.error('Error code:', error.code);
+                console.error('Error message:', error.message);
+                
+                let errorMsg = 'Claim failed';
+                
+                if (error.code === 4001) {
+                    errorMsg = 'Transaction rejected';
+                } else if (error.message.includes('reentrant')) {
+                    errorMsg = 'Contract busy, please wait a moment and try again';
+                } else if (error.message.includes('minYield')) {
+                    errorMsg = 'Below minimum claim amount (0.0369 CST)';
+                } else if (error.message.includes('minWaitSec')) {
+                    errorMsg = 'Must wait 1 hour between claims';
+                } else if (error.message.includes('insufficient')) {
+                    errorMsg = 'Insufficient gas or balance';
+                } else {
+                    errorMsg = 'Claim failed: ' + (error.reason || error.message.substring(0, 100));
+                }
+                
+                document.getElementById('claimBtn').textContent = errorMsg;
+                document.getElementById('status').innerHTML = '<div class="error">' + errorMsg + '</div>';
+                
                 setTimeout(() => {
                     document.getElementById('claimBtn').textContent = 'Claim CST Rewards';
                     document.getElementById('claimBtn').disabled = false;
-                }, 3000);
+                    document.getElementById('status').textContent = 'Connected to PulseChain';
+                }, 5000);
             }
         }
 
