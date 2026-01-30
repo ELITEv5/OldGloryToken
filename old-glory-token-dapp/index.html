@@ -819,6 +819,7 @@
                 
                 const walletInfo = await contract.walletInfo(userAddress);
                 console.log('WalletInfo:', walletInfo);
+                console.log('WalletInfo type:', typeof walletInfo);
                 
                 const unpaidYield = await contract.getUnpaidYield(userAddress, CST_ADDRESS);
                 console.log('Unpaid yield raw:', unpaidYield);
@@ -826,29 +827,47 @@
                 const lastClaimTime = await contract.walletClaimTS(userAddress, CST_ADDRESS);
                 const minWaitSec = await contract.minWaitSec();
                 
-                // Get LP balance
-                const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
-                const lpBalance = await lpContract.balanceOf(userAddress);
-
-                // Get CST decimals
+                // Get reward token info for calculations
                 const rewardTokenInfo = await contract.rewardTokens(CST_ADDRESS);
                 const cstDecimals = parseInt(rewardTokenInfo.decimals);
                 const cstDivisor = Math.pow(10, cstDecimals);
+                
+                // Get yieldDebt to calculate total claimed
+                const yieldDebt = await contract.yieldDebt(userAddress, CST_ADDRESS);
+                console.log('Yield debt:', yieldDebt);
+                
+                // Get LP balance
+                const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
+                const lpBalance = await lpContract.balanceOf(userAddress);
 
                 // Safe formatting with fallbacks
                 document.getElementById('userBalance').textContent = balance ? formatNumber(ethers.utils.formatEther(balance), 2) : '0.00';
                 document.getElementById('lpBalance').textContent = lpBalance ? formatNumber(ethers.utils.formatEther(lpBalance), 4) : '0.0000';
                 
-                // walletInfo.share might be undefined if user has no shares yet
-                const userShares = walletInfo && walletInfo.share ? walletInfo.share : ethers.BigNumber.from(0);
+                // walletInfo returns a tuple/array, first element is share
+                let userShares;
+                if (Array.isArray(walletInfo)) {
+                    userShares = walletInfo[0] || ethers.BigNumber.from(0);
+                } else if (walletInfo.share) {
+                    userShares = walletInfo.share;
+                } else {
+                    userShares = walletInfo || ethers.BigNumber.from(0);
+                }
+                
+                console.log('User shares extracted:', userShares.toString());
                 document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(userShares), 0);
                 
                 // Format unpaid yield with correct CST decimals (6)
                 const unpaidYieldFormatted = unpaidYield ? parseFloat(unpaidYield.toString()) / cstDivisor : 0;
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidYieldFormatted, 4) + ' CST';
                 
-                // Total claimed (we don't track this yet, so show 0)
-                document.getElementById('totalClaimed').textContent = '0.00 CST';
+                // Calculate total claimed from yieldDebt
+                // yieldDebt represents total yield that has been accounted for (paid or owed)
+                // Total claimed = yieldDebt - unpaid yield
+                const totalYieldDebt = yieldDebt ? parseFloat(yieldDebt.toString()) / cstDivisor : 0;
+                const totalClaimed = Math.max(0, totalYieldDebt - unpaidYieldFormatted);
+                console.log('Total claimed calculated:', totalClaimed);
+                document.getElementById('totalClaimed').textContent = formatNumber(totalClaimed, 2) + ' CST';
 
                 // Calculate next claim time
                 const currentTime = Math.floor(Date.now() / 1000);
