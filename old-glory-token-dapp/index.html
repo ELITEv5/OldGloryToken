@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Old Glory Token - Autonomous Treasury DApp</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇺🇸</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <!-- Try unpkg first, then cloudflare as backup -->
     <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
@@ -851,8 +852,15 @@
 
                 // Calculate next claim time
                 const currentTime = Math.floor(Date.now() / 1000);
-                const nextClaimTime = (lastClaimTime ? lastClaimTime.toNumber() : 0) + (minWaitSec ? minWaitSec.toNumber() : 3600);
+                
+                // Convert BigNumber to number safely
+                const lastClaimTimeNum = lastClaimTime ? parseInt(lastClaimTime.toString()) : 0;
+                const minWaitSecNum = minWaitSec ? parseInt(minWaitSec.toString()) : 3600;
+                
+                const nextClaimTime = lastClaimTimeNum + minWaitSecNum;
                 const timeUntilClaim = Math.max(0, nextClaimTime - currentTime);
+
+                console.log('Last claim:', lastClaimTimeNum, 'Min wait:', minWaitSecNum, 'Time until:', timeUntilClaim);
 
                 if (timeUntilClaim > 0 && unpaidYieldFormatted > 0) {
                     document.getElementById('nextClaim').textContent = formatTime(timeUntilClaim);
