@@ -5,15 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Old Glory Token - Autonomous Treasury DApp</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
-    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <!-- Try unpkg first, then cloudflare as backup -->
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
         // Backup ethers.js CDN if primary fails
         window.addEventListener('load', function() {
             if (typeof ethers === 'undefined') {
+                console.log('Ethers not loaded, trying backup...');
                 const script = document.createElement('script');
                 script.src = 'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js';
                 script.onerror = function() {
-                    document.getElementById('status').innerHTML = '<div class="error">Failed to load Web3 library. Please refresh the page.</div>';
+                    document.getElementById('status').innerHTML = '<div class="error">Failed to load Web3 library. Please check your internet connection and refresh.</div>';
                 };
                 document.head.appendChild(script);
             }
@@ -812,14 +814,16 @@
                 console.log('Loading user data for:', userAddress);
                 
                 const balance = await contract.balanceOf(userAddress);
+                console.log('Balance raw:', balance);
+                
                 const walletInfo = await contract.walletInfo(userAddress);
+                console.log('WalletInfo:', walletInfo);
+                
                 const unpaidYield = await contract.getUnpaidYield(userAddress, CST_ADDRESS);
+                console.log('Unpaid yield raw:', unpaidYield);
+                
                 const lastClaimTime = await contract.walletClaimTS(userAddress, CST_ADDRESS);
                 const minWaitSec = await contract.minWaitSec();
-                
-                console.log('User balance:', ethers.utils.formatEther(balance));
-                console.log('User shares:', walletInfo.share.toString());
-                console.log('Unpaid yield:', unpaidYield.toString());
                 
                 // Get LP balance
                 const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
@@ -830,12 +834,16 @@
                 const cstDecimals = parseInt(rewardTokenInfo.decimals);
                 const cstDivisor = Math.pow(10, cstDecimals);
 
-                document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
-                document.getElementById('lpBalance').textContent = formatNumber(ethers.utils.formatEther(lpBalance), 4);
-                document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(walletInfo.share), 0);
+                // Safe formatting with fallbacks
+                document.getElementById('userBalance').textContent = balance ? formatNumber(ethers.utils.formatEther(balance), 2) : '0.00';
+                document.getElementById('lpBalance').textContent = lpBalance ? formatNumber(ethers.utils.formatEther(lpBalance), 4) : '0.0000';
+                
+                // walletInfo.share might be undefined if user has no shares yet
+                const userShares = walletInfo && walletInfo.share ? walletInfo.share : ethers.BigNumber.from(0);
+                document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(userShares), 0);
                 
                 // Format unpaid yield with correct CST decimals (6)
-                const unpaidYieldFormatted = parseFloat(unpaidYield.toString()) / cstDivisor;
+                const unpaidYieldFormatted = unpaidYield ? parseFloat(unpaidYield.toString()) / cstDivisor : 0;
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidYieldFormatted, 4) + ' CST';
                 
                 // Total claimed (we don't track this yet, so show 0)
@@ -843,17 +851,21 @@
 
                 // Calculate next claim time
                 const currentTime = Math.floor(Date.now() / 1000);
-                const nextClaimTime = lastClaimTime.toNumber() + minWaitSec.toNumber();
+                const nextClaimTime = (lastClaimTime ? lastClaimTime.toNumber() : 0) + (minWaitSec ? minWaitSec.toNumber() : 3600);
                 const timeUntilClaim = Math.max(0, nextClaimTime - currentTime);
 
-                if (timeUntilClaim > 0) {
+                if (timeUntilClaim > 0 && unpaidYieldFormatted > 0) {
                     document.getElementById('nextClaim').textContent = formatTime(timeUntilClaim);
                     document.getElementById('claimBtn').disabled = true;
                     startCountdown(timeUntilClaim);
-                } else {
+                } else if (unpaidYieldFormatted > 0) {
                     document.getElementById('nextClaim').textContent = 'Available Now';
                     document.getElementById('claimBtn').disabled = false;
                     document.getElementById('countdown').textContent = '';
+                } else {
+                    document.getElementById('nextClaim').textContent = 'No yield to claim';
+                    document.getElementById('claimBtn').disabled = true;
+                    document.getElementById('countdown').textContent = 'Hold OGT+ to earn CST rewards';
                 }
 
                 // Show sections
