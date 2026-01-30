@@ -6,6 +6,19 @@
     <title>Old Glory Token - Autonomous Treasury DApp</title>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <script>
+        // Backup ethers.js CDN if primary fails
+        window.addEventListener('load', function() {
+            if (typeof ethers === 'undefined') {
+                const script = document.createElement('script');
+                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js';
+                script.onerror = function() {
+                    document.getElementById('status').innerHTML = '<div class="error">Failed to load Web3 library. Please refresh the page.</div>';
+                };
+                document.head.appendChild(script);
+            }
+        });
+    </script>
     <style>
         :root {
             --navy: #0a1628;
@@ -555,6 +568,22 @@
 
         let provider, signer, contract, userAddress;
 
+        // Wait for ethers.js to load
+        function waitForEthers() {
+            return new Promise((resolve) => {
+                if (typeof ethers !== 'undefined') {
+                    resolve();
+                } else {
+                    const checkInterval = setInterval(() => {
+                        if (typeof ethers !== 'undefined') {
+                            clearInterval(checkInterval);
+                            resolve();
+                        }
+                    }, 100);
+                }
+            });
+        }
+
         // Generate stars
         function generateStars() {
             const starsContainer = document.getElementById('stars');
@@ -804,17 +833,30 @@
             }
         }
 
-        // Event listeners
-        document.getElementById('connectBtn').addEventListener('click', connectWallet);
-        document.getElementById('claimBtn').addEventListener('click', claimYield);
+        // Initialize when page and ethers.js are ready
+        async function initialize() {
+            // Wait for ethers.js to load
+            await waitForEthers();
+            
+            // Event listeners
+            document.getElementById('connectBtn').addEventListener('click', connectWallet);
+            document.getElementById('claimBtn').addEventListener('click', claimYield);
 
-        // Initialize
-        generateStars();
-        loadLogo();
-        
-        // Check if already connected
-        if (window.ethereum && window.ethereum.selectedAddress) {
-            connectWallet();
+            // Initialize
+            generateStars();
+            loadLogo();
+            
+            // Check if already connected
+            if (window.ethereum && window.ethereum.selectedAddress) {
+                connectWallet();
+            }
+        }
+
+        // Run when DOM is ready
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initialize);
+        } else {
+            initialize();
         }
     </script>
 </body>
