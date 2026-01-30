@@ -1,0 +1,768 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Old Glory Token - Autonomous Treasury DApp</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.ethers.io/lib/ethers-5.7.2.umd.min.js"></script>
+    <style>
+        :root {
+            --navy: #0a1628;
+            --red: #c41e3a;
+            --white: #ffffff;
+            --blue: #002868;
+            --silver: #c0c0c0;
+            --gold: #d4af37;
+            --red-glow: rgba(196, 30, 58, 0.4);
+            --blue-glow: rgba(0, 40, 104, 0.4);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: linear-gradient(135deg, var(--navy) 0%, #0d1b2a 50%, var(--blue) 100%);
+            color: var(--white);
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image: 
+                repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px),
+                repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .star {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: white;
+            border-radius: 50%;
+            animation: twinkle 3s infinite;
+        }
+
+        @keyframes twinkle {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        header {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            position: relative;
+        }
+
+        .logo-container {
+            margin-bottom: 2rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .logo {
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            box-shadow: 
+                0 0 40px var(--red-glow),
+                0 0 80px var(--blue-glow),
+                inset 0 0 20px rgba(255,255,255,0.1);
+            animation: pulse 3s ease-in-out infinite;
+            border: 3px solid var(--silver);
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        h1 {
+            font-family: 'Cinzel', serif;
+            font-size: 4rem;
+            font-weight: 900;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            background: linear-gradient(135deg, var(--white) 0%, var(--silver) 50%, var(--white) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            text-shadow: 0 2px 20px var(--red-glow);
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { filter: brightness(1); }
+            50% { filter: brightness(1.2); }
+        }
+
+        .tagline {
+            font-size: 1.3rem;
+            font-weight: 300;
+            letter-spacing: 0.15em;
+            color: var(--silver);
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+        }
+
+        .connect-btn {
+            background: linear-gradient(135deg, var(--red) 0%, #8b0000 100%);
+            color: white;
+            border: 2px solid var(--gold);
+            padding: 1rem 3rem;
+            font-size: 1.2rem;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            border-radius: 0;
+            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px var(--red-glow);
+        }
+
+        .connect-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px var(--red-glow);
+            background: linear-gradient(135deg, #ff0000 0%, var(--red) 100%);
+        }
+
+        .connect-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .status {
+            margin: 1rem 0;
+            padding: 0.75rem;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 4px;
+            font-size: 0.9rem;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin: 3rem 0;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, rgba(0, 40, 104, 0.3) 0%, rgba(10, 22, 40, 0.5) 100%);
+            border: 2px solid rgba(192, 192, 192, 0.3);
+            padding: 2rem;
+            position: relative;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--red), transparent);
+            animation: scan 3s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { left: -100%; }
+            100% { left: 100%; }
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: var(--gold);
+            box-shadow: 0 8px 30px var(--blue-glow);
+        }
+
+        .stat-label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.15em;
+            color: var(--silver);
+            margin-bottom: 0.5rem;
+            font-weight: 300;
+        }
+
+        .stat-value {
+            font-size: 2.5rem;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            background: linear-gradient(135deg, var(--white) 0%, var(--gold) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .stat-subtext {
+            font-size: 0.85rem;
+            color: rgba(255,255,255,0.6);
+            font-weight: 300;
+        }
+
+        .claim-section {
+            background: linear-gradient(135deg, rgba(196, 30, 58, 0.2) 0%, rgba(139, 0, 0, 0.3) 100%);
+            border: 3px solid var(--red);
+            padding: 3rem;
+            margin: 3rem 0;
+            position: relative;
+            box-shadow: 0 0 40px var(--red-glow);
+        }
+
+        .claim-section::before {
+            content: '★';
+            position: absolute;
+            top: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 3rem;
+            color: var(--gold);
+            text-shadow: 0 0 20px var(--gold);
+        }
+
+        .claim-title {
+            font-family: 'Cinzel', serif;
+            font-size: 2.5rem;
+            text-align: center;
+            margin-bottom: 2rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .claim-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .claim-stat {
+            text-align: center;
+        }
+
+        .claim-stat-label {
+            font-size: 0.9rem;
+            color: var(--silver);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .claim-stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--gold);
+            font-family: 'Cinzel', serif;
+        }
+
+        .claim-btn {
+            display: block;
+            width: 100%;
+            max-width: 400px;
+            margin: 2rem auto 0;
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            color: var(--navy);
+            border: none;
+            padding: 1.5rem 3rem;
+            font-size: 1.3rem;
+            font-weight: 900;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+        }
+
+        .claim-btn:hover:not(:disabled) {
+            transform: translateY(-2px) scale(1.02);
+            box-shadow: 0 6px 30px rgba(212, 175, 55, 0.6);
+        }
+
+        .claim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .countdown {
+            text-align: center;
+            margin-top: 1rem;
+            font-size: 1.1rem;
+            color: var(--silver);
+        }
+
+        .wallet-info {
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(10, 22, 40, 0.6) 100%);
+            border: 2px solid rgba(192, 192, 192, 0.2);
+            padding: 2rem;
+            margin: 3rem 0;
+        }
+
+        .wallet-info h2 {
+            font-family: 'Cinzel', serif;
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .info-item {
+            padding: 1rem;
+            background: rgba(255,255,255,0.03);
+            border-left: 3px solid var(--red);
+        }
+
+        .info-item-label {
+            font-size: 0.85rem;
+            color: var(--silver);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            margin-bottom: 0.5rem;
+        }
+
+        .info-item-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+            color: var(--white);
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 0 2rem;
+            margin-top: 4rem;
+            border-top: 1px solid rgba(192, 192, 192, 0.2);
+            font-size: 0.9rem;
+            color: var(--silver);
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .footer-links a {
+            color: var(--gold);
+            text-decoration: none;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 500;
+            transition: color 0.3s ease;
+        }
+
+        .footer-links a:hover {
+            color: var(--white);
+        }
+
+        .error {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.1);
+            border: 1px solid rgba(255, 107, 107, 0.3);
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: var(--gold);
+            animation: spin 1s ease-in-out infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 2.5rem;
+            }
+            
+            .logo {
+                width: 120px;
+                height: 120px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .claim-section {
+                padding: 2rem 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars" id="stars"></div>
+    
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <img src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg==" alt="Old Glory Token" class="logo" id="logo">
+            </div>
+            <h1>Old Glory Token</h1>
+            <p class="tagline">Autonomous Treasury • Immutable • Sovereign</p>
+            <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+            <div class="status" id="status">Connect to PulseChain to begin</div>
+        </header>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">Total Supply</div>
+                <div class="stat-value" id="totalSupply">--</div>
+                <div class="stat-subtext">OGT+ Tokens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Burned</div>
+                <div class="stat-value" id="totalBurned">--</div>
+                <div class="stat-subtext">Permanently Removed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Deflation Rate</div>
+                <div class="stat-value" id="deflationRate">--</div>
+                <div class="stat-subtext">% Burned from Genesis</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Total Shareholders</div>
+                <div class="stat-value" id="totalHolders">--</div>
+                <div class="stat-subtext">Active Yield Earners</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">CST Distributed</div>
+                <div class="stat-value" id="totalDistributed">--</div>
+                <div class="stat-subtext">Total Yields Paid</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Treasury Balance</div>
+                <div class="stat-value" id="treasuryBalance">--</div>
+                <div class="stat-subtext">OGT+ Available for Swaps</div>
+            </div>
+        </div>
+
+        <div class="claim-section" id="claimSection" style="display: none;">
+            <h2 class="claim-title">Claim Your CST Yield</h2>
+            <div class="claim-info">
+                <div class="claim-stat">
+                    <div class="claim-stat-label">Your Shares</div>
+                    <div class="claim-stat-value" id="userShares">--</div>
+                </div>
+                <div class="claim-stat">
+                    <div class="claim-stat-label">Unpaid Yield</div>
+                    <div class="claim-stat-value" id="unpaidYield">--</div>
+                </div>
+                <div class="claim-stat">
+                    <div class="claim-stat-label">Total Claimed</div>
+                    <div class="claim-stat-value" id="totalClaimed">--</div>
+                </div>
+            </div>
+            <button class="claim-btn" id="claimBtn" disabled>Claim CST Rewards</button>
+            <div class="countdown" id="countdown"></div>
+        </div>
+
+        <div class="wallet-info" id="walletInfo" style="display: none;">
+            <h2>Your Wallet Details</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-item-label">OGT+ Balance</div>
+                    <div class="info-item-value" id="userBalance">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-label">LP Balance</div>
+                    <div class="info-item-value" id="lpBalance">--</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-label">LP Weight Bonus</div>
+                    <div class="info-item-value">2x Multiplier</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-item-label">Next Claim Available</div>
+                    <div class="info-item-value" id="nextClaim">--</div>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <div class="footer-links">
+                <a href="https://oldglorytoken.com" target="_blank">Website</a>
+                <a href="#" id="contractLink">Contract</a>
+                <a href="#" id="lpLink">Liquidity Pool</a>
+            </div>
+            <p>Old Glory Token ELITE V6 • Autonomous Treasury Protocol</p>
+            <p style="margin-top: 0.5rem; font-size: 0.8rem;">PulseChain • No Admin Keys • Immutable • Self-Sovereign</p>
+        </footer>
+    </div>
+
+    <script>
+        const CONTRACT_ADDRESS = '0x63aa45017513B9D5bD7252F0C4752f23f77f7043';
+        const CST_ADDRESS = '0x600136dA8cc6D1Ea07449514604dc4ab7098dB82';
+        const LP_ADDRESS = '0x09Df81e6CD69F75c769402fa115c529BDc035507';
+        const BURN_ADDRESS = '0x0000000000000000000000000000000000000369';
+        const PULSECHAIN_ID = 369;
+        
+        const CONTRACT_ABI = [{"type":"constructor","inputs":[],"stateMutability":"nonpayable"},{"name":"Approval","type":"event","inputs":[{"name":"owner","type":"address","indexed":true,"internalType":"address"},{"name":"spender","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"FeesUpdated","type":"event","inputs":[{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"}],"anonymous":false},{"name":"NoYieldSet","type":"event","inputs":[{"name":"","type":"address","indexed":true,"internalType":"address"},{"name":"","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"name":"OwnershipTransferred","type":"event","inputs":[{"name":"prev","type":"address","indexed":true,"internalType":"address"},{"name":"next","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"name":"PayoutPolicyUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"},{"name":"","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"RewardChoiceChanged","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true,"internalType":"address"},{"name":"token","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"name":"RewardTokenAdded","type":"event","inputs":[{"name":"","type":"address","indexed":false,"internalType":"address"},{"name":"","type":"uint8","indexed":false,"internalType":"uint8"}],"anonymous":false},{"name":"SwapParamsUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"Transfer","type":"event","inputs":[{"name":"from","type":"address","indexed":true,"internalType":"address"},{"name":"to","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"YieldPaid","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true,"internalType":"address"},{"name":"token","type":"address","indexed":true,"internalType":"address"},{"name":"amount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"CST","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"MAX_ITERS","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"MIN_YIELD_BALANCE","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"PULSEX_V2_ROUTER","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"airdrop","type":"function","inputs":[{"name":"to","type":"address[]","internalType":"address[]"},{"name":"amts","type":"uint256[]","internalType":"uint256[]"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"allowance","type":"function","inputs":[{"name":"o","type":"address","internalType":"address"},{"name":"s","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"approve","type":"function","inputs":[{"name":"s","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"autoPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"balanceOf","type":"function","inputs":[{"name":"a","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"claimYield","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"currIndex","type":"function","inputs":[],"outputs":[{"name":"","type":"uint32","internalType":"uint32"}],"stateMutability":"view"},{"name":"decimals","type":"function","inputs":[],"outputs":[{"name":"","type":"uint8","internalType":"uint8"}],"stateMutability":"pure"},{"name":"dexRouter","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Router02"}],"stateMutability":"view"},{"name":"fees","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},{"name":"getUnpaidYield","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"lpFactor","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"lpWeightBips","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxGas","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"minWaitSec","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"minYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"name","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"noFee","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"noYield","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"owner","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"payoutEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"plsV2LP","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Pair"}],"stateMutability":"view"},{"name":"renounceOwnership","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"rewardTokenList","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"rewardTokens","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"token","type":"address","internalType":"contract IERC20"},{"name":"decimals","type":"uint8","internalType":"uint8"},{"name":"scale","type":"uint256","internalType":"uint256"},{"name":"shareYieldRay","type":"uint256","internalType":"uint256"},{"name":"totalPaid","type":"uint256","internalType":"uint256"},{"name":"totalYield","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"setAutoPayout","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setFees","type":"function","inputs":[{"name":"bb","type":"uint16","internalType":"uint16"},{"name":"by","type":"uint16","internalType":"uint16"},{"name":"sb","type":"uint16","internalType":"uint16"},{"name":"sy","type":"uint16","internalType":"uint16"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setNoYield","type":"function","inputs":[{"name":"w","type":"address","internalType":"address"},{"name":"f","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setPayoutPolicy","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"minDur","type":"uint24","internalType":"uint24"},{"name":"newMin","type":"uint256","internalType":"uint256"},{"name":"gas_","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setRewardChoice","type":"function","inputs":[{"name":"token","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setSwapParams","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"f","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"swapEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"symbol","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"totalShares","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalSupply","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"transfer","type":"function","inputs":[{"name":"to","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferFrom","type":"function","inputs":[{"name":"f","type":"address","internalType":"address"},{"name":"t","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferOwnership","type":"function","inputs":[{"name":"newOwner","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"walletClaimTS","type":"function","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletIndex","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletInfo","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"share","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletRewardChoice","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"wallets","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"yieldDebt","type":"function","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"receive","stateMutability":"payable"}];
+
+        let provider, signer, contract, userAddress;
+
+        // Generate stars
+        function generateStars() {
+            const starsContainer = document.getElementById('stars');
+            for (let i = 0; i < 100; i++) {
+                const star = document.createElement('div');
+                star.className = 'star';
+                star.style.left = Math.random() * 100 + '%';
+                star.style.top = Math.random() * 100 + '%';
+                star.style.animationDelay = Math.random() * 3 + 's';
+                starsContainer.appendChild(star);
+            }
+        }
+
+        // Load logo
+        function loadLogo() {
+            // In production, replace with actual logo URL
+            const logoElement = document.getElementById('logo');
+            logoElement.src = 'OG_ELITE.png'; // Replace with your actual logo path
+        }
+
+        // Format numbers
+        function formatNumber(num, decimals = 2) {
+            if (!num) return '0';
+            const n = parseFloat(num);
+            if (n >= 1e6) return (n / 1e6).toFixed(decimals) + 'M';
+            if (n >= 1e3) return (n / 1e3).toFixed(decimals) + 'K';
+            return n.toFixed(decimals);
+        }
+
+        // Format time
+        function formatTime(seconds) {
+            if (seconds <= 0) return 'Available Now';
+            const hours = Math.floor(seconds / 3600);
+            const minutes = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+            return `${hours}h ${minutes}m ${secs}s`;
+        }
+
+        // Connect wallet
+        async function connectWallet() {
+            try {
+                if (typeof window.ethereum === 'undefined') {
+                    alert('Please install MetaMask or another Web3 wallet');
+                    return;
+                }
+
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                provider = new ethers.providers.Web3Provider(window.ethereum);
+                
+                const network = await provider.getNetwork();
+                if (network.chainId !== PULSECHAIN_ID) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_switchEthereumChain',
+                            params: [{ chainId: '0x171' }], // 369 in hex
+                        });
+                    } catch (error) {
+                        document.getElementById('status').innerHTML = '<div class="error">Please switch to PulseChain network</div>';
+                        return;
+                    }
+                }
+
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+                contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+
+                document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('connectBtn').disabled = true;
+                document.getElementById('status').textContent = 'Connected to PulseChain';
+
+                // Update contract links
+                document.getElementById('contractLink').href = `https://scan.pulsechain.com/address/${CONTRACT_ADDRESS}`;
+                document.getElementById('lpLink').href = `https://scan.pulsechain.com/address/${LP_ADDRESS}`;
+
+                await loadData();
+                setInterval(loadData, 15000); // Update every 15 seconds
+                
+            } catch (error) {
+                console.error('Connection error:', error);
+                document.getElementById('status').innerHTML = '<div class="error">Connection failed: ' + error.message + '</div>';
+            }
+        }
+
+        // Load contract data
+        async function loadData() {
+            try {
+                // Global stats
+                const totalSupply = await contract.totalSupply();
+                const burnBalance = await contract.balanceOf(BURN_ADDRESS);
+                const treasuryBalance = await contract.balanceOf(CONTRACT_ADDRESS);
+                const totalShares = await contract.totalShares();
+                const rewardTokenInfo = await contract.rewardTokens(CST_ADDRESS);
+                
+                document.getElementById('totalSupply').textContent = formatNumber(ethers.utils.formatEther(totalSupply), 0);
+                document.getElementById('totalBurned').textContent = formatNumber(ethers.utils.formatEther(burnBalance), 0);
+                
+                const deflationRate = (parseFloat(ethers.utils.formatEther(burnBalance)) / 10000000) * 100;
+                document.getElementById('deflationRate').textContent = deflationRate.toFixed(2) + '%';
+                
+                document.getElementById('totalHolders').textContent = formatNumber(totalShares.toString(), 0);
+                document.getElementById('totalDistributed').textContent = formatNumber(ethers.utils.formatEther(rewardTokenInfo.totalPaid), 2);
+                document.getElementById('treasuryBalance').textContent = formatNumber(ethers.utils.formatEther(treasuryBalance), 0);
+
+                // User-specific data
+                if (userAddress) {
+                    await loadUserData();
+                }
+            } catch (error) {
+                console.error('Error loading data:', error);
+            }
+        }
+
+        // Load user-specific data
+        async function loadUserData() {
+            try {
+                const balance = await contract.balanceOf(userAddress);
+                const walletInfo = await contract.walletInfo(userAddress);
+                const unpaidYield = await contract.getUnpaidYield(userAddress, CST_ADDRESS);
+                const lastClaimTime = await contract.walletClaimTS(userAddress, CST_ADDRESS);
+                const minWaitSec = await contract.minWaitSec();
+                
+                // Get LP balance
+                const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
+                const lpBalance = await lpContract.balanceOf(userAddress);
+
+                document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
+                document.getElementById('lpBalance').textContent = formatNumber(ethers.utils.formatEther(lpBalance), 4);
+                document.getElementById('userShares').textContent = formatNumber(walletInfo.share.toString(), 0);
+                document.getElementById('unpaidYield').textContent = formatNumber(ethers.utils.formatEther(unpaidYield), 4) + ' CST';
+
+                // Calculate next claim time
+                const currentTime = Math.floor(Date.now() / 1000);
+                const nextClaimTime = lastClaimTime.toNumber() + minWaitSec.toNumber();
+                const timeUntilClaim = Math.max(0, nextClaimTime - currentTime);
+
+                if (timeUntilClaim > 0) {
+                    document.getElementById('nextClaim').textContent = formatTime(timeUntilClaim);
+                    document.getElementById('claimBtn').disabled = true;
+                    startCountdown(timeUntilClaim);
+                } else {
+                    document.getElementById('nextClaim').textContent = 'Available Now';
+                    document.getElementById('claimBtn').disabled = false;
+                    document.getElementById('countdown').textContent = '';
+                }
+
+                // Show sections
+                document.getElementById('claimSection').style.display = 'block';
+                document.getElementById('walletInfo').style.display = 'block';
+
+            } catch (error) {
+                console.error('Error loading user data:', error);
+            }
+        }
+
+        // Countdown timer
+        function startCountdown(seconds) {
+            let remaining = seconds;
+            const countdownElement = document.getElementById('countdown');
+            
+            const interval = setInterval(() => {
+                remaining--;
+                if (remaining <= 0) {
+                    clearInterval(interval);
+                    countdownElement.textContent = 'You can claim now!';
+                    document.getElementById('claimBtn').disabled = false;
+                    document.getElementById('nextClaim').textContent = 'Available Now';
+                } else {
+                    countdownElement.textContent = `Next claim available in: ${formatTime(remaining)}`;
+                }
+            }, 1000);
+        }
+
+        // Claim yield
+        async function claimYield() {
+            try {
+                document.getElementById('claimBtn').disabled = true;
+                document.getElementById('claimBtn').innerHTML = '<span class="loading"></span> Claiming...';
+                
+                const tx = await contract.claimYield();
+                await tx.wait();
+                
+                document.getElementById('claimBtn').textContent = 'Claimed Successfully!';
+                setTimeout(() => {
+                    loadUserData();
+                }, 2000);
+                
+            } catch (error) {
+                console.error('Claim error:', error);
+                document.getElementById('claimBtn').textContent = 'Claim Failed';
+                setTimeout(() => {
+                    document.getElementById('claimBtn').textContent = 'Claim CST Rewards';
+                    document.getElementById('claimBtn').disabled = false;
+                }, 3000);
+            }
+        }
+
+        // Event listeners
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        document.getElementById('claimBtn').addEventListener('click', claimYield);
+
+        // Initialize
+        generateStars();
+        loadLogo();
+        
+        // Check if already connected
+        if (window.ethereum && window.ethereum.selectedAddress) {
+            connectWallet();
+        }
+    </script>
+</body>
+</html>
