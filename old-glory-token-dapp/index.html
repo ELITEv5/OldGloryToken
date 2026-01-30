@@ -809,11 +809,17 @@
         // Load user-specific data
         async function loadUserData() {
             try {
+                console.log('Loading user data for:', userAddress);
+                
                 const balance = await contract.balanceOf(userAddress);
                 const walletInfo = await contract.walletInfo(userAddress);
                 const unpaidYield = await contract.getUnpaidYield(userAddress, CST_ADDRESS);
                 const lastClaimTime = await contract.walletClaimTS(userAddress, CST_ADDRESS);
                 const minWaitSec = await contract.minWaitSec();
+                
+                console.log('User balance:', ethers.utils.formatEther(balance));
+                console.log('User shares:', walletInfo.share.toString());
+                console.log('Unpaid yield:', unpaidYield.toString());
                 
                 // Get LP balance
                 const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
@@ -831,6 +837,9 @@
                 // Format unpaid yield with correct CST decimals (6)
                 const unpaidYieldFormatted = parseFloat(unpaidYield.toString()) / cstDivisor;
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidYieldFormatted, 4) + ' CST';
+                
+                // Total claimed (we don't track this yet, so show 0)
+                document.getElementById('totalClaimed').textContent = '0.00 CST';
 
                 // Calculate next claim time
                 const currentTime = Math.floor(Date.now() / 1000);
@@ -848,11 +857,13 @@
                 }
 
                 // Show sections
+                console.log('Showing claim and wallet sections');
                 document.getElementById('claimSection').style.display = 'block';
                 document.getElementById('walletInfo').style.display = 'block';
 
             } catch (error) {
                 console.error('Error loading user data:', error);
+                document.getElementById('status').innerHTML = '<div class="error">Error loading wallet data: ' + error.message + '</div>';
             }
         }
 
