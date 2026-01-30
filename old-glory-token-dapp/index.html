@@ -498,9 +498,9 @@
                 <div class="stat-subtext">Total Yields Paid</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Treasury Balance</div>
+                <div class="stat-label">Treasury Fee Pool</div>
                 <div class="stat-value" id="treasuryBalance">--</div>
-                <div class="stat-subtext">OGT+ Collected for Buy & Burn</div>
+                <div class="stat-subtext">OGT+ Fees Ready to Swap</div>
             </div>
         </div>
 
@@ -624,11 +624,6 @@
         // Get wallet count using binary search (since Solidity array length not exposed)
         async function getWalletCount() {
             try {
-                // Binary search for the array length
-                let low = 0;
-                let high = 10000; // Start with reasonable max
-                let count = 0;
-
                 // First check if there are any wallets at all
                 try {
                     await contract.wallets(0);
@@ -636,15 +631,30 @@
                     return 0;
                 }
 
-                // Binary search to find the last valid index
+                // Exponential search to find upper bound
+                let upperBound = 1;
+                while (true) {
+                    try {
+                        await contract.wallets(upperBound);
+                        upperBound *= 2;
+                    } catch {
+                        break;
+                    }
+                }
+
+                // Binary search between upperBound/2 and upperBound
+                let low = Math.floor(upperBound / 2);
+                let high = upperBound;
+                let count = low;
+
                 while (low <= high) {
                     const mid = Math.floor((low + high) / 2);
                     try {
                         await contract.wallets(mid);
-                        count = mid + 1;
-                        low = mid + 1;
+                        count = mid + 1; // Found valid index, so count is mid + 1
+                        low = mid + 1;  // Try higher
                     } catch {
-                        high = mid - 1;
+                        high = mid - 1; // Try lower
                     }
                 }
 
@@ -783,6 +793,8 @@
                 const cstPaid = parseFloat(rewardTokenInfo.totalPaid.toString()) / divisor;
                 
                 document.getElementById('totalDistributed').textContent = formatNumber(cstPaid, 2) + ' CST';
+                
+                // Show treasury balance (OGT fees collected)
                 document.getElementById('treasuryBalance').textContent = formatNumber(ethers.utils.formatEther(treasuryBalance), 0);
 
                 // User-specific data
