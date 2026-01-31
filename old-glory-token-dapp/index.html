@@ -793,31 +793,10 @@
                 const cstDecimals = parseInt(rewardTokenInfo.decimals);
                 const cstDivisor = Math.pow(10, cstDecimals);
                 
-                console.log('=== CST DISTRIBUTION DEBUG ===');
-                console.log('rewardTokenInfo:', rewardTokenInfo);
-                console.log('CST Decimals:', cstDecimals);
-                console.log('CST Divisor:', cstDivisor);
-                
-                // Get scale
-                const scale = rewardTokenInfo.scale ? parseFloat(rewardTokenInfo.scale.toString()) : 1;
-                console.log('Scale:', scale);
-                
-                // Get raw totalPaid value
+                // totalPaid is stored in CST base units (with 6 decimals)
+                // Just divide by decimals, no scale needed
                 const totalPaidRaw = parseFloat(rewardTokenInfo.totalPaid.toString());
-                console.log('Total Paid Raw:', totalPaidRaw);
-                
-                // Try different conversions to see which is correct
-                const option1 = totalPaidRaw / cstDivisor;  // Just decimals
-                const option2 = totalPaidRaw / scale / cstDivisor;  // Scale + decimals
-                const option3 = totalPaidRaw / scale;  // Just scale
-                
-                console.log('Option 1 (just divisor):', option1);
-                console.log('Option 2 (scale + divisor):', option2);
-                console.log('Option 3 (just scale):', option3);
-                
-                // Use option 1 for now (just decimals) - most likely correct for totalPaid
-                const cstPaid = option1;
-                console.log('Using Option 1:', cstPaid);
+                const cstPaid = totalPaidRaw / cstDivisor;
                 
                 document.getElementById('totalDistributed').textContent = formatNumber(cstPaid, 2) + ' CST';
                 
