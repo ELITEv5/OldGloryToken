@@ -791,10 +791,20 @@
                 
                 // Get CST decimals from the stored rewardTokenInfo
                 const cstDecimals = parseInt(rewardTokenInfo.decimals);
+                const cstDivisor = Math.pow(10, cstDecimals);
                 
-                // totalPaid is stored in CST's native units
-                const divisor = Math.pow(10, cstDecimals);
-                const cstPaid = parseFloat(rewardTokenInfo.totalPaid.toString()) / divisor;
+                // Get scale (10^12 for CST with 6 decimals)
+                const scale = parseFloat(rewardTokenInfo.scale.toString());
+                
+                // totalPaid is stored in scaled CST units (like yieldDebt)
+                // Need to divide by BOTH scale and divisor
+                const totalPaidRaw = parseFloat(rewardTokenInfo.totalPaid.toString());
+                const totalPaidScaled = totalPaidRaw / scale;
+                const cstPaid = totalPaidScaled / cstDivisor;
+                
+                console.log('CST Total Paid - Raw:', totalPaidRaw);
+                console.log('CST Total Paid - After scale:', totalPaidScaled);
+                console.log('CST Total Paid - Final:', cstPaid);
                 
                 document.getElementById('totalDistributed').textContent = formatNumber(cstPaid, 2) + ' CST';
                 
