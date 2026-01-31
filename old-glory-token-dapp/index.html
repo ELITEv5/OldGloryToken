@@ -793,18 +793,31 @@
                 const cstDecimals = parseInt(rewardTokenInfo.decimals);
                 const cstDivisor = Math.pow(10, cstDecimals);
                 
-                // Get scale (10^12 for CST with 6 decimals)
-                const scale = parseFloat(rewardTokenInfo.scale.toString());
+                console.log('=== CST DISTRIBUTION DEBUG ===');
+                console.log('rewardTokenInfo:', rewardTokenInfo);
+                console.log('CST Decimals:', cstDecimals);
+                console.log('CST Divisor:', cstDivisor);
                 
-                // totalPaid is stored in scaled CST units (like yieldDebt)
-                // Need to divide by BOTH scale and divisor
+                // Get scale
+                const scale = rewardTokenInfo.scale ? parseFloat(rewardTokenInfo.scale.toString()) : 1;
+                console.log('Scale:', scale);
+                
+                // Get raw totalPaid value
                 const totalPaidRaw = parseFloat(rewardTokenInfo.totalPaid.toString());
-                const totalPaidScaled = totalPaidRaw / scale;
-                const cstPaid = totalPaidScaled / cstDivisor;
+                console.log('Total Paid Raw:', totalPaidRaw);
                 
-                console.log('CST Total Paid - Raw:', totalPaidRaw);
-                console.log('CST Total Paid - After scale:', totalPaidScaled);
-                console.log('CST Total Paid - Final:', cstPaid);
+                // Try different conversions to see which is correct
+                const option1 = totalPaidRaw / cstDivisor;  // Just decimals
+                const option2 = totalPaidRaw / scale / cstDivisor;  // Scale + decimals
+                const option3 = totalPaidRaw / scale;  // Just scale
+                
+                console.log('Option 1 (just divisor):', option1);
+                console.log('Option 2 (scale + divisor):', option2);
+                console.log('Option 3 (just scale):', option3);
+                
+                // Use option 1 for now (just decimals) - most likely correct for totalPaid
+                const cstPaid = option1;
+                console.log('Using Option 1:', cstPaid);
                 
                 document.getElementById('totalDistributed').textContent = formatNumber(cstPaid, 2) + ' CST';
                 
