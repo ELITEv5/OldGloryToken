@@ -235,13 +235,17 @@
         }
 
         function padHex(value, bytes) {
+            let hex;
+            
             if (typeof value === 'string' && value.startsWith('0x')) {
-                // It's an address - remove 0x and pad to 32 bytes (64 hex chars)
-                value = value.slice(2).toLowerCase();
-                return value.padStart(bytes * 2, '0');
+                // It's an address - remove 0x and pad
+                hex = value.slice(2).toLowerCase();
+            } else {
+                // It's a number - convert to hex
+                hex = value.toString(16);
             }
-            // It's a number
-            const hex = value.toString(16);
+            
+            // Pad to the specified number of bytes (each byte = 2 hex chars)
             return hex.padStart(bytes * 2, '0');
         }
 
@@ -276,12 +280,43 @@
                 document.getElementById('networkInfo').textContent = 'PulseChain ✓';
                 btn.textContent = 'Connected ✓';
                 
+                // Check if user is owner
+                await checkOwner();
+                
                 showStatus('ownershipStatus', 'Wallet connected! Ready to manage contract.', 'success');
             } catch (error) {
                 console.error(error);
                 btn.textContent = 'Connect Wallet';
                 btn.disabled = false;
                 showStatus('ownershipStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function checkOwner() {
+            try {
+                // Call owner() function
+                const data = '0x8da5cb5b'; // owner() selector
+                
+                const result = await window.ethereum.request({
+                    method: 'eth_call',
+                    params: [{
+                        to: CONTRACT_ADDRESS,
+                        data: data
+                    }, 'latest']
+                });
+                
+                // Result is padded address
+                const owner = '0x' + result.slice(-40);
+                console.log('Contract owner:', owner);
+                console.log('Your address:', account);
+                
+                if (owner.toLowerCase() !== account.toLowerCase()) {
+                    showStatus('ownershipStatus', '⚠️ WARNING: You are NOT the owner! Owner is: ' + owner, 'error');
+                } else {
+                    showStatus('ownershipStatus', '✅ Confirmed: You are the owner', 'success');
+                }
+            } catch (error) {
+                console.error('Failed to check owner:', error);
             }
         }
 
