@@ -135,11 +135,8 @@
                 </div>
                 <button class="connect-btn" id="connectBtn">Connect Wallet</button>
             </div>
-            <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 8px;">
-                <strong>⚠️ Contract Address:</strong> <code id="contractAddrDisplay" style="color: #1e3c72;">Not set</code>
-                <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
-                    Update line 181 in the HTML file before using!
-                </div>
+            <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; border: 1px solid #c3e6cb;">
+                <strong>✅ Contract Address:</strong> <code id="contractAddrDisplay" style="color: #155724; font-weight: 600;">Loading...</code>
             </div>
         </div>
 
@@ -197,7 +194,7 @@
 
     <script>
         // UPDATE THIS ADDRESS:
-        const CONTRACT_ADDRESS = '0xYourContractAddressHere';
+        const CONTRACT_ADDRESS = '0x8C2e58F2923e34FBB95a0759d6A16641aB61810A';
         
         const ABI = [
             {"type":"function","name":"owner","outputs":[{"type":"address"}],"stateMutability":"view"},
@@ -314,13 +311,8 @@
         // Display contract address on page load
         window.addEventListener('load', () => {
             const addrDisplay = document.getElementById('contractAddrDisplay');
-            if (CONTRACT_ADDRESS === '0xYourContractAddressHere') {
-                addrDisplay.textContent = 'NOT SET - PLEASE UPDATE!';
-                addrDisplay.style.color = '#dc3545';
-            } else {
-                addrDisplay.textContent = CONTRACT_ADDRESS;
-                addrDisplay.style.color = '#1e3c72';
-            }
+            addrDisplay.textContent = CONTRACT_ADDRESS;
+            addrDisplay.style.color = '#155724';
         });
 
         document.getElementById('setFeesBtn').addEventListener('click', async () => {
