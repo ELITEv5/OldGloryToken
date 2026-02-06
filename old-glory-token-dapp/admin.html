@@ -160,6 +160,7 @@
                 <input type="number" id="sellYieldFee" value="300" min="0" max="500">
             </div>
             <button class="action-btn" id="setFeesBtn">Update Fees</button>
+            <button class="action-btn" id="refreshFeesBtn" style="background: #28a745; margin-top: 5px;">🔄 Refresh Current Fees</button>
             <div id="feesStatus"></div>
         </div>
 
@@ -315,8 +316,46 @@
                 } else {
                     showStatus('ownershipStatus', '✅ Confirmed: You are the owner', 'success');
                 }
+                
+                // Load current fees
+                await loadCurrentFees();
             } catch (error) {
                 console.error('Failed to check owner:', error);
+            }
+        }
+
+        async function loadCurrentFees() {
+            try {
+                // Load all 4 fee values
+                const feePromises = [0, 1, 2, 3].map(index => 
+                    window.ethereum.request({
+                        method: 'eth_call',
+                        params: [{
+                            to: CONTRACT_ADDRESS,
+                            data: '0x4acc79ed' + padHex(index, 32) // fees(uint256) selector
+                        }, 'latest']
+                    })
+                );
+                
+                const results = await Promise.all(feePromises);
+                
+                // Parse uint16 results
+                const fees = results.map(r => parseInt(r, 16));
+                
+                console.log('Current fees:', fees);
+                
+                // Update the form inputs
+                document.getElementById('buyBurnFee').value = fees[0];
+                document.getElementById('buyYieldFee').value = fees[1];
+                document.getElementById('sellBurnFee').value = fees[2];
+                document.getElementById('sellYieldFee').value = fees[3];
+                
+                // Show success message
+                const msg = `Current fees loaded: Buy ${fees[0]}/${fees[1]} bps, Sell ${fees[2]}/${fees[3]} bps`;
+                console.log(msg);
+                
+            } catch (error) {
+                console.error('Failed to load fees:', error);
             }
         }
 
@@ -342,6 +381,17 @@
         }
 
         document.getElementById('connectBtn').addEventListener('click', connectWallet);
+
+        document.getElementById('refreshFeesBtn').addEventListener('click', async () => {
+            if (!account) {
+                showStatus('feesStatus', 'Please connect wallet first!', 'error');
+                return;
+            }
+            
+            showStatus('feesStatus', 'Loading current fees from contract...', 'info');
+            await loadCurrentFees();
+            showStatus('feesStatus', '✅ Fees refreshed from blockchain!', 'success');
+        });
 
         // Display contract address on page load
         window.addEventListener('load', () => {
@@ -391,6 +441,13 @@
                 showStatus('feesStatus', 'Waiting for wallet confirmation...', 'info');
                 const txHash = await sendTransaction(data);
                 showStatus('feesStatus', '✅ Transaction sent! Hash: ' + txHash, 'success');
+                
+                // Wait a bit for the transaction to be mined, then refresh
+                setTimeout(async () => {
+                    showStatus('feesStatus', 'Refreshing fees from blockchain...', 'info');
+                    await loadCurrentFees();
+                    showStatus('feesStatus', '✅ Fees updated and refreshed!', 'success');
+                }, 3000);
             } catch (error) {
                 console.error('Set fees error:', error);
                 let errorMsg = error.message;
