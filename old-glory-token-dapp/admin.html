@@ -196,13 +196,13 @@
             <div class="form-group">
                 <label>Minimum Yield (pSunDAI)</label>
                 <input type="number" id="minYield" value="1" step="0.001" min="1">
-                <div class="help-text">Minimum yield before payout (must be ≥ 1 pSunDAI)</div>
+                <div class="help-text">Minimum yield before payout (contract requires ≥ 1 pSunDAI for updates, current default is 0.369)</div>
             </div>
 
             <div class="form-group">
                 <label>Maximum Payout (pSunDAI)</label>
                 <input type="number" id="maxPayout" value="5000" min="100">
-                <div class="help-text">Maximum single payout (must be ≥ 100x min)</div>
+                <div class="help-text">Maximum single payout (default: 5,000 pSunDAI)</div>
             </div>
 
             <div class="form-group">
@@ -630,11 +630,11 @@
                 return;
             }
             if (minYieldValue < 1) {
-                showStatus('payoutStatus', 'Min yield must be at least 1 pSunDAI!', 'error');
+                showStatus('payoutStatus', 'Contract requires min yield ≥ 1 pSunDAI for updates!', 'error');
                 return;
             }
             if (maxPayoutValue < minYieldValue * 100) {
-                showStatus('payoutStatus', 'Max payout must be at least 100x min!', 'error');
+                showStatus('payoutStatus', 'Max payout should be at least 100x min!', 'error');
                 return;
             }
             if (gas > 500000) {
