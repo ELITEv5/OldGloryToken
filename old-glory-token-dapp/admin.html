@@ -222,14 +222,14 @@
 
         // Simple keccak256 (we'll use a library-free approach)
         function keccak256(str) {
-            // For now, use a known selector - we'll manually encode
+            // Actual selectors from deployed contract ABI
             const selectors = {
-                'setFees(uint16,uint16,uint16,uint16)': '0x8c0a12f0',
-                'setSlippage(uint16)': '0x7de1e2ba',
+                'setFees(uint16,uint16,uint16,uint16)': '0x42f7723f',  // CORRECT!
+                'setSlippage(uint16)': '0xab37fbb7',
                 'transferOwnership(address)': '0xf2fde38b',
                 'renounceOwnership()': '0x715018a6',
                 'owner()': '0x8da5cb5b',
-                'fees(uint256)': '0x9a19ed4f'
+                'fees(uint256)': '0x4acc79ed'
             };
             return selectors[str] || '0x00000000';
         }
@@ -377,8 +377,8 @@
             try {
                 showStatus('feesStatus', 'Preparing transaction...', 'info');
                 
-                // Build transaction data
-                const selector = '0x8c0a12f0';
+                // Build transaction data with CORRECT selector from contract ABI
+                const selector = '0x42f7723f';  // setFees(uint16,uint16,uint16,uint16)
                 const data = selector + 
                              padHex(bb, 32) + 
                              padHex(by, 32) + 
@@ -422,7 +422,7 @@
 
             try {
                 showStatus('slippageStatus', 'Sending transaction...', 'info');
-                const data = keccak256('setSlippage(uint16)') + padHex(slippage, 32);
+                const data = '0xab37fbb7' + padHex(slippage, 32);  // Correct selector
                 
                 const txHash = await sendTransaction(data);
                 showStatus('slippageStatus', 'Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
