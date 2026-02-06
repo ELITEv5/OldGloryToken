@@ -135,6 +135,12 @@
                 </div>
                 <button class="connect-btn" id="connectBtn">Connect Wallet</button>
             </div>
+            <div style="margin-top: 15px; padding: 10px; background: #fff3cd; border-radius: 8px;">
+                <strong>⚠️ Contract Address:</strong> <code id="contractAddrDisplay" style="color: #1e3c72;">Not set</code>
+                <div style="font-size: 0.85em; color: #666; margin-top: 5px;">
+                    Update line 181 in the HTML file before using!
+                </div>
+            </div>
         </div>
 
         <div class="card">
@@ -233,9 +239,11 @@
 
         function padHex(value, bytes) {
             if (typeof value === 'string' && value.startsWith('0x')) {
-                value = value.slice(2);
+                // It's an address - remove 0x and pad to 32 bytes (64 hex chars)
+                value = value.slice(2).toLowerCase();
                 return value.padStart(bytes * 2, '0');
             }
+            // It's a number
             const hex = value.toString(16);
             return hex.padStart(bytes * 2, '0');
         }
@@ -281,18 +289,39 @@
         }
 
         async function sendTransaction(data) {
+            console.log('Sending transaction...');
+            console.log('From:', account);
+            console.log('To:', CONTRACT_ADDRESS);
+            console.log('Data:', data);
+            
+            const txParams = {
+                from: account,
+                to: CONTRACT_ADDRESS,
+                data: data,
+                gas: '0x493e0' // 300000 in hex
+            };
+            
+            console.log('Transaction params:', txParams);
+            
             return await window.ethereum.request({
                 method: 'eth_sendTransaction',
-                params: [{
-                    from: account,
-                    to: CONTRACT_ADDRESS,
-                    data: data,
-                    gas: '0x' + (300000).toString(16)
-                }]
+                params: [txParams]
             });
         }
 
         document.getElementById('connectBtn').addEventListener('click', connectWallet);
+
+        // Display contract address on page load
+        window.addEventListener('load', () => {
+            const addrDisplay = document.getElementById('contractAddrDisplay');
+            if (CONTRACT_ADDRESS === '0xYourContractAddressHere') {
+                addrDisplay.textContent = 'NOT SET - PLEASE UPDATE!';
+                addrDisplay.style.color = '#dc3545';
+            } else {
+                addrDisplay.textContent = CONTRACT_ADDRESS;
+                addrDisplay.style.color = '#1e3c72';
+            }
+        });
 
         document.getElementById('setFeesBtn').addEventListener('click', async () => {
             if (!account) {
@@ -311,13 +340,23 @@
             }
 
             try {
-                showStatus('feesStatus', 'Sending transaction...', 'info');
-                const data = keccak256('setFees(uint16,uint16,uint16,uint16)') + 
-                             padHex(bb, 32) + padHex(by, 32) + padHex(sb, 32) + padHex(sy, 32);
+                showStatus('feesStatus', 'Preparing transaction...', 'info');
+                
+                // Build transaction data
+                const selector = '0x8c0a12f0';
+                const data = selector + 
+                             padHex(bb, 32) + 
+                             padHex(by, 32) + 
+                             padHex(sb, 32) + 
+                             padHex(sy, 32);
+                
+                console.log('Transaction data:', data);
+                console.log('Data length:', data.length);
                 
                 const txHash = await sendTransaction(data);
                 showStatus('feesStatus', 'Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
             } catch (error) {
+                console.error('Set fees error:', error);
                 showStatus('feesStatus', 'Error: ' + error.message, 'error');
             }
         });
