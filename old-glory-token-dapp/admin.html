@@ -579,16 +579,42 @@
 
         async function connectWallet() {
             if (typeof window.ethereum === 'undefined') {
-                showStatus('ownershipStatus', 'Please install MetaMask!', 'error');
+                showStatus('ownershipStatus', 'Please install a Web3 wallet (MetaMask, Rabby, etc.)', 'error');
                 return;
             }
 
             try {
-                const accounts = await ethereum.request({ method: 'eth_requestAccounts' });
+                // Request account access
+                const accounts = await window.ethereum.request({ 
+                    method: 'eth_requestAccounts' 
+                });
+                
+                if (!accounts || accounts.length === 0) {
+                    throw new Error('No accounts found');
+                }
+                
                 userAddress = accounts[0];
                 
-                provider = new ethers.providers.Web3Provider(window.ethereum);
+                // Create provider and signer
+                provider = new ethers.providers.Web3Provider(window.ethereum, "any");
+                await provider.send("eth_requestAccounts", []);
                 signer = provider.getSigner();
+                
+                // Verify we're on PulseChain (chain ID 369)
+                const network = await provider.getNetwork();
+                if (network.chainId !== 369) {
+                    const shouldSwitch = confirm('Wrong network detected. Switch to PulseChain?');
+                    if (shouldSwitch) {
+                        await switchToPulseChain();
+                        // Reload to reconnect on correct network
+                        location.reload();
+                        return;
+                    } else {
+                        showStatus('ownershipStatus', 'Please switch to PulseChain network (Chain ID: 369)', 'error');
+                        return;
+                    }
+                }
+                
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
                 document.getElementById('walletAddress').textContent = 
@@ -599,10 +625,16 @@
 
                 await loadContractData();
                 
-                showStatus('ownershipStatus', 'Wallet connected successfully!', 'success');
+                showStatus('ownershipStatus', 'Wallet connected successfully on PulseChain!', 'success');
             } catch (error) {
                 console.error(error);
-                showStatus('ownershipStatus', 'Failed to connect wallet: ' + error.message, 'error');
+                if (error.code === 4001) {
+                    showStatus('ownershipStatus', 'Connection rejected by user', 'error');
+                } else if (error.code === -32002) {
+                    showStatus('ownershipStatus', 'Connection request pending - check your wallet', 'info');
+                } else {
+                    showStatus('ownershipStatus', 'Failed to connect: ' + error.message, 'error');
+                }
             }
         }
 
@@ -827,15 +859,61 @@
         window.addEventListener('load', async () => {
             if (typeof window.ethereum !== 'undefined') {
                 try {
-                    const accounts = await ethereum.request({ method: 'eth_accounts' });
+                    const accounts = await window.ethereum.request({ method: 'eth_accounts' });
                     if (accounts.length > 0) {
                         await connectWallet();
                     }
                 } catch (error) {
                     console.error('Auto-connect failed:', error);
                 }
+                
+                // Handle account changes
+                window.ethereum.on('accountsChanged', (accounts) => {
+                    if (accounts.length === 0) {
+                        location.reload();
+                    } else {
+                        location.reload();
+                    }
+                });
+                
+                // Handle chain changes
+                window.ethereum.on('chainChanged', () => {
+                    location.reload();
+                });
             }
         });
+        
+        // Helper function to switch to PulseChain
+        async function switchToPulseChain() {
+            try {
+                await window.ethereum.request({
+                    method: 'wallet_switchEthereumChain',
+                    params: [{ chainId: '0x171' }], // 369 in hex
+                });
+            } catch (switchError) {
+                // Chain not added, try to add it
+                if (switchError.code === 4902) {
+                    try {
+                        await window.ethereum.request({
+                            method: 'wallet_addEthereumChain',
+                            params: [{
+                                chainId: '0x171',
+                                chainName: 'PulseChain',
+                                nativeCurrency: {
+                                    name: 'Pulse',
+                                    symbol: 'PLS',
+                                    decimals: 18
+                                },
+                                rpcUrls: ['https://rpc.pulsechain.com'],
+                                blockExplorerUrls: ['https://scan.pulsechain.com']
+                            }]
+                        });
+                    } catch (addError) {
+                        throw new Error('Failed to add PulseChain network');
+                    }
+                }
+            }
+        }
     </script>
 </body>
 </html>
