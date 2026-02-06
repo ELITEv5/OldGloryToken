@@ -175,6 +175,126 @@
             <div id="slippageStatus"></div>
         </div>
 
+        <div class="card">
+            <h2>💸 Payout Policy</h2>
+            <p style="margin-bottom: 15px; color: #666;">Configure automatic yield distribution settings</p>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="payoutEnabled" checked style="width: 20px; height: 20px;">
+                    <span>Enable Automatic Payouts</span>
+                </label>
+                <div class="help-text">Allow automatic yield distribution during transfers</div>
+            </div>
+
+            <div class="form-group">
+                <label>Minimum Wait Time (seconds)</label>
+                <input type="number" id="minWaitSec" value="3600" min="1800">
+                <div class="help-text">Time between claims (3600 = 1 hour, min 1800)</div>
+            </div>
+
+            <div class="form-group">
+                <label>Minimum Yield (pSunDAI)</label>
+                <input type="number" id="minYield" value="1" step="0.001" min="1">
+                <div class="help-text">Minimum yield before payout (must be ≥ 1 pSunDAI)</div>
+            </div>
+
+            <div class="form-group">
+                <label>Maximum Payout (pSunDAI)</label>
+                <input type="number" id="maxPayout" value="5000" min="100">
+                <div class="help-text">Maximum single payout (must be ≥ 100x min)</div>
+            </div>
+
+            <div class="form-group">
+                <label>Max Gas per Payout</label>
+                <input type="number" id="maxGas" value="300000" min="50000" max="500000">
+                <div class="help-text">Gas limit for payouts (max 500,000)</div>
+            </div>
+
+            <button class="action-btn" id="setPayoutPolicyBtn">Update Payout Policy</button>
+            <div id="payoutStatus"></div>
+        </div>
+
+        <div class="card">
+            <h2>🔄 Swap Parameters</h2>
+            <p style="margin-bottom: 15px; color: #666;">Configure OGT+ → WPLS → pSunDAI swap behavior</p>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="swapEnabled" checked style="width: 20px; height: 20px;">
+                    <span>Enable Token Swaps</span>
+                </label>
+                <div class="help-text">Allow swaps for reward generation</div>
+            </div>
+
+            <div class="form-group">
+                <label>LP Factor</label>
+                <input type="number" id="lpFactor" value="2000" min="50" max="200000">
+                <div class="help-text">Swap size divisor (2000 = swap 1/2000 of LP balance)</div>
+            </div>
+
+            <button class="action-btn" id="setSwapParamsBtn">Update Swap Parameters</button>
+            <div id="swapStatus"></div>
+        </div>
+
+        <div class="card">
+            <h2>⚡ Auto Payout Toggle</h2>
+            <p style="margin-bottom: 15px; color: #666;">Enable/disable automatic payouts during transfers</p>
+            
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="autoPayout" checked style="width: 20px; height: 20px;">
+                    <span>Auto Payout Enabled</span>
+                </label>
+                <div class="help-text">Process payouts automatically during token transfers</div>
+            </div>
+
+            <button class="action-btn" id="setAutoPayoutBtn">Update Auto Payout</button>
+            <div id="autoPayoutStatus"></div>
+        </div>
+
+        <div class="card">
+            <h2>🚫 Yield Exclusions</h2>
+            <p style="margin-bottom: 15px; color: #666;">Exclude addresses from earning pSunDAI yield</p>
+            
+            <div class="form-group">
+                <label>Address to Exclude/Include</label>
+                <input type="text" id="excludeAddress" placeholder="0x...">
+                <div class="help-text">Wallet address to modify yield eligibility</div>
+            </div>
+
+            <div class="form-group">
+                <label style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="excludeFlag" checked style="width: 20px; height: 20px;">
+                    <span>Exclude from Yield</span>
+                </label>
+                <div class="help-text">Checked = exclude, Unchecked = include</div>
+            </div>
+
+            <button class="action-btn" id="setNoYieldBtn">Update Yield Exclusion</button>
+            <div id="excludeStatus"></div>
+        </div>
+
+        <div class="card">
+            <h2>🎁 Airdrop Tokens</h2>
+            <p style="margin-bottom: 15px; color: #666;">Send OGT+ to multiple addresses at once</p>
+            
+            <div class="form-group">
+                <label>Recipients (one address per line)</label>
+                <textarea id="airdropAddresses" rows="5" placeholder="0x123...&#10;0x456...&#10;0x789..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: monospace; font-size: 0.9em;"></textarea>
+                <div class="help-text">Enter wallet addresses, one per line</div>
+            </div>
+
+            <div class="form-group">
+                <label>Amounts (one per line, matching addresses)</label>
+                <textarea id="airdropAmounts" rows="5" placeholder="100&#10;200&#10;150" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: monospace; font-size: 0.9em;"></textarea>
+                <div class="help-text">Enter amounts in OGT+ tokens (e.g., 100 = 100 OGT+)</div>
+            </div>
+
+            <button class="action-btn" id="airdropBtn">Execute Airdrop</button>
+            <div id="airdropStatus"></div>
+        </div>
+
         <div class="card danger-zone">
             <h3>⚠️ DANGER ZONE</h3>
             <div class="warning-box">
@@ -225,8 +345,13 @@
         function keccak256(str) {
             // Actual selectors from deployed contract ABI
             const selectors = {
-                'setFees(uint16,uint16,uint16,uint16)': '0x42f7723f',  // CORRECT!
+                'setFees(uint16,uint16,uint16,uint16)': '0x42f7723f',
                 'setSlippage(uint16)': '0xab37fbb7',
+                'setPayoutPolicy(bool,uint24,uint256,uint256,uint24)': '0x174bffba',
+                'setSwapParams(bool,uint24)': '0x1835587e',
+                'setAutoPayout(bool)': '0x925ed8f2',
+                'setNoYield(address,bool)': '0xe173a7f5',
+                'airdrop(address[],uint256[])': '0x67243482',
                 'transferOwnership(address)': '0xf2fde38b',
                 'renounceOwnership()': '0x715018a6',
                 'owner()': '0x8da5cb5b',
@@ -485,6 +610,199 @@
                 showStatus('slippageStatus', 'Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
             } catch (error) {
                 showStatus('slippageStatus', 'Error: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('setPayoutPolicyBtn').addEventListener('click', async () => {
+            if (!account) {
+                showStatus('payoutStatus', 'Please connect wallet first!', 'error');
+                return;
+            }
+
+            const enabled = document.getElementById('payoutEnabled').checked;
+            const minWait = parseInt(document.getElementById('minWaitSec').value);
+            const minYieldValue = parseFloat(document.getElementById('minYield').value);
+            const maxPayoutValue = parseFloat(document.getElementById('maxPayout').value);
+            const gas = parseInt(document.getElementById('maxGas').value);
+
+            if (minWait < 1800) {
+                showStatus('payoutStatus', 'Min wait must be at least 1800 seconds!', 'error');
+                return;
+            }
+            if (minYieldValue < 1) {
+                showStatus('payoutStatus', 'Min yield must be at least 1 pSunDAI!', 'error');
+                return;
+            }
+            if (maxPayoutValue < minYieldValue * 100) {
+                showStatus('payoutStatus', 'Max payout must be at least 100x min!', 'error');
+                return;
+            }
+            if (gas > 500000) {
+                showStatus('payoutStatus', 'Max gas cannot exceed 500,000!', 'error');
+                return;
+            }
+
+            try {
+                showStatus('payoutStatus', 'Preparing transaction...', 'info');
+                
+                const minYieldWei = BigInt(Math.floor(minYieldValue * 1e18));
+                const maxPayoutWei = BigInt(Math.floor(maxPayoutValue * 1e18));
+                
+                const selector = '0x174bffba';
+                const data = selector +
+                             padHex(enabled ? 1 : 0, 32) +
+                             padHex(minWait, 32) +
+                             padHex(minYieldWei.toString(16), 32) +
+                             padHex(maxPayoutWei.toString(16), 32) +
+                             padHex(gas, 32);
+                
+                const txHash = await sendTransaction(data);
+                showStatus('payoutStatus', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
+            } catch (error) {
+                console.error('Payout policy error:', error);
+                showStatus('payoutStatus', '❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('setSwapParamsBtn').addEventListener('click', async () => {
+            if (!account) {
+                showStatus('swapStatus', 'Please connect wallet first!', 'error');
+                return;
+            }
+
+            const enabled = document.getElementById('swapEnabled').checked;
+            const factor = parseInt(document.getElementById('lpFactor').value);
+
+            if (enabled && (factor < 50 || factor > 200000)) {
+                showStatus('swapStatus', 'LP Factor must be between 50 and 200,000!', 'error');
+                return;
+            }
+
+            try {
+                showStatus('swapStatus', 'Sending transaction...', 'info');
+                
+                const selector = '0x1835587e';
+                const data = selector +
+                             padHex(enabled ? 1 : 0, 32) +
+                             padHex(factor, 32);
+                
+                const txHash = await sendTransaction(data);
+                showStatus('swapStatus', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
+            } catch (error) {
+                showStatus('swapStatus', '❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('setAutoPayoutBtn').addEventListener('click', async () => {
+            if (!account) {
+                showStatus('autoPayoutStatus', 'Please connect wallet first!', 'error');
+                return;
+            }
+
+            const enabled = document.getElementById('autoPayout').checked;
+
+            try {
+                showStatus('autoPayoutStatus', 'Sending transaction...', 'info');
+                
+                const selector = '0x925ed8f2';
+                const data = selector + padHex(enabled ? 1 : 0, 32);
+                
+                const txHash = await sendTransaction(data);
+                showStatus('autoPayoutStatus', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
+            } catch (error) {
+                showStatus('autoPayoutStatus', '❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('setNoYieldBtn').addEventListener('click', async () => {
+            if (!account) {
+                showStatus('excludeStatus', 'Please connect wallet first!', 'error');
+                return;
+            }
+
+            const address = document.getElementById('excludeAddress').value.trim();
+            const exclude = document.getElementById('excludeFlag').checked;
+
+            if (!address || !address.startsWith('0x') || address.length !== 42) {
+                showStatus('excludeStatus', 'Invalid address!', 'error');
+                return;
+            }
+
+            try {
+                showStatus('excludeStatus', 'Sending transaction...', 'info');
+                
+                const selector = '0xe173a7f5';
+                const data = selector +
+                             padHex(address, 32) +
+                             padHex(exclude ? 1 : 0, 32);
+                
+                const txHash = await sendTransaction(data);
+                showStatus('excludeStatus', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
+            } catch (error) {
+                showStatus('excludeStatus', '❌ Error: ' + error.message, 'error');
+            }
+        });
+
+        document.getElementById('airdropBtn').addEventListener('click', async () => {
+            if (!account) {
+                showStatus('airdropStatus', 'Please connect wallet first!', 'error');
+                return;
+            }
+
+            const addressesText = document.getElementById('airdropAddresses').value.trim();
+            const amountsText = document.getElementById('airdropAmounts').value.trim();
+
+            const addresses = addressesText.split('\n').map(a => a.trim()).filter(a => a);
+            const amounts = amountsText.split('\n').map(a => a.trim()).filter(a => a);
+
+            if (addresses.length === 0 || amounts.length === 0) {
+                showStatus('airdropStatus', 'Please enter addresses and amounts!', 'error');
+                return;
+            }
+
+            if (addresses.length !== amounts.length) {
+                showStatus('airdropStatus', 'Number of addresses must match number of amounts!', 'error');
+                return;
+            }
+
+            for (let addr of addresses) {
+                if (!addr.startsWith('0x') || addr.length !== 42) {
+                    showStatus('airdropStatus', 'Invalid address: ' + addr, 'error');
+                    return;
+                }
+            }
+
+            try {
+                showStatus('airdropStatus', 'Encoding airdrop data...', 'info');
+                
+                const selector = '0x67243482';
+                
+                let data = selector + padHex(64, 32);
+                
+                const firstArrayOffset = 64 + 32 + (addresses.length * 32);
+                data += padHex(firstArrayOffset, 32);
+                
+                data += padHex(addresses.length, 32);
+                
+                for (let addr of addresses) {
+                    data += padHex(addr, 32);
+                }
+                
+                data += padHex(amounts.length, 32);
+                
+                for (let amt of amounts) {
+                    const amtWei = BigInt(Math.floor(parseFloat(amt) * 1e18));
+                    data += padHex(amtWei.toString(16), 32);
+                }
+                
+                console.log('Airdrop data length:', data.length);
+                
+                showStatus('airdropStatus', 'Sending transaction...', 'info');
+                const txHash = await sendTransaction(data);
+                showStatus('airdropStatus', '✅ Airdrop sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
+            } catch (error) {
+                console.error('Airdrop error:', error);
+                showStatus('airdropStatus', '❌ Error: ' + error.message, 'error');
             }
         });
 
