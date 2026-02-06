@@ -326,8 +326,16 @@
             const sb = parseInt(document.getElementById('sellBurnFee').value);
             const sy = parseInt(document.getElementById('sellYieldFee').value);
 
-            if (bb + by > 500 || sb + sy > 500) {
-                showStatus('feesStatus', 'Total fees cannot exceed 5%!', 'error');
+            console.log('Fee values:', {bb, by, sb, sy});
+            console.log('Buy total:', bb + by, 'Sell total:', sb + sy);
+
+            if (bb + by > 500) {
+                showStatus('feesStatus', 'Buy fees total cannot exceed 500 bps (5%)! Current: ' + (bb + by), 'error');
+                return;
+            }
+            
+            if (sb + sy > 500) {
+                showStatus('feesStatus', 'Sell fees total cannot exceed 500 bps (5%)! Current: ' + (sb + sy), 'error');
                 return;
             }
 
@@ -343,13 +351,25 @@
                              padHex(sy, 32);
                 
                 console.log('Transaction data:', data);
-                console.log('Data length:', data.length);
+                console.log('Data length:', data.length, '(should be 138)');
                 
+                showStatus('feesStatus', 'Waiting for wallet confirmation...', 'info');
                 const txHash = await sendTransaction(data);
-                showStatus('feesStatus', 'Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
+                showStatus('feesStatus', '✅ Transaction sent! Hash: ' + txHash, 'success');
             } catch (error) {
                 console.error('Set fees error:', error);
-                showStatus('feesStatus', 'Error: ' + error.message, 'error');
+                let errorMsg = error.message;
+                
+                // Try to extract revert reason
+                if (error.data && error.data.message) {
+                    errorMsg = error.data.message;
+                } else if (error.message.includes('user rejected')) {
+                    errorMsg = 'Transaction rejected by user';
+                } else if (error.message.includes('insufficient funds')) {
+                    errorMsg = 'Insufficient PLS for gas';
+                }
+                
+                showStatus('feesStatus', '❌ Error: ' + errorMsg, 'error');
             }
         });
 
