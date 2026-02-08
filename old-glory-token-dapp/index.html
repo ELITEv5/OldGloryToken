@@ -3,20 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Old Glory Token - Autonomous Treasury DApp</title>
+    <title>Old Glory Token V9 - pSunDAI Rewards</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇺🇸</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
-    <!-- Try unpkg first, then cloudflare as backup -->
     <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <script>
-        // Backup ethers.js CDN if primary fails
         window.addEventListener('load', function() {
             if (typeof ethers === 'undefined') {
                 console.log('Ethers not loaded, trying backup...');
                 const script = document.createElement('script');
                 script.src = 'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js';
                 script.onerror = function() {
-                    document.getElementById('status').innerHTML = '<div class="error">Failed to load Web3 library. Please check your internet connection and refresh.</div>';
+                    document.getElementById('status').innerHTML = '<div class="error">Failed to load Web3 library. Please refresh.</div>';
                 };
                 document.head.appendChild(script);
             }
@@ -34,11 +32,7 @@
             --blue-glow: rgba(0, 40, 104, 0.4);
         }
 
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Rajdhani', sans-serif;
@@ -52,10 +46,7 @@
         body::before {
             content: '';
             position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
+            top: 0; left: 0; right: 0; bottom: 0;
             background-image: 
                 repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px),
                 repeating-linear-gradient(90deg, transparent, transparent 2px, rgba(255,255,255,0.03) 2px, rgba(255,255,255,0.03) 4px);
@@ -65,18 +56,15 @@
 
         .stars {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             pointer-events: none;
             z-index: 0;
         }
 
         .star {
             position: absolute;
-            width: 2px;
-            height: 2px;
+            width: 2px; height: 2px;
             background: white;
             border-radius: 50%;
             animation: twinkle 3s infinite;
@@ -101,31 +89,6 @@
             position: relative;
         }
 
-        .logo-container {
-            margin-bottom: 2rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 2rem;
-        }
-
-        .logo {
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            box-shadow: 
-                0 0 40px var(--red-glow),
-                0 0 80px var(--blue-glow),
-                inset 0 0 20px rgba(255,255,255,0.1);
-            animation: pulse 3s ease-in-out infinite;
-            border: 3px solid var(--silver);
-        }
-
-        @keyframes pulse {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.05); }
-        }
-
         h1 {
             font-family: 'Cinzel', serif;
             font-size: 4rem;
@@ -137,7 +100,6 @@
             -webkit-text-fill-color: transparent;
             background-clip: text;
             margin-bottom: 0.5rem;
-            text-shadow: 0 2px 20px var(--red-glow);
             animation: shimmer 3s ease-in-out infinite;
         }
 
@@ -153,6 +115,18 @@
             color: var(--silver);
             text-transform: uppercase;
             margin-bottom: 2rem;
+        }
+
+        .version-badge {
+            display: inline-block;
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            color: var(--navy);
+            padding: 0.5rem 1rem;
+            font-size: 0.9rem;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 1rem;
         }
 
         .connect-btn {
@@ -211,10 +185,8 @@
         .stat-card::before {
             content: '';
             position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 2px;
+            top: 0; left: -100%;
+            width: 100%; height: 2px;
             background: linear-gradient(90deg, transparent, var(--red), transparent);
             animation: scan 3s linear infinite;
         }
@@ -311,35 +283,6 @@
             font-family: 'Cinzel', serif;
         }
 
-        .claim-btn {
-            display: block;
-            width: 100%;
-            max-width: 400px;
-            margin: 2rem auto 0;
-            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
-            color: var(--navy);
-            border: none;
-            padding: 1.5rem 3rem;
-            font-size: 1.3rem;
-            font-weight: 900;
-            font-family: 'Cinzel', serif;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
-        }
-
-        .claim-btn:hover:not(:disabled) {
-            transform: translateY(-2px) scale(1.02);
-            box-shadow: 0 6px 30px rgba(212, 175, 55, 0.6);
-        }
-
-        .claim-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         .countdown {
             text-align: center;
             margin-top: 1rem;
@@ -402,6 +345,7 @@
             justify-content: center;
             gap: 2rem;
             margin-bottom: 1rem;
+            flex-wrap: wrap;
         }
 
         .footer-links a {
@@ -428,8 +372,7 @@
 
         .loading {
             display: inline-block;
-            width: 20px;
-            height: 20px;
+            width: 20px; height: 20px;
             border: 3px solid rgba(255,255,255,0.3);
             border-radius: 50%;
             border-top-color: var(--gold);
@@ -441,22 +384,9 @@
         }
 
         @media (max-width: 768px) {
-            h1 {
-                font-size: 2.5rem;
-            }
-            
-            .logo {
-                width: 120px;
-                height: 120px;
-            }
-            
-            .stats-grid {
-                grid-template-columns: 1fr;
-            }
-            
-            .claim-section {
-                padding: 2rem 1rem;
-            }
+            h1 { font-size: 2.5rem; }
+            .stats-grid { grid-template-columns: 1fr; }
+            .claim-section { padding: 2rem 1rem; }
         }
     </style>
 </head>
@@ -465,9 +395,7 @@
     
     <div class="container">
         <header>
-            <div class="logo-container">
-                <img src="assets/OG_ELITE.png" alt="Old Glory Token" class="logo" id="logo">
-            </div>
+            <div class="version-badge">V9 • pSunDAI Rewards</div>
             <h1>Old Glory Token</h1>
             <p class="tagline">Autonomous Treasury • Immutable • Sovereign</p>
             <button class="connect-btn" id="connectBtn">Connect Wallet</button>
@@ -496,7 +424,7 @@
                 <div class="stat-subtext">Active Yield Earners</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">CST Distributed</div>
+                <div class="stat-label">pSunDAI Distributed</div>
                 <div class="stat-value" id="totalDistributed">--</div>
                 <div class="stat-subtext">Total Yields Paid</div>
             </div>
@@ -508,7 +436,7 @@
         </div>
 
         <div class="claim-section" id="claimSection" style="display: none;">
-            <h2 class="claim-title">Your CST Rewards</h2>
+            <h2 class="claim-title">Your pSunDAI Rewards</h2>
             <div class="claim-info">
                 <div class="claim-stat">
                     <div class="claim-stat-label">Your Shares</div>
@@ -519,8 +447,8 @@
                     <div class="claim-stat-value" id="unpaidYield">--</div>
                 </div>
                 <div class="claim-stat">
-                    <div class="claim-stat-label">Total Earned</div>
-                    <div class="claim-stat-value" id="totalClaimed">--</div>
+                    <div class="claim-stat-label">Min Payout</div>
+                    <div class="claim-stat-value">0.369 pSunDAI</div>
                 </div>
             </div>
             <div class="countdown" id="countdown" style="margin-top: 2rem; font-size: 1.1rem;">
@@ -552,27 +480,26 @@
 
         <footer>
             <div class="footer-links">
-                <a href="https://oldglorytoken.com" target="_blank">Website</a>
-                <a href="#" id="contractLink">Contract</a>
-                <a href="#" id="lpLink">Liquidity Pool</a>
+                <a href="https://scan.pulsechain.com/address/0x8C2e58F2923e34FBB95a0759d6A16641aB61810A" target="_blank">OGT Contract</a>
+                <a href="https://scan.pulsechain.com/address/0xC8f19c71Bb66439E99642ce8DfBfa64f72130023" target="_blank">Liquidity Pool</a>
+                <a href="https://scan.pulsechain.com/address/0x5529c1cb179b2c256501031adCDAfC22D9c6d236" target="_blank">pSunDAI</a>
             </div>
-            <p>Old Glory Token ELITE V6 • Autonomous Treasury Protocol</p>
+            <p>Old Glory Token ELITE V9 • pSunDAI Rewards • Autonomous Treasury</p>
             <p style="margin-top: 0.5rem; font-size: 0.8rem;">PulseChain • No Admin Keys • Immutable • Self-Sovereign</p>
         </footer>
     </div>
 
     <script>
-        const CONTRACT_ADDRESS = '0x63aa45017513B9D5bD7252F0C4752f23f77f7043';
-        const CST_ADDRESS = '0x600136dA8cc6D1Ea07449514604dc4ab7098dB82';
-        const LP_ADDRESS = '0x09Df81e6CD69F75c769402fa115c529BDc035507';
+        const CONTRACT_ADDRESS = '0x8C2e58F2923e34FBB95a0759d6A16641aB61810A';
+        const PSUNDAI_ADDRESS = '0x5529c1cb179b2c256501031adCDAfC22D9c6d236';
+        const LP_ADDRESS = '0xC8f19c71Bb66439E99642ce8DfBfa64f72130023';
         const BURN_ADDRESS = '0x0000000000000000000000000000000000000369';
         const PULSECHAIN_ID = 369;
         
-        const CONTRACT_ABI = [{"type":"constructor","inputs":[],"stateMutability":"nonpayable"},{"name":"Approval","type":"event","inputs":[{"name":"owner","type":"address","indexed":true,"internalType":"address"},{"name":"spender","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"FeesUpdated","type":"event","inputs":[{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"}],"anonymous":false},{"name":"NoYieldSet","type":"event","inputs":[{"name":"","type":"address","indexed":true,"internalType":"address"},{"name":"","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"name":"OwnershipTransferred","type":"event","inputs":[{"name":"prev","type":"address","indexed":true,"internalType":"address"},{"name":"next","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"name":"PayoutPolicyUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"},{"name":"","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"RewardChoiceChanged","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true,"internalType":"address"},{"name":"token","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"name":"RewardTokenAdded","type":"event","inputs":[{"name":"","type":"address","indexed":false,"internalType":"address"},{"name":"","type":"uint8","indexed":false,"internalType":"uint8"}],"anonymous":false},{"name":"SwapParamsUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"Transfer","type":"event","inputs":[{"name":"from","type":"address","indexed":true,"internalType":"address"},{"name":"to","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"YieldPaid","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true,"internalType":"address"},{"name":"token","type":"address","indexed":true,"internalType":"address"},{"name":"amount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"CST","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"MAX_ITERS","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"MIN_YIELD_BALANCE","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"PULSEX_V2_ROUTER","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"airdrop","type":"function","inputs":[{"name":"to","type":"address[]","internalType":"address[]"},{"name":"amts","type":"uint256[]","internalType":"uint256[]"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"allowance","type":"function","inputs":[{"name":"o","type":"address","internalType":"address"},{"name":"s","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"approve","type":"function","inputs":[{"name":"s","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"autoPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"balanceOf","type":"function","inputs":[{"name":"a","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"claimYield","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"currIndex","type":"function","inputs":[],"outputs":[{"name":"","type":"uint32","internalType":"uint32"}],"stateMutability":"view"},{"name":"decimals","type":"function","inputs":[],"outputs":[{"name":"","type":"uint8","internalType":"uint8"}],"stateMutability":"pure"},{"name":"dexRouter","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Router02"}],"stateMutability":"view"},{"name":"fees","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},{"name":"getUnpaidYield","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"lpFactor","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"lpWeightBips","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxGas","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"minWaitSec","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"minYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"name","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"noFee","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"noYield","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"owner","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"payoutEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"plsV2LP","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Pair"}],"stateMutability":"view"},{"name":"renounceOwnership","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"rewardTokenList","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"rewardTokens","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"token","type":"address","internalType":"contract IERC20"},{"name":"decimals","type":"uint8","internalType":"uint8"},{"name":"scale","type":"uint256","internalType":"uint256"},{"name":"shareYieldRay","type":"uint256","internalType":"uint256"},{"name":"totalPaid","type":"uint256","internalType":"uint256"},{"name":"totalYield","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"setAutoPayout","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setFees","type":"function","inputs":[{"name":"bb","type":"uint16","internalType":"uint16"},{"name":"by","type":"uint16","internalType":"uint16"},{"name":"sb","type":"uint16","internalType":"uint16"},{"name":"sy","type":"uint16","internalType":"uint16"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setNoYield","type":"function","inputs":[{"name":"w","type":"address","internalType":"address"},{"name":"f","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setPayoutPolicy","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"minDur","type":"uint24","internalType":"uint24"},{"name":"newMin","type":"uint256","internalType":"uint256"},{"name":"gas_","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setRewardChoice","type":"function","inputs":[{"name":"token","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setSwapParams","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"f","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"swapEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"symbol","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"totalShares","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalSupply","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"transfer","type":"function","inputs":[{"name":"to","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferFrom","type":"function","inputs":[{"name":"f","type":"address","internalType":"address"},{"name":"t","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferOwnership","type":"function","inputs":[{"name":"newOwner","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"walletClaimTS","type":"function","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletIndex","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletInfo","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"share","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletRewardChoice","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"wallets","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"yieldDebt","type":"function","inputs":[{"name":"","type":"address","internalType":"address"},{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"receive","stateMutability":"payable"}];
+        const CONTRACT_ABI = [{"type":"constructor","inputs":[],"stateMutability":"nonpayable"},{"name":"Approval","type":"event","inputs":[{"name":"owner","type":"address","indexed":true},{"name":"spender","type":"address","indexed":true},{"name":"v","type":"uint256","indexed":false}]},{"name":"Transfer","type":"event","inputs":[{"name":"from","type":"address","indexed":true},{"name":"to","type":"address","indexed":true},{"name":"v","type":"uint256","indexed":false}]},{"name":"YieldPaid","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false}]},{"name":"totalSupply","type":"function","outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"balanceOf","type":"function","inputs":[{"name":"a","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"getUnpaidYield","type":"function","inputs":[{"name":"wallet","type":"address"},{"name":"rewardToken","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"walletInfo","type":"function","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"share","type":"uint256"},{"name":"yieldDebt","type":"uint256"}],"stateMutability":"view"},{"name":"shareYieldRay","type":"function","outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"totalHexPaid","type":"function","outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"walletClaimTS","type":"function","inputs":[{"name":"","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"}];
 
         let provider, signer, contract, userAddress;
 
-        // Wait for ethers.js to load
         function waitForEthers() {
             return new Promise((resolve) => {
                 if (typeof ethers !== 'undefined') {
@@ -588,7 +515,6 @@
             });
         }
 
-        // Generate stars
         function generateStars() {
             const starsContainer = document.getElementById('stars');
             for (let i = 0; i < 100; i++) {
@@ -601,13 +527,6 @@
             }
         }
 
-        // Load logo
-        function loadLogo() {
-            const logoElement = document.getElementById('logo');
-            logoElement.src = 'assets/OG_ELITE.png';
-        }
-
-        // Format numbers
         function formatNumber(num, decimals = 2) {
             if (!num) return '0';
             const n = parseFloat(num);
@@ -616,102 +535,29 @@
             return n.toFixed(decimals);
         }
 
-        // Format time
-        function formatTime(seconds) {
-            if (seconds <= 0) return 'Available Now';
-            const hours = Math.floor(seconds / 3600);
-            const minutes = Math.floor((seconds % 3600) / 60);
-            const secs = seconds % 60;
-            return `${hours}h ${minutes}m ${secs}s`;
-        }
-
-        // Get wallet count using binary search (since Solidity array length not exposed)
-        async function getWalletCount() {
-            try {
-                // First check if there are any wallets at all
-                try {
-                    await contract.wallets(0);
-                } catch {
-                    return 0;
-                }
-
-                // Exponential search to find upper bound
-                let upperBound = 1;
-                while (true) {
-                    try {
-                        await contract.wallets(upperBound);
-                        upperBound *= 2;
-                    } catch {
-                        break;
-                    }
-                }
-
-                // Binary search between upperBound/2 and upperBound
-                let low = Math.floor(upperBound / 2);
-                let high = upperBound;
-                let count = low;
-
-                while (low <= high) {
-                    const mid = Math.floor((low + high) / 2);
-                    try {
-                        await contract.wallets(mid);
-                        count = mid + 1; // Found valid index, so count is mid + 1
-                        low = mid + 1;  // Try higher
-                    } catch {
-                        high = mid - 1; // Try lower
-                    }
-                }
-
-                return count;
-            } catch (error) {
-                console.error('Error counting wallets:', error);
-                return 0;
-            }
-        }
-
-        // Connect wallet
         async function connectWallet() {
             try {
-                // Check for any Web3 provider (MetaMask, Rabby, Coinbase Wallet, etc.)
                 if (typeof window.ethereum === 'undefined') {
-                    alert('Please install a Web3 wallet (MetaMask, Rabby, etc.)');
+                    alert('Please install MetaMask or another Web3 wallet');
                     return;
                 }
 
-                // Request account access
                 const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                
-                // Create provider - works with all Web3 wallets
                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                 
-                // Listen for account changes
-                window.ethereum.on('accountsChanged', (accounts) => {
-                    if (accounts.length === 0) {
-                        location.reload();
-                    } else {
-                        location.reload();
-                    }
-                });
-
-                // Listen for chain changes
-                window.ethereum.on('chainChanged', () => {
-                    location.reload();
-                });
+                window.ethereum.on('accountsChanged', () => location.reload());
+                window.ethereum.on('chainChanged', () => location.reload());
                 
                 const network = await provider.getNetwork();
                 
-                // Check if on PulseChain
                 if (network.chainId !== PULSECHAIN_ID) {
                     try {
-                        // Try to switch to PulseChain
                         await window.ethereum.request({
                             method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x171' }], // 369 in hex
+                            params: [{ chainId: '0x171' }],
                         });
-                        // Reload provider after network switch
                         provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                     } catch (switchError) {
-                        // If PulseChain not added, try to add it
                         if (switchError.code === 4902) {
                             try {
                                 await window.ethereum.request({
@@ -719,23 +565,18 @@
                                     params: [{
                                         chainId: '0x171',
                                         chainName: 'PulseChain',
-                                        nativeCurrency: {
-                                            name: 'Pulse',
-                                            symbol: 'PLS',
-                                            decimals: 18
-                                        },
+                                        nativeCurrency: { name: 'Pulse', symbol: 'PLS', decimals: 18 },
                                         rpcUrls: ['https://rpc.pulsechain.com'],
                                         blockExplorerUrls: ['https://scan.pulsechain.com']
                                     }]
                                 });
-                                // Reload provider after adding network
                                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                             } catch (addError) {
-                                document.getElementById('status').innerHTML = '<div class="error">Please add PulseChain network to your wallet</div>';
+                                document.getElementById('status').innerHTML = '<div class="error">Please add PulseChain network</div>';
                                 return;
                             }
                         } else {
-                            document.getElementById('status').innerHTML = '<div class="error">Please switch to PulseChain network</div>';
+                            document.getElementById('status').innerHTML = '<div class="error">Please switch to PulseChain</div>';
                             return;
                         }
                     }
@@ -749,33 +590,20 @@
                 document.getElementById('connectBtn').disabled = true;
                 document.getElementById('status').textContent = 'Connected to PulseChain';
 
-                // Update contract links
-                document.getElementById('contractLink').href = `https://scan.pulsechain.com/address/${CONTRACT_ADDRESS}`;
-                document.getElementById('lpLink').href = `https://scan.pulsechain.com/address/${LP_ADDRESS}`;
-
                 await loadData();
-                setInterval(loadData, 15000); // Update every 15 seconds
+                setInterval(loadData, 15000);
                 
             } catch (error) {
                 console.error('Connection error:', error);
-                
-                // User rejected connection
-                if (error.code === 4001) {
-                    document.getElementById('status').innerHTML = '<div class="error">Connection rejected by user</div>';
-                } else {
-                    document.getElementById('status').innerHTML = '<div class="error">Connection failed: ' + error.message + '</div>';
-                }
+                document.getElementById('status').innerHTML = '<div class="error">Connection failed: ' + error.message + '</div>';
             }
         }
 
-        // Load contract data
         async function loadData() {
             try {
-                // Global stats
                 const totalSupply = await contract.totalSupply();
                 const burnBalance = await contract.balanceOf(BURN_ADDRESS);
                 const treasuryBalance = await contract.balanceOf(CONTRACT_ADDRESS);
-                const rewardTokenInfo = await contract.rewardTokens(CST_ADDRESS);
                 
                 document.getElementById('totalSupply').textContent = formatNumber(ethers.utils.formatEther(totalSupply), 0);
                 document.getElementById('totalBurned').textContent = formatNumber(ethers.utils.formatEther(burnBalance), 0);
@@ -783,27 +611,10 @@
                 const deflationRate = (parseFloat(ethers.utils.formatEther(burnBalance)) / 10000000) * 100;
                 document.getElementById('deflationRate').textContent = deflationRate.toFixed(2) + '%';
                 
-                // Get actual wallet count (runs in background, updates when ready)
-                document.getElementById('totalHolders').textContent = 'Counting...';
-                getWalletCount().then(count => {
-                    document.getElementById('totalHolders').textContent = count > 0 ? formatNumber(count, 0) : '0';
-                });
-                
-                // Get CST decimals from the stored rewardTokenInfo
-                const cstDecimals = parseInt(rewardTokenInfo.decimals);
-                const cstDivisor = Math.pow(10, cstDecimals);
-                
-                // totalPaid is stored in CST base units (with 6 decimals)
-                // Just divide by decimals, no scale needed
-                const totalPaidRaw = parseFloat(rewardTokenInfo.totalPaid.toString());
-                const cstPaid = totalPaidRaw / cstDivisor;
-                
-                document.getElementById('totalDistributed').textContent = formatNumber(cstPaid, 2) + ' CST';
-                
-                // Show treasury balance (OGT fees collected)
+                document.getElementById('totalHolders').textContent = 'Loading...';
+                document.getElementById('totalDistributed').textContent = 'Loading...';
                 document.getElementById('treasuryBalance').textContent = formatNumber(ethers.utils.formatEther(treasuryBalance), 0);
 
-                // User-specific data
                 if (userAddress) {
                     await loadUserData();
                 }
@@ -812,231 +623,44 @@
             }
         }
 
-        // Load user-specific data
         async function loadUserData() {
             try {
-                console.log('Loading user data for:', userAddress);
-                
                 const balance = await contract.balanceOf(userAddress);
-                console.log('Balance raw:', balance);
-                
                 const walletInfo = await contract.walletInfo(userAddress);
-                console.log('WalletInfo:', walletInfo);
-                console.log('WalletInfo type:', typeof walletInfo);
+                const unpaidYield = await contract.getUnpaidYield(userAddress, PSUNDAI_ADDRESS);
                 
-                const unpaidYield = await contract.getUnpaidYield(userAddress, CST_ADDRESS);
-                console.log('Unpaid yield raw:', unpaidYield);
-                
-                const lastClaimTime = await contract.walletClaimTS(userAddress, CST_ADDRESS);
-                const minWaitSec = await contract.minWaitSec();
-                
-                // Get reward token info for calculations
-                const rewardTokenInfo = await contract.rewardTokens(CST_ADDRESS);
-                const cstDecimals = parseInt(rewardTokenInfo.decimals);
-                const cstDivisor = Math.pow(10, cstDecimals);
-                
-                // Get yieldDebt to calculate total claimed
-                const yieldDebt = await contract.yieldDebt(userAddress, CST_ADDRESS);
-                console.log('Yield debt:', yieldDebt);
-                
-                // Get LP balance
                 const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
                 const lpBalance = await lpContract.balanceOf(userAddress);
 
-                // Safe formatting with fallbacks
-                document.getElementById('userBalance').textContent = balance ? formatNumber(ethers.utils.formatEther(balance), 2) : '0.00';
-                document.getElementById('lpBalance').textContent = lpBalance ? formatNumber(ethers.utils.formatEther(lpBalance), 4) : '0.0000';
-                
-                // walletInfo returns a tuple/array, or maybe just the share directly
-                // From logs: WalletInfo raw value matches balance exactly (0xd3edcf42892f37d402b9)
-                // This suggests walletInfo() is returning just the share as a single value
-                let userShares;
-                
-                // Check if it's the actual walletInfo struct with .share property
-                if (walletInfo && walletInfo.share !== undefined) {
-                    userShares = walletInfo.share;
-                    console.log('Using walletInfo.share');
+                document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
+                document.getElementById('lpBalance').textContent = formatNumber(ethers.utils.formatEther(lpBalance), 4);
+                document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(walletInfo.share), 0);
+                document.getElementById('unpaidYield').textContent = formatNumber(ethers.utils.formatEther(unpaidYield), 4) + ' pSunDAI';
+
+                if (parseFloat(ethers.utils.formatEther(unpaidYield)) > 0) {
+                    document.getElementById('countdown').innerHTML = '💰 You have ' + formatNumber(ethers.utils.formatEther(unpaidYield), 4) + ' pSunDAI pending<br><span style="font-size: 0.9rem; opacity: 0.8;">Automatically paid during any token transfer</span>';
                 } else {
-                    // It's returning the share value directly
-                    userShares = walletInfo || ethers.BigNumber.from(0);
-                    console.log('Using walletInfo directly as share value');
-                }
-                
-                console.log('User shares raw:', userShares.toString());
-                // Shares are the raw value from contract (already calculated with LP bonus)
-                // Just format it as a regular number
-                const sharesFormatted = parseFloat(userShares.toString()) / 1e18;
-                console.log('Shares formatted (div by 1e18):', sharesFormatted);
-                
-                // Actually, looking at your balance: 1000.806 OGT+
-                // And shares: 1000806 (without decimals)
-                // This makes sense! Your shares = balance + (LP * 2)
-                // Show it without decimals since it represents "voting weight"
-                document.getElementById('userShares').textContent = formatNumber(sharesFormatted, 0);
-                
-                // Get CST scale and divisor for all calculations
-                const scale = rewardTokenInfo.scale ? parseFloat(rewardTokenInfo.scale.toString()) : Math.pow(10, 18 - cstDecimals);
-                console.log('CST Scale from contract:', scale);
-                console.log('CST Divisor (10^decimals):', cstDivisor);
-                
-                // Format unpaid yield - getUnpaidYield already returns in CST base units (6 decimals)
-                const unpaidYieldFormatted = unpaidYield ? parseFloat(unpaidYield.toString()) / cstDivisor : 0;
-                console.log('Unpaid yield:', unpaidYieldFormatted, 'CST');
-                document.getElementById('unpaidYield').textContent = formatNumber(unpaidYieldFormatted, 4) + ' CST';
-                
-                // Get minimum yield requirement from contract
-                const minYield = await contract.minYield();
-                const minYieldScaled = parseFloat(minYield.toString()) / scale;
-                const minYieldCST = minYieldScaled / cstDivisor;
-                console.log('Minimum yield required:', minYieldCST, 'CST');
-                console.log('Can claim?', unpaidYieldFormatted >= minYieldCST);
-                
-                // Calculate total claimed
-                // yieldDebt is in scaled CST units (CST amount * scale)
-                // Divide by scale then by cstDivisor to get actual CST
-                
-                const yieldDebtRaw = yieldDebt ? parseFloat(yieldDebt.toString()) : 0;
-                console.log('YieldDebt raw:', yieldDebtRaw);
-                
-                // yieldDebt formula from contract: (share * shareYieldRay) / _YIELDX
-                // This gives us a value in "scaled CST base units"
-                // To convert to actual CST: divide by (scale * cstDivisor)
-                // OR divide by scale, then by cstDivisor
-                const totalYieldDebtInScaledUnits = yieldDebtRaw / scale;
-                console.log('YieldDebt after scale division:', totalYieldDebtInScaledUnits);
-                
-                // Now divide by CST divisor to get actual CST
-                const totalYieldDebtCST = totalYieldDebtInScaledUnits / cstDivisor;
-                console.log('YieldDebt in actual CST:', totalYieldDebtCST);
-                
-                // Total claimed = debt - unpaid
-                const totalClaimed = Math.max(0, totalYieldDebtCST - unpaidYieldFormatted);
-                console.log('Total claimed:', totalClaimed, 'CST');
-                document.getElementById('totalClaimed').textContent = formatNumber(totalClaimed, 2) + ' CST';
-
-                // Calculate next claim time
-                const currentTime = Math.floor(Date.now() / 1000);
-                
-                // Convert BigNumber to number safely
-                const lastClaimTimeNum = lastClaimTime ? parseInt(lastClaimTime.toString()) : 0;
-                const minWaitSecNum = minWaitSec ? parseInt(minWaitSec.toString()) : 3600;
-                
-                const nextClaimTime = lastClaimTimeNum + minWaitSecNum;
-                const timeUntilClaim = Math.max(0, nextClaimTime - currentTime);
-
-                console.log('Last claim:', lastClaimTimeNum, 'Min wait:', minWaitSecNum, 'Time until:', timeUntilClaim);
-
-                // Update countdown message for auto-payout info
-                const canClaimAmount = unpaidYieldFormatted >= minYieldCST;
-                
-                console.log('Amount check:', canClaimAmount, '(have:', unpaidYieldFormatted, 'need:', minYieldCST, ')');
-
-                if (unpaidYieldFormatted > 0) {
-                    document.getElementById('countdown').innerHTML = '💰 Rewards automatically distributed during token transfers<br><span style="font-size: 0.9rem; opacity: 0.8;">Your pending ' + formatNumber(unpaidYieldFormatted, 4) + ' CST will be paid out automatically</span>';
-                } else {
-                    document.getElementById('countdown').innerHTML = '💰 Rewards automatically distributed during token transfers<br><span style="font-size: 0.9rem; opacity: 0.8;">Hold OGT+ to earn CST rewards</span>';
+                    document.getElementById('countdown').innerHTML = '💰 Hold OGT+ to earn pSunDAI rewards<br><span style="font-size: 0.9rem; opacity: 0.8;">Minimum 0.369 pSunDAI for payout</span>';
                 }
 
-                // Show sections
-                console.log('Showing rewards and wallet sections');
                 document.getElementById('claimSection').style.display = 'block';
                 document.getElementById('walletInfo').style.display = 'block';
 
             } catch (error) {
                 console.error('Error loading user data:', error);
-                document.getElementById('status').innerHTML = '<div class="error">Error loading wallet data: ' + error.message + '</div>';
             }
         }
 
-        // Countdown timer
-        function startCountdown(seconds) {
-            let remaining = seconds;
-            const countdownElement = document.getElementById('countdown');
-            
-            const interval = setInterval(() => {
-                remaining--;
-                if (remaining <= 0) {
-                    clearInterval(interval);
-                    countdownElement.textContent = 'You can claim now!';
-                    document.getElementById('claimBtn').disabled = false;
-                    document.getElementById('nextClaim').textContent = 'Available Now';
-                } else {
-                    countdownElement.textContent = `Next claim available in: ${formatTime(remaining)}`;
-                }
-            }, 1000);
-        }
-
-        // Claim yield
-        async function claimYield() {
-            try {
-                document.getElementById('claimBtn').disabled = true;
-                document.getElementById('claimBtn').innerHTML = '<span class="loading"></span> Claiming...';
-                
-                console.log('Attempting to claim yield...');
-                const tx = await contract.claimYield();
-                console.log('Transaction sent:', tx.hash);
-                
-                await tx.wait();
-                console.log('Transaction confirmed!');
-                
-                document.getElementById('claimBtn').textContent = 'Claimed Successfully!';
-                document.getElementById('status').innerHTML = '<div style="color: #4ade80;">Claim successful! Refreshing data...</div>';
-                
-                setTimeout(() => {
-                    loadUserData();
-                }, 2000);
-                
-            } catch (error) {
-                console.error('Claim error:', error);
-                console.error('Error code:', error.code);
-                console.error('Error message:', error.message);
-                
-                let errorMsg = 'Claim failed';
-                
-                if (error.code === 4001) {
-                    errorMsg = 'Transaction rejected';
-                } else if (error.message.includes('reentrant')) {
-                    errorMsg = 'Contract busy, please wait a moment and try again';
-                } else if (error.message.includes('minYield')) {
-                    errorMsg = 'Below minimum claim amount (0.0369 CST)';
-                } else if (error.message.includes('minWaitSec')) {
-                    errorMsg = 'Must wait 1 hour between claims';
-                } else if (error.message.includes('insufficient')) {
-                    errorMsg = 'Insufficient gas or balance';
-                } else {
-                    errorMsg = 'Claim failed: ' + (error.reason || error.message.substring(0, 100));
-                }
-                
-                document.getElementById('claimBtn').textContent = errorMsg;
-                document.getElementById('status').innerHTML = '<div class="error">' + errorMsg + '</div>';
-                
-                setTimeout(() => {
-                    document.getElementById('claimBtn').textContent = 'Claim CST Rewards';
-                    document.getElementById('claimBtn').disabled = false;
-                    document.getElementById('status').textContent = 'Connected to PulseChain';
-                }, 5000);
-            }
-        }
-
-        // Initialize when page and ethers.js are ready
         async function initialize() {
-            // Wait for ethers.js to load
             await waitForEthers();
-            
-            // Event listeners
             document.getElementById('connectBtn').addEventListener('click', connectWallet);
-
-            // Initialize
             generateStars();
-            loadLogo();
             
-            // Check if already connected
             if (window.ethereum && window.ethereum.selectedAddress) {
                 connectWallet();
             }
         }
 
-        // Run when DOM is ready
         if (document.readyState === 'loading') {
             document.addEventListener('DOMContentLoaded', initialize);
         } else {
