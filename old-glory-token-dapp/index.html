@@ -101,6 +101,23 @@
             background-clip: text;
             margin-bottom: 0.5rem;
             animation: shimmer 3s ease-in-out infinite;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+        }
+
+        .flag-emoji {
+            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
+            font-size: 3.5rem;
+            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
+            animation: wave 2s ease-in-out infinite;
+        }
+
+        @keyframes wave {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-10deg); }
+            75% { transform: rotate(10deg); }
         }
 
         @keyframes shimmer {
@@ -460,7 +477,8 @@
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; }
+            h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }
+            .flag-emoji { font-size: 2.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
             .claim-section { padding: 2rem 1rem; }
         }
@@ -472,7 +490,11 @@
     <div class="container">
         <header>
             <div class="version-badge">RISE • pSunDAI Rewards</div>
-            <h1>🇺🇸 Old Glory Rise 🇺🇸</h1>
+            <h1>
+                <span class="flag-emoji">🇺🇸</span>
+                <span>Old Glory Rise</span>
+                <span class="flag-emoji">🇺🇸</span>
+            </h1>
             <p class="tagline">Autonomous Treasury • Immutable • Sovereign</p>
             
             <div class="contract-display">
