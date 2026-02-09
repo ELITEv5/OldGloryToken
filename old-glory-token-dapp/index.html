@@ -101,23 +101,6 @@
             background-clip: text;
             margin-bottom: 0.5rem;
             animation: shimmer 3s ease-in-out infinite;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 1rem;
-        }
-
-        .flag-emoji {
-            font-family: 'Segoe UI Emoji', 'Apple Color Emoji', 'Noto Color Emoji', sans-serif;
-            font-size: 3.5rem;
-            filter: drop-shadow(0 0 10px rgba(255,255,255,0.3));
-            animation: wave 2s ease-in-out infinite;
-        }
-
-        @keyframes wave {
-            0%, 100% { transform: rotate(0deg); }
-            25% { transform: rotate(-10deg); }
-            75% { transform: rotate(10deg); }
         }
 
         @keyframes shimmer {
@@ -477,8 +460,7 @@
         }
 
         @media (max-width: 768px) {
-            h1 { font-size: 2.5rem; flex-direction: column; gap: 0.5rem; }
-            .flag-emoji { font-size: 2.5rem; }
+            h1 { font-size: 2.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
             .claim-section { padding: 2rem 1rem; }
         }
@@ -489,16 +471,12 @@
     
     <div class="container">
         <header>
-            <div class="version-badge">RISE • pSunDAI Rewards</div>
-            <h1>
-                <span class="flag-emoji">🇺🇸</span>
-                <span>Old Glory Rise</span>
-                <span class="flag-emoji">🇺🇸</span>
-            </h1>
+            <div class="version-badge">RISE • pSunDAI Rewards • V9.2 Production</div>
+            <h1>Old Glory Rise</h1>
             <p class="tagline">Autonomous Treasury • Immutable • Sovereign</p>
             
             <div class="contract-display">
-                <h3>📜 Official Contract Address</h3>
+                <h3>📜 Official Contract Address (Click to Copy)</h3>
                 <div class="contract-address" onclick="copyContract()" title="Click to copy">
                     0x617273786a3dE0dA120249cBaF1fb866CFA2CE6D
                 </div>
@@ -542,7 +520,7 @@
         </div>
 
         <div class="claim-section" id="claimSection" style="display: none;">
-            <h2 class="claim-title">🇺🇸 Your pSunDAI Rewards 🇺🇸</h2>
+            <h2 class="claim-title">Your pSunDAI Rewards</h2>
             <div class="claim-info">
                 <div class="claim-stat">
                     <div class="claim-stat-label">Your Shares</div>
@@ -569,7 +547,7 @@
         </div>
 
         <div class="wallet-info" id="walletInfo" style="display: none;">
-            <h2>🇺🇸 Your Wallet Details 🇺🇸</h2>
+            <h2>Your Wallet Details</h2>
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-item-label">RISE Balance</div>
@@ -596,7 +574,7 @@
                 <a href="https://scan.pulsechain.com/address/0xC8f19c71Bb66439E99642ce8DfBfa64f72130023" target="_blank">Liquidity Pool</a>
                 <a href="https://scan.pulsechain.com/address/0x5529c1cb179b2c256501031adCDAfC22D9c6d236" target="_blank">pSunDAI</a>
             </div>
-            <p>🇺🇸 Old Glory Rise • pSunDAI Rewards • Autonomous Treasury 🇺🇸</p>
+            <p>Old Glory Rise • pSunDAI Rewards • Autonomous Treasury</p>
             <p style="margin-top: 0.5rem; font-size: 0.8rem;">PulseChain • No Admin Keys • Immutable • Self-Sovereign</p>
         </footer>
     </div>
@@ -771,7 +749,6 @@
                 const unpaidAmt = parseFloat(ethers.utils.formatEther(unpaidYield));
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidAmt, 4) + ' pSunDAI';
 
-                // FIX: Convert BigNumber to regular number properly
                 const now = Math.floor(Date.now() / 1000);
                 const lastClaimNum = parseInt(lastClaimTS.toString());
                 const minWaitNum = parseInt(minWait.toString());
