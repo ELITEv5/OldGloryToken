@@ -373,8 +373,8 @@
                 'renounceOwnership()': '0x715018a6',
                 'owner()': '0x8da5cb5b',
                 'fees(uint256)': '0x4acc79ed',
-                'launchMode()': '0x866e4d78',
-                'setLaunchMode(bool)': '0x4f199114'
+                'launchMode()': '0xb37dd690',        // ✅ CORRECT SELECTOR
+                'setLaunchMode(bool)': '0x6f077396'  // ✅ CORRECT SELECTOR
             };
             return selectors[str] || '0x00000000';
         }
@@ -489,7 +489,7 @@
 
         async function loadLaunchMode() {
             try {
-                const data = '0x866e4d78';
+                const data = '0xb37dd690'; // ✅ CORRECT selector for launchMode()
                 
                 const result = await window.ethereum.request({
                     method: 'eth_call',
@@ -514,6 +514,8 @@
                 }
             } catch (error) {
                 console.error('Failed to load launch mode:', error);
+                const indicator = document.getElementById('launchModeStatus');
+                indicator.textContent = '❌ Error loading';
             }
         }
 
@@ -561,7 +563,7 @@
             try {
                 showStatus('launchModeStatusMsg', 'Sending transaction...', 'info');
                 
-                const selector = '0x4f199114';
+                const selector = '0x6f077396'; // ✅ CORRECT selector for setLaunchMode(bool)
                 const data = selector + padHex(enabled ? 1 : 0, 32);
                 
                 const txHash = await sendTransaction(data);
