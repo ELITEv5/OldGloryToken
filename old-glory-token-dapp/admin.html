@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Old Glory Rise Owner Dashboard</title>
+    <title>Old Glory Rise Owner Dashboard V9.2</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
@@ -23,6 +23,16 @@
         }
         .header h1 { color: #1e3c72; font-size: 2em; margin-bottom: 10px; }
         .header .subtitle { color: #666; font-size: 1.1em; }
+        .version-badge {
+            display: inline-block;
+            background: #28a745;
+            color: white;
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 0.85em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
         .wallet-section {
             background: white;
             padding: 20px;
@@ -116,22 +126,20 @@
             border-radius: 8px;
             margin-bottom: 15px;
         }
-        .launch-mode-indicator {
-            display: inline-block;
-            padding: 8px 16px;
-            border-radius: 20px;
-            font-weight: 600;
-            font-size: 0.9em;
+        .info-box {
+            background: #d1ecf1;
+            border: 1px solid #17a2b8;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
         }
-        .launch-mode-on { background: #fff3cd; color: #856404; border: 2px solid #ffc107; }
-        .launch-mode-off { background: #d4edda; color: #155724; border: 2px solid #c3e6cb; }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🇺🇸 Old Glory Rise (RISE) Owner Dashboard</h1>
-            <p class="subtitle">Manage token parameters - No ethers.js required!</p>
+            <h1>🇺🇸 Old Glory Rise (RISE) Owner Dashboard<span class="version-badge">V9.2 PRODUCTION</span></h1>
+            <p class="subtitle">CST-Proven Swap Pattern • No ethers.js Required</p>
         </div>
 
         <div class="wallet-section">
@@ -147,37 +155,11 @@
                 <button class="connect-btn" id="connectBtn">Connect Wallet</button>
             </div>
             <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; border: 1px solid #c3e6cb;">
-                <strong>✅ Contract Address:</strong> <code id="contractAddrDisplay" style="color: #155724; font-weight: 600;">0x8A9Cd2fC31192D7E869FaC3ef48C06CCD92a286D</code>
+                <strong>✅ Contract Address (V9.2):</strong> <code id="contractAddrDisplay" style="color: #155724; font-weight: 600;">0x617273786a3dE0dA120249cBaF1fb866CFA2CE6D</code>
             </div>
-        </div>
-
-        <div class="card">
-            <h2>🚀 Launch Mode Control</h2>
-            <div class="warning-box">
-                <strong>⚠️ Bootstrap Phase Control</strong>
-                <p>Launch Mode bypasses slippage protection to allow pSunDAI liquidity bootstrap. Disable once pSunDAI/WPLS has sufficient liquidity (~$5k+).</p>
+            <div style="margin-top: 10px; padding: 10px; background: #d1ecf1; border-radius: 8px; border: 1px solid #bee5eb;">
+                <strong>ℹ️ V9.2 Changes:</strong> Removed launchMode & slippage calculation • minOut = 0 always (CST pattern) • No WETH9 errors
             </div>
-            
-            <div style="margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 8px;">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <strong>Current Status:</strong>
-                        <span id="launchModeStatus" class="launch-mode-indicator launch-mode-on">Loading...</span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="launchModeEnabled" checked style="width: 20px; height: 20px;">
-                    <span>Launch Mode Enabled (Bypass Slippage)</span>
-                </label>
-                <div class="help-text">✅ ON = Allow bootstrap (0% min slippage) | ❌ OFF = Normal protection (2% slippage)</div>
-            </div>
-
-            <button class="action-btn warning-btn" id="setLaunchModeBtn">Update Launch Mode</button>
-            <button class="action-btn" id="refreshLaunchModeBtn" style="background: #28a745; margin-top: 5px;">🔄 Refresh Status</button>
-            <div id="launchModeStatusMsg"></div>
         </div>
 
         <div class="card">
@@ -205,19 +187,8 @@
         </div>
 
         <div class="card">
-            <h2>⚙️ Slippage Configuration</h2>
-            <div class="form-group">
-                <label>Slippage Tolerance (bps) - Max 500 (5%)</label>
-                <input type="number" id="slippage" value="200" min="10" max="500">
-                <div class="help-text">200 bps = 2% slippage tolerance (applies when Launch Mode is OFF)</div>
-            </div>
-            <button class="action-btn" id="setSlippageBtn">Update Slippage</button>
-            <div id="slippageStatus"></div>
-        </div>
-
-        <div class="card">
             <h2>💸 Payout Policy</h2>
-            <p style="margin-bottom: 15px; color: #666;">Configure automatic yield distribution settings</p>
+            <p style="margin-bottom: 15px; color: #666;">Configure automatic pSunDAI yield distribution</p>
             
             <div class="form-group">
                 <label style="display: flex; align-items: center; gap: 10px;">
@@ -236,7 +207,7 @@
             <div class="form-group">
                 <label>Minimum Yield (pSunDAI)</label>
                 <input type="number" id="minYield" value="0.369" step="0.001" min="0.0001">
-                <div class="help-text">Minimum yield before payout (contract allows ≥ 0.0001 pSunDAI, current default is 0.369)</div>
+                <div class="help-text">🎯 Easter Egg: 0.369 = PulseChain ID! (Contract allows ≥ 0.0001)</div>
             </div>
 
             <div class="form-group">
@@ -257,20 +228,22 @@
 
         <div class="card">
             <h2>🔄 Swap Parameters</h2>
-            <p style="margin-bottom: 15px; color: #666;">Configure Rise → WPLS → pSunDAI swap behavior</p>
+            <div class="info-box">
+                <strong>ℹ️ V9.2 Swap Pattern:</strong> Uses CST-proven minOut = 0 pattern • No slippage calculation • No WETH9 errors • Works with any liquidity depth
+            </div>
             
             <div class="form-group">
                 <label style="display: flex; align-items: center; gap: 10px;">
                     <input type="checkbox" id="swapEnabled" checked style="width: 20px; height: 20px;">
-                    <span>Enable Token Swaps</span>
+                    <span>Enable Token Swaps (Rise → WPLS → pSunDAI)</span>
                 </label>
-                <div class="help-text">Allow swaps for reward generation</div>
+                <div class="help-text">Automatic swaps create constant pSunDAI buying pressure</div>
             </div>
 
             <div class="form-group">
                 <label>LP Factor</label>
                 <input type="number" id="lpFactor" value="2000" min="50" max="200000">
-                <div class="help-text">Swap size divisor (2000 = swap 1/2000 of LP balance)</div>
+                <div class="help-text">Swap size divisor (2000 = swap 1/2000 of LP balance ~ $1.20 per swap at $2.4k LP)</div>
             </div>
 
             <button class="action-btn" id="setSwapParamsBtn">Update Swap Parameters</button>
@@ -354,16 +327,15 @@
     </div>
 
     <script>
-        const CONTRACT_ADDRESS = '0x617273786a3dE0dA120249cBaF1fb866CFA2CE6D';
+        const CONTRACT_ADDRESS = '0x617273786a3dE0dA120249cBaF1fb866CFA2CE6D'; // ✅ V9.2 CONTRACT
         
-        const ABI = [{"type":"constructor","inputs":[],"stateMutability":"nonpayable"},{"name":"AirdropExecuted","type":"event","inputs":[{"name":"recipients","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"totalAmount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"Approval","type":"event","inputs":[{"name":"owner","type":"address","indexed":true,"internalType":"address"},{"name":"spender","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"FeesUpdated","type":"event","inputs":[{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"}],"anonymous":false},{"name":"LaunchModeUpdated","type":"event","inputs":[{"name":"enabled","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"name":"NoYieldSet","type":"event","inputs":[{"name":"","type":"address","indexed":true,"internalType":"address"},{"name":"","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"name":"OwnershipTransferred","type":"event","inputs":[{"name":"prev","type":"address","indexed":true,"internalType":"address"},{"name":"next","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"name":"PayoutPolicyUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"},{"name":"","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"SlippageUpdated","type":"event","inputs":[{"name":"","type":"uint16","indexed":false,"internalType":"uint16"}],"anonymous":false},{"name":"SwapExecuted","type":"event","inputs":[{"name":"ogtIn","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"rewardOut","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"slippage","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"SwapParamsUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"Transfer","type":"event","inputs":[{"name":"from","type":"address","indexed":true,"internalType":"address"},{"name":"to","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"YieldPaid","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true,"internalType":"address"},{"name":"rewardAmount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"MAX_GAS_LIMIT","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"MAX_ITERS","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"MAX_SLIPPAGE","type":"function","inputs":[],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},{"name":"MIN_YIELD_BALANCE","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"PSUNDAI","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"PULSEX_V2_ROUTER","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"airdrop","type":"function","inputs":[{"name":"to","type":"address[]","internalType":"address[]"},{"name":"amts","type":"uint256[]","internalType":"uint256[]"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"allowance","type":"function","inputs":[{"name":"o","type":"address","internalType":"address"},{"name":"s","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"approve","type":"function","inputs":[{"name":"s","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"autoPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"balanceOf","type":"function","inputs":[{"name":"a","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"claimYield","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"currIndex","type":"function","inputs":[],"outputs":[{"name":"","type":"uint32","internalType":"uint32"}],"stateMutability":"view"},{"name":"decimals","type":"function","inputs":[],"outputs":[{"name":"","type":"uint8","internalType":"uint8"}],"stateMutability":"pure"},{"name":"dexRouter","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Router02"}],"stateMutability":"view"},{"name":"fees","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},{"name":"getUnpaidYield","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"rewardTokenAddr","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"launchMode","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"lpFactor","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"lpWeightBips","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxGas","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"minWaitSec","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"minYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"name","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"noFee","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"noYield","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"owner","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"payoutEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"plsV2LP","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Pair"}],"stateMutability":"view"},{"name":"renounceOwnership","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"rewardToken","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IERC20"}],"stateMutability":"view"},{"name":"rewardTokens","type":"function","inputs":[{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"address","internalType":"contract IERC20"},{"name":"","type":"uint8","internalType":"uint8"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"setAutoPayout","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setFees","type":"function","inputs":[{"name":"bb","type":"uint16","internalType":"uint16"},{"name":"by","type":"uint16","internalType":"uint16"},{"name":"sb","type":"uint16","internalType":"uint16"},{"name":"sy","type":"uint16","internalType":"uint16"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setLaunchMode","type":"function","inputs":[{"name":"enabled","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setNoYield","type":"function","inputs":[{"name":"w","type":"address","internalType":"address"},{"name":"f","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setPayoutPolicy","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"minDur","type":"uint24","internalType":"uint24"},{"name":"newMin","type":"uint256","internalType":"uint256"},{"name":"newMax","type":"uint256","internalType":"uint256"},{"name":"gas_","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setSlippage","type":"function","inputs":[{"name":"slippage","type":"uint16","internalType":"uint16"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setSwapParams","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"f","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"shareYieldRay","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"slippageBips","type":"function","inputs":[],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},{"name":"swapEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"symbol","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"totalRewardsPaid","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalRewardsYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalShares","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalSupply","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"transfer","type":"function","inputs":[{"name":"to","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferFrom","type":"function","inputs":[{"name":"f","type":"address","internalType":"address"},{"name":"t","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferOwnership","type":"function","inputs":[{"name":"newOwner","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"walletClaimTS","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletIndex","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletInfo","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"share","type":"uint256","internalType":"uint256"},{"name":"yieldDebt","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"wallets","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"yieldDebt","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"receive","stateMutability":"payable"}];
+        const ABI = [{"type":"constructor","inputs":[],"stateMutability":"nonpayable"},{"name":"AirdropExecuted","type":"event","inputs":[{"name":"recipients","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"totalAmount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"Approval","type":"event","inputs":[{"name":"owner","type":"address","indexed":true,"internalType":"address"},{"name":"spender","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"FeesUpdated","type":"event","inputs":[{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"}],"anonymous":false},{"name":"NoYieldSet","type":"event","inputs":[{"name":"","type":"address","indexed":true,"internalType":"address"},{"name":"","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"name":"OwnershipTransferred","type":"event","inputs":[{"name":"prev","type":"address","indexed":true,"internalType":"address"},{"name":"next","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"name":"PayoutPolicyUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"},{"name":"","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"SwapExecuted","type":"event","inputs":[{"name":"riseIn","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"pSunDAIOut","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"SwapParamsUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"Transfer","type":"event","inputs":[{"name":"from","type":"address","indexed":true,"internalType":"address"},{"name":"to","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"YieldPaid","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true,"internalType":"address"},{"name":"rewardAmount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"MAX_GAS_LIMIT","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"MAX_ITERS","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"MIN_YIELD_BALANCE","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"PSUNDAI","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"PULSEX_V2_ROUTER","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"airdrop","type":"function","inputs":[{"name":"to","type":"address[]","internalType":"address[]"},{"name":"amts","type":"uint256[]","internalType":"uint256[]"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"allowance","type":"function","inputs":[{"name":"o","type":"address","internalType":"address"},{"name":"s","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"approve","type":"function","inputs":[{"name":"s","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"autoPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"balanceOf","type":"function","inputs":[{"name":"a","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"claimYield","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"currIndex","type":"function","inputs":[],"outputs":[{"name":"","type":"uint32","internalType":"uint32"}],"stateMutability":"view"},{"name":"decimals","type":"function","inputs":[],"outputs":[{"name":"","type":"uint8","internalType":"uint8"}],"stateMutability":"pure"},{"name":"dexRouter","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Router02"}],"stateMutability":"view"},{"name":"fees","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},{"name":"getUnpaidYield","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"rewardTokenAddr","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"lpFactor","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"lpWeightBips","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxGas","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"minWaitSec","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"minYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"name","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"noFee","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"noYield","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"owner","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"payoutEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"plsV2LP","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Pair"}],"stateMutability":"view"},{"name":"renounceOwnership","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"rewardToken","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IERC20"}],"stateMutability":"view"},{"name":"rewardTokens","type":"function","inputs":[{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"address","internalType":"contract IERC20"},{"name":"","type":"uint8","internalType":"uint8"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"setAutoPayout","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setFees","type":"function","inputs":[{"name":"bb","type":"uint16","internalType":"uint16"},{"name":"by","type":"uint16","internalType":"uint16"},{"name":"sb","type":"uint16","internalType":"uint16"},{"name":"sy","type":"uint16","internalType":"uint16"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setNoYield","type":"function","inputs":[{"name":"w","type":"address","internalType":"address"},{"name":"f","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setPayoutPolicy","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"minDur","type":"uint24","internalType":"uint24"},{"name":"newMin","type":"uint256","internalType":"uint256"},{"name":"newMax","type":"uint256","internalType":"uint256"},{"name":"gas_","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setSwapParams","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"f","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"shareYieldRay","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"swapEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"symbol","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"pure"},{"name":"totalRewardsPaid","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalRewardsYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalShares","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalSupply","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"transfer","type":"function","inputs":[{"name":"to","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferFrom","type":"function","inputs":[{"name":"f","type":"address","internalType":"address"},{"name":"t","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferOwnership","type":"function","inputs":[{"name":"newOwner","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"walletClaimTS","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletIndex","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletInfo","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"share","type":"uint256","internalType":"uint256"},{"name":"yieldDebt","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"wallets","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"yieldDebt","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"receive","stateMutability":"payable"}];
 
         let provider, signer, account;
 
         function keccak256(str) {
             const selectors = {
                 'setFees(uint16,uint16,uint16,uint16)': '0x42f7723f',
-                'setSlippage(uint16)': '0xab37fbb7',
                 'setPayoutPolicy(bool,uint24,uint256,uint256,uint24)': '0x174bffba',
                 'setSwapParams(bool,uint24)': '0x1835587e',
                 'setAutoPayout(bool)': '0x925ed8f2',
@@ -372,9 +344,7 @@
                 'transferOwnership(address)': '0xf2fde38b',
                 'renounceOwnership()': '0x715018a6',
                 'owner()': '0x8da5cb5b',
-                'fees(uint256)': '0x4acc79ed',
-                'launchMode()': '0xb37dd690',        // ✅ CORRECT SELECTOR
-                'setLaunchMode(bool)': '0x6f077396'  // ✅ CORRECT SELECTOR
+                'fees(uint256)': '0x4acc79ed'
             };
             return selectors[str] || '0x00000000';
         }
@@ -424,9 +394,8 @@
                 
                 await checkOwner();
                 await loadCurrentFees();
-                await loadLaunchMode();
                 
-                showStatus('ownershipStatus', 'Wallet connected! Ready to manage contract.', 'success');
+                showStatus('ownershipStatus', 'Wallet connected! Ready to manage V9.2 contract.', 'success');
             } catch (error) {
                 console.error(error);
                 btn.textContent = 'Connect Wallet';
@@ -454,7 +423,7 @@
                 if (owner.toLowerCase() !== account.toLowerCase()) {
                     showStatus('ownershipStatus', '⚠️ WARNING: You are NOT the owner! Owner is: ' + owner, 'error');
                 } else {
-                    showStatus('ownershipStatus', '✅ Confirmed: You are the owner', 'success');
+                    showStatus('ownershipStatus', '✅ Confirmed: You are the owner of V9.2', 'success');
                 }
             } catch (error) {
                 console.error('Failed to check owner:', error);
@@ -487,38 +456,6 @@
             }
         }
 
-        async function loadLaunchMode() {
-            try {
-                const data = '0xb37dd690'; // ✅ CORRECT selector for launchMode()
-                
-                const result = await window.ethereum.request({
-                    method: 'eth_call',
-                    params: [{
-                        to: CONTRACT_ADDRESS,
-                        data: data
-                    }, 'latest']
-                });
-                
-                const isEnabled = parseInt(result, 16) === 1;
-                console.log('Launch mode:', isEnabled);
-                
-                document.getElementById('launchModeEnabled').checked = isEnabled;
-                
-                const indicator = document.getElementById('launchModeStatus');
-                if (isEnabled) {
-                    indicator.textContent = '⚠️ BOOTSTRAP MODE (No Slippage)';
-                    indicator.className = 'launch-mode-indicator launch-mode-on';
-                } else {
-                    indicator.textContent = '✅ PROTECTED MODE (2% Slippage)';
-                    indicator.className = 'launch-mode-indicator launch-mode-off';
-                }
-            } catch (error) {
-                console.error('Failed to load launch mode:', error);
-                const indicator = document.getElementById('launchModeStatus');
-                indicator.textContent = '❌ Error loading';
-            }
-        }
-
         async function sendTransaction(data) {
             const txParams = {
                 from: account,
@@ -534,50 +471,6 @@
         }
 
         document.getElementById('connectBtn').addEventListener('click', connectWallet);
-
-        document.getElementById('refreshLaunchModeBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('launchModeStatusMsg', 'Please connect wallet first!', 'error');
-                return;
-            }
-            
-            showStatus('launchModeStatusMsg', 'Loading launch mode status...', 'info');
-            await loadLaunchMode();
-            showStatus('launchModeStatusMsg', '✅ Status refreshed!', 'success');
-        });
-
-        document.getElementById('setLaunchModeBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('launchModeStatusMsg', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const enabled = document.getElementById('launchModeEnabled').checked;
-
-            const confirmMsg = enabled 
-                ? '⚠️ Enable Launch Mode? This will DISABLE slippage protection to allow pSunDAI bootstrap.'
-                : '✅ Disable Launch Mode? This will ENABLE 2% slippage protection.';
-
-            if (!confirm(confirmMsg)) return;
-
-            try {
-                showStatus('launchModeStatusMsg', 'Sending transaction...', 'info');
-                
-                const selector = '0x6f077396'; // ✅ CORRECT selector for setLaunchMode(bool)
-                const data = selector + padHex(enabled ? 1 : 0, 32);
-                
-                const txHash = await sendTransaction(data);
-                showStatus('launchModeStatusMsg', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
-                
-                setTimeout(async () => {
-                    await loadLaunchMode();
-                    showStatus('launchModeStatusMsg', '✅ Launch mode updated!', 'success');
-                }, 3000);
-            } catch (error) {
-                console.error('Launch mode error:', error);
-                showStatus('launchModeStatusMsg', '❌ Error: ' + error.message, 'error');
-            }
-        });
 
         document.getElementById('refreshFeesBtn').addEventListener('click', async () => {
             if (!account) {
@@ -638,29 +531,6 @@
                 let errorMsg = error.message;
                 if (error.message.includes('user rejected')) errorMsg = 'Transaction rejected';
                 showStatus('feesStatus', '❌ Error: ' + errorMsg, 'error');
-            }
-        });
-
-        document.getElementById('setSlippageBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('slippageStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const slippage = parseInt(document.getElementById('slippage').value);
-            if (slippage > 500) {
-                showStatus('slippageStatus', 'Slippage cannot exceed 5%!', 'error');
-                return;
-            }
-
-            try {
-                showStatus('slippageStatus', 'Sending transaction...', 'info');
-                const data = '0xab37fbb7' + padHex(slippage, 32);
-                
-                const txHash = await sendTransaction(data);
-                showStatus('slippageStatus', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
-            } catch (error) {
-                showStatus('slippageStatus', '❌ Error: ' + error.message, 'error');
             }
         });
 
