@@ -157,6 +157,37 @@
             cursor: not-allowed;
         }
 
+        .claim-btn {
+            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
+            color: var(--navy);
+            border: 2px solid var(--white);
+            padding: 1.2rem 3rem;
+            font-size: 1.3rem;
+            font-weight: 700;
+            font-family: 'Cinzel', serif;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            cursor: pointer;
+            border-radius: 0;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 20px rgba(212, 175, 55, 0.4);
+            margin-top: 2rem;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .claim-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 30px rgba(212, 175, 55, 0.6);
+            background: linear-gradient(135deg, #ffd700 0%, var(--gold) 100%);
+        }
+
+        .claim-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            background: #666;
+        }
+
         .status {
             margin: 1rem 0;
             padding: 0.75rem;
@@ -235,6 +266,7 @@
             margin: 3rem 0;
             position: relative;
             box-shadow: 0 0 40px var(--red-glow);
+            text-align: center;
         }
 
         .claim-section::before {
@@ -370,6 +402,15 @@
             margin: 1rem 0;
         }
 
+        .success {
+            color: #51cf66;
+            background: rgba(81, 207, 102, 0.1);
+            border: 1px solid rgba(81, 207, 102, 0.3);
+            padding: 1rem;
+            border-radius: 4px;
+            margin: 1rem 0;
+        }
+
         .loading {
             display: inline-block;
             width: 20px; height: 20px;
@@ -395,7 +436,7 @@
     
     <div class="container">
         <header>
-            <div class="version-badge">RISE • pSunDAI Rewards</div>
+            <div class="version-badge">V9.2 • pSunDAI Rewards • CST-Proven</div>
             <h1>Old Glory Rise</h1>
             <p class="tagline">Autonomous Treasury • Immutable • Sovereign</p>
             <button class="connect-btn" id="connectBtn">Connect Wallet</button>
@@ -436,7 +477,7 @@
         </div>
 
         <div class="claim-section" id="claimSection" style="display: none;">
-            <h2 class="claim-title">Your pSunDAI Rewards</h2>
+            <h2 class="claim-title">🎁 Your pSunDAI Rewards</h2>
             <div class="claim-info">
                 <div class="claim-stat">
                     <div class="claim-stat-label">Your Shares</div>
@@ -448,11 +489,16 @@
                 </div>
                 <div class="claim-stat">
                     <div class="claim-stat-label">Min Payout</div>
-                    <div class="claim-stat-value">0.369 pSunDAI</div>
+                    <div class="claim-stat-value">0.369</div>
                 </div>
             </div>
-            <div class="countdown" id="countdown" style="margin-top: 2rem; font-size: 1.1rem;">
-                💰 Rewards automatically distributed during token transfers
+            <div class="countdown" id="claimCountdown">--</div>
+            <button class="claim-btn" id="claimBtn" onclick="claimYield()" disabled>
+                🎁 Claim pSunDAI Now
+            </button>
+            <div id="claimStatus"></div>
+            <div style="margin-top: 2rem; font-size: 0.9rem; opacity: 0.8;">
+                💡 Auto-payout also distributes rewards during any token transfer
             </div>
         </div>
 
@@ -472,8 +518,8 @@
                     <div class="info-item-value">2x Multiplier</div>
                 </div>
                 <div class="info-item">
-                    <div class="info-item-label">Auto-Payout Status</div>
-                    <div class="info-item-value" id="autoPayoutStatus">Active</div>
+                    <div class="info-item-label">Total pSunDAI Earned</div>
+                    <div class="info-item-value" id="totalEarned">--</div>
                 </div>
             </div>
         </div>
@@ -496,9 +542,22 @@
         const BURN_ADDRESS = '0x0000000000000000000000000000000000000369';
         const PULSECHAIN_ID = 369;
         
-        const CONTRACT_ABI = [{"type":"constructor","inputs":[],"stateMutability":"nonpayable"},{"name":"Approval","type":"event","inputs":[{"name":"owner","type":"address","indexed":true},{"name":"spender","type":"address","indexed":true},{"name":"v","type":"uint256","indexed":false}]},{"name":"Transfer","type":"event","inputs":[{"name":"from","type":"address","indexed":true},{"name":"to","type":"address","indexed":true},{"name":"v","type":"uint256","indexed":false}]},{"name":"YieldPaid","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true},{"name":"amount","type":"uint256","indexed":false}]},{"name":"totalSupply","type":"function","outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"balanceOf","type":"function","inputs":[{"name":"a","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"getUnpaidYield","type":"function","inputs":[{"name":"wallet","type":"address"},{"name":"rewardToken","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"walletInfo","type":"function","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"share","type":"uint256"},{"name":"yieldDebt","type":"uint256"}],"stateMutability":"view"},{"name":"shareYieldRay","type":"function","outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"totalHexPaid","type":"function","outputs":[{"type":"uint256"}],"stateMutability":"view"},{"name":"walletClaimTS","type":"function","inputs":[{"name":"","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"}];
+        const CONTRACT_ABI = [
+            {"type":"function","name":"totalSupply","outputs":[{"type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"balanceOf","inputs":[{"name":"a","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"getUnpaidYield","inputs":[{"name":"wallet","type":"address"},{"name":"rewardToken","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"walletInfo","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"share","type":"uint256"},{"name":"yieldDebt","type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"shareYieldRay","outputs":[{"type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"totalRewardsPaid","outputs":[{"type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"walletClaimTS","inputs":[{"name":"","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"minWaitSec","outputs":[{"type":"uint24"}],"stateMutability":"view"},
+            {"type":"function","name":"minYield","outputs":[{"type":"uint256"}],"stateMutability":"view"},
+            {"type":"function","name":"claimYield","outputs":[],"stateMutability":"nonpayable"},
+            {"type":"event","name":"YieldPaid","inputs":[{"name":"wallet","type":"address","indexed":true},{"name":"rewardAmount","type":"uint256","indexed":false}]}
+        ];
 
         let provider, signer, contract, userAddress;
+        let claimCheckInterval;
 
         function waitForEthers() {
             return new Promise((resolve) => {
@@ -588,10 +647,13 @@
 
                 document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 document.getElementById('connectBtn').disabled = true;
-                document.getElementById('status').textContent = 'Connected to PulseChain';
+                document.getElementById('status').textContent = '✅ Connected to PulseChain';
 
                 await loadData();
                 setInterval(loadData, 15000);
+                
+                // Check claim eligibility every 10 seconds
+                claimCheckInterval = setInterval(updateClaimButton, 10000);
                 
             } catch (error) {
                 console.error('Connection error:', error);
@@ -604,6 +666,7 @@
                 const totalSupply = await contract.totalSupply();
                 const burnBalance = await contract.balanceOf(BURN_ADDRESS);
                 const treasuryBalance = await contract.balanceOf(CONTRACT_ADDRESS);
+                const totalPaid = await contract.totalRewardsPaid();
                 
                 document.getElementById('totalSupply').textContent = formatNumber(ethers.utils.formatEther(totalSupply), 0);
                 document.getElementById('totalBurned').textContent = formatNumber(ethers.utils.formatEther(burnBalance), 0);
@@ -611,9 +674,9 @@
                 const deflationRate = (parseFloat(ethers.utils.formatEther(burnBalance)) / 10000000) * 100;
                 document.getElementById('deflationRate').textContent = deflationRate.toFixed(2) + '%';
                 
-                document.getElementById('totalHolders').textContent = 'Loading...';
-                document.getElementById('totalDistributed').textContent = 'Loading...';
+                document.getElementById('totalDistributed').textContent = formatNumber(ethers.utils.formatEther(totalPaid), 2);
                 document.getElementById('treasuryBalance').textContent = formatNumber(ethers.utils.formatEther(treasuryBalance), 0);
+                document.getElementById('totalHolders').textContent = 'Loading...';
 
                 if (userAddress) {
                     await loadUserData();
@@ -628,6 +691,9 @@
                 const balance = await contract.balanceOf(userAddress);
                 const walletInfo = await contract.walletInfo(userAddress);
                 const unpaidYield = await contract.getUnpaidYield(userAddress, PSUNDAI_ADDRESS);
+                const lastClaimTS = await contract.walletClaimTS(userAddress);
+                const minWait = await contract.minWaitSec();
+                const minYieldAmount = await contract.minYield();
                 
                 const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
                 const lpBalance = await lpContract.balanceOf(userAddress);
@@ -635,19 +701,71 @@
                 document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
                 document.getElementById('lpBalance').textContent = formatNumber(ethers.utils.formatEther(lpBalance), 4);
                 document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(walletInfo.share), 0);
-                document.getElementById('unpaidYield').textContent = formatNumber(ethers.utils.formatEther(unpaidYield), 4) + ' pSunDAI';
-
-                if (parseFloat(ethers.utils.formatEther(unpaidYield)) > 0) {
-                    document.getElementById('countdown').innerHTML = '💰 You have ' + formatNumber(ethers.utils.formatEther(unpaidYield), 4) + ' pSunDAI pending<br><span style="font-size: 0.9rem; opacity: 0.8;">Automatically paid during any token transfer</span>';
+                
+                const unpaidAmount = parseFloat(ethers.utils.formatEther(unpaidYield));
+                document.getElementById('unpaidYield').textContent = unpaidAmount.toFixed(4);
+                
+                // Check claim eligibility
+                const now = Math.floor(Date.now() / 1000);
+                const nextClaimTime = lastClaimTS.toNumber() + minWait.toNumber();
+                const canClaim = now >= nextClaimTime && unpaidAmount >= parseFloat(ethers.utils.formatEther(minYieldAmount));
+                
+                const claimBtn = document.getElementById('claimBtn');
+                claimBtn.disabled = !canClaim;
+                
+                if (canClaim) {
+                    document.getElementById('claimCountdown').innerHTML = '✅ <strong>You can claim now!</strong><br>Click button below to claim ' + unpaidAmount.toFixed(4) + ' pSunDAI';
+                    claimBtn.textContent = '🎁 Claim ' + unpaidAmount.toFixed(4) + ' pSunDAI';
+                } else if (unpaidAmount < parseFloat(ethers.utils.formatEther(minYieldAmount))) {
+                    document.getElementById('claimCountdown').innerHTML = '⏳ Accumulating yield...<br>Need ' + parseFloat(ethers.utils.formatEther(minYieldAmount)).toFixed(3) + ' pSunDAI minimum (currently ' + unpaidAmount.toFixed(4) + ')';
                 } else {
-                    document.getElementById('countdown').innerHTML = '💰 Hold OGT+ to earn pSunDAI rewards<br><span style="font-size: 0.9rem; opacity: 0.8;">Minimum 0.369 pSunDAI for payout</span>';
+                    const waitTime = nextClaimTime - now;
+                    const minutes = Math.floor(waitTime / 60);
+                    const seconds = waitTime % 60;
+                    document.getElementById('claimCountdown').innerHTML = '⏰ Next claim in: <strong>' + minutes + 'm ' + seconds + 's</strong><br>' + unpaidAmount.toFixed(4) + ' pSunDAI ready';
                 }
+
+                document.getElementById('totalEarned').textContent = 'Coming soon';
 
                 document.getElementById('claimSection').style.display = 'block';
                 document.getElementById('walletInfo').style.display = 'block';
 
             } catch (error) {
                 console.error('Error loading user data:', error);
+            }
+        }
+
+        async function updateClaimButton() {
+            if (!userAddress || !contract) return;
+            await loadUserData();
+        }
+
+        async function claimYield() {
+            try {
+                const claimBtn = document.getElementById('claimBtn');
+                const statusEl = document.getElementById('claimStatus');
+                
+                claimBtn.disabled = true;
+                claimBtn.textContent = '⏳ Claiming...';
+                statusEl.innerHTML = '<div class="status">Sending transaction...</div>';
+                
+                const tx = await contract.claimYield();
+                statusEl.innerHTML = '<div class="status">⏳ Waiting for confirmation...<br>Tx: ' + tx.hash.slice(0, 10) + '...</div>';
+                
+                await tx.wait();
+                
+                statusEl.innerHTML = '<div class="success">✅ Claim successful!<br>pSunDAI sent to your wallet</div>';
+                
+                setTimeout(() => {
+                    statusEl.innerHTML = '';
+                    loadUserData();
+                }, 5000);
+                
+            } catch (error) {
+                console.error('Claim error:', error);
+                document.getElementById('claimStatus').innerHTML = '<div class="error">❌ Claim failed: ' + (error.message || 'Unknown error') + '</div>';
+                document.getElementById('claimBtn').disabled = false;
+                document.getElementById('claimBtn').textContent = '🎁 Claim pSunDAI Now';
             }
         }
 
