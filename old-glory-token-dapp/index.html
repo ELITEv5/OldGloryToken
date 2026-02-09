@@ -331,7 +331,7 @@
             display: block;
             width: 100%;
             max-width: 500px;
-            margin: 2rem auto;
+            margin: 2rem auto 0;
             background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
             color: var(--navy);
             border: 3px solid var(--white);
@@ -472,7 +472,7 @@
     <div class="container">
         <header>
             <div class="version-badge">RISE • pSunDAI Rewards</div>
-            <h1>Old Glory Rise</h1>
+            <h1>🇺🇸 Old Glory Rise 🇺🇸</h1>
             <p class="tagline">Autonomous Treasury • Immutable • Sovereign</p>
             
             <div class="contract-display">
@@ -520,7 +520,7 @@
         </div>
 
         <div class="claim-section" id="claimSection" style="display: none;">
-            <h2 class="claim-title">Your pSunDAI Rewards</h2>
+            <h2 class="claim-title">🇺🇸 Your pSunDAI Rewards 🇺🇸</h2>
             <div class="claim-info">
                 <div class="claim-stat">
                     <div class="claim-stat-label">Your Shares</div>
@@ -547,7 +547,7 @@
         </div>
 
         <div class="wallet-info" id="walletInfo" style="display: none;">
-            <h2>Your Wallet Details</h2>
+            <h2>🇺🇸 Your Wallet Details 🇺🇸</h2>
             <div class="info-grid">
                 <div class="info-item">
                     <div class="info-item-label">RISE Balance</div>
@@ -574,7 +574,7 @@
                 <a href="https://scan.pulsechain.com/address/0xC8f19c71Bb66439E99642ce8DfBfa64f72130023" target="_blank">Liquidity Pool</a>
                 <a href="https://scan.pulsechain.com/address/0x5529c1cb179b2c256501031adCDAfC22D9c6d236" target="_blank">pSunDAI</a>
             </div>
-            <p>Old Glory Rise • pSunDAI Rewards • Autonomous Treasury</p>
+            <p>🇺🇸 Old Glory Rise • pSunDAI Rewards • Autonomous Treasury 🇺🇸</p>
             <p style="margin-top: 0.5rem; font-size: 0.8rem;">PulseChain • No Admin Keys • Immutable • Self-Sovereign</p>
         </footer>
     </div>
@@ -694,7 +694,7 @@
 
                 document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 document.getElementById('connectBtn').disabled = true;
-                document.getElementById('status').textContent = 'Connected to PulseChain';
+                document.getElementById('status').textContent = '✅ Connected to PulseChain';
 
                 await loadData();
                 setInterval(loadData, 15000);
@@ -749,10 +749,13 @@
                 const unpaidAmt = parseFloat(ethers.utils.formatEther(unpaidYield));
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidAmt, 4) + ' pSunDAI';
 
-                // Check if eligible to claim
+                // FIX: Convert BigNumber to regular number properly
                 const now = Math.floor(Date.now() / 1000);
-                const nextClaim = lastClaimTS.toNumber() + minWait.toNumber();
+                const lastClaimNum = parseInt(lastClaimTS.toString());
+                const minWaitNum = parseInt(minWait.toString());
                 const minRequired = parseFloat(ethers.utils.formatEther(minYieldAmt));
+                
+                const nextClaim = lastClaimNum + minWaitNum;
                 const canClaim = now >= nextClaim && unpaidAmt >= minRequired;
                 
                 const claimBtn = document.getElementById('claimBtn');
