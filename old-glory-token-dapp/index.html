@@ -448,7 +448,20 @@
         async function loadUserData() {
             try {
                 const balance = await contract.balanceOf(userAddress);
-                const walletInfo = await contract.walletInfo(userAddress);
+                
+                // walletInfo might return struct or just uint256
+                let share;
+                try {
+                    const walletInfo = await contract.walletInfo(userAddress);
+                    // Try as struct first
+                    share = walletInfo.share || walletInfo[0] || walletInfo;
+                } catch (e) {
+                    console.error('walletInfo error:', e);
+                    share = ethers.BigNumber.from(0);
+                }
+                
+                console.log('Share:', share.toString());
+                
                 const unpaid = await contract.getUnpaidYield(userAddress, PSUNDAI_ADDRESS);
                 const lastClaim = await contract.walletClaimTS(userAddress, PSUNDAI_ADDRESS);
                 const minWait = await contract.minWaitSec();
@@ -458,7 +471,7 @@
                 const lpBal = await lpContract.balanceOf(userAddress);
 
                 document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
-                document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(walletInfo.share), 0);
+                document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(share), 0);
                 
                 const unpaidAmt = parseFloat(ethers.utils.formatEther(unpaid));
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidAmt, 4);
