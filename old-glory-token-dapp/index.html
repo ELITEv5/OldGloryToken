@@ -7,19 +7,6 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🇺🇸</text></svg>">
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700;900&family=Rajdhani:wght@300;500;700&display=swap" rel="stylesheet">
     <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
-    <script>
-        window.addEventListener('load', function() {
-            if (typeof ethers === 'undefined') {
-                console.log('Ethers not loaded, trying backup...');
-                const script = document.createElement('script');
-                script.src = 'https://cdnjs.cloudflare.com/ajax/libs/ethers/5.7.2/ethers.umd.min.js';
-                script.onerror = function() {
-                    document.getElementById('status').innerHTML = '<div class="error">Failed to load Web3 library. Please refresh.</div>';
-                };
-                document.head.appendChild(script);
-            }
-        });
-    </script>
     <style>
         :root {
             --navy: #0a1628;
@@ -86,7 +73,6 @@
         header {
             text-align: center;
             padding: 3rem 0 2rem;
-            position: relative;
         }
 
         .title-container {
@@ -131,18 +117,6 @@
             margin-bottom: 2rem;
         }
 
-        .version-badge {
-            display: inline-block;
-            background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
-            color: var(--navy);
-            padding: 0.5rem 1rem;
-            font-size: 0.9rem;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-            margin-bottom: 1rem;
-        }
-
         .contract-display {
             background: linear-gradient(135deg, rgba(212, 175, 55, 0.2) 0%, rgba(184, 134, 11, 0.3) 100%);
             border: 2px solid var(--gold);
@@ -150,7 +124,6 @@
             margin: 2rem auto;
             max-width: 800px;
             border-radius: 8px;
-            box-shadow: 0 0 30px rgba(212, 175, 55, 0.3);
         }
 
         .contract-display h3 {
@@ -159,7 +132,6 @@
             margin-bottom: 1rem;
             color: var(--gold);
             text-transform: uppercase;
-            letter-spacing: 0.1em;
         }
 
         .contract-address {
@@ -170,7 +142,6 @@
             padding: 1rem;
             border-radius: 4px;
             word-break: break-all;
-            border: 1px solid rgba(255,255,255,0.2);
             cursor: pointer;
             transition: all 0.3s ease;
         }
@@ -189,23 +160,13 @@
             font-weight: 700;
             font-family: 'Cinzel', serif;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
             cursor: pointer;
-            border-radius: 0;
-            clip-path: polygon(10% 0, 100% 0, 90% 100%, 0 100%);
             transition: all 0.3s ease;
-            box-shadow: 0 4px 20px var(--red-glow);
         }
 
         .connect-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 30px var(--red-glow);
             background: linear-gradient(135deg, #ff0000 0%, var(--red) 100%);
-        }
-
-        .connect-btn:disabled {
-            opacity: 0.5;
-            cursor: not-allowed;
         }
 
         .status {
@@ -214,7 +175,6 @@
             background: rgba(255,255,255,0.05);
             border: 1px solid rgba(255,255,255,0.1);
             border-radius: 4px;
-            font-size: 0.9rem;
         }
 
         .stats-grid {
@@ -228,55 +188,31 @@
             background: linear-gradient(135deg, rgba(0, 40, 104, 0.3) 0%, rgba(10, 22, 40, 0.5) 100%);
             border: 2px solid rgba(192, 192, 192, 0.3);
             padding: 2rem;
-            position: relative;
-            overflow: hidden;
             transition: all 0.3s ease;
-        }
-
-        .stat-card::before {
-            content: '';
-            position: absolute;
-            top: 0; left: -100%;
-            width: 100%; height: 2px;
-            background: linear-gradient(90deg, transparent, var(--red), transparent);
-            animation: scan 3s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { left: -100%; }
-            100% { left: 100%; }
         }
 
         .stat-card:hover {
             transform: translateY(-4px);
             border-color: var(--gold);
-            box-shadow: 0 8px 30px var(--blue-glow);
         }
 
         .stat-label {
             font-size: 0.9rem;
             text-transform: uppercase;
-            letter-spacing: 0.15em;
             color: var(--silver);
             margin-bottom: 0.5rem;
-            font-weight: 300;
         }
 
         .stat-value {
             font-size: 2.5rem;
             font-weight: 700;
             font-family: 'Cinzel', serif;
-            background: linear-gradient(135deg, var(--white) 0%, var(--gold) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            margin-bottom: 0.5rem;
+            color: var(--gold);
         }
 
         .stat-subtext {
             font-size: 0.85rem;
             color: rgba(255,255,255,0.6);
-            font-weight: 300;
         }
 
         .claim-section {
@@ -284,86 +220,22 @@
             border: 3px solid var(--red);
             padding: 3rem;
             margin: 3rem 0;
-            position: relative;
-            box-shadow: 0 0 40px var(--red-glow);
-        }
-
-        .claim-section::before {
-            content: '★';
-            position: absolute;
-            top: -20px;
-            left: 50%;
-            transform: translateX(-50%);
-            font-size: 3rem;
-            color: var(--gold);
-            text-shadow: 0 0 20px var(--gold);
-        }
-
-        .claim-title {
-            font-family: 'Cinzel', serif;
-            font-size: 2.5rem;
-            text-align: center;
-            margin-bottom: 2rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .claim-info {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 2rem;
-            margin-bottom: 2rem;
-        }
-
-        .claim-stat {
-            text-align: center;
-        }
-
-        .claim-stat-label {
-            font-size: 0.9rem;
-            color: var(--silver);
-            margin-bottom: 0.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .claim-stat-value {
-            font-size: 2rem;
-            font-weight: 700;
-            color: var(--gold);
-            font-family: 'Cinzel', serif;
-        }
-
-        .countdown {
-            text-align: center;
-            margin-top: 1rem;
-            font-size: 1.1rem;
-            color: var(--silver);
         }
 
         .claim-btn {
             display: block;
             width: 100%;
             max-width: 500px;
-            margin: 2rem auto 0;
+            margin: 2rem auto;
             background: linear-gradient(135deg, var(--gold) 0%, #b8860b 100%);
             color: var(--navy);
             border: 3px solid var(--white);
-            padding: 1.5rem 3rem;
+            padding: 1.5rem;
             font-size: 1.5rem;
             font-weight: 900;
             font-family: 'Cinzel', serif;
             text-transform: uppercase;
-            letter-spacing: 0.1em;
             cursor: pointer;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 30px rgba(212, 175, 55, 0.5);
-        }
-
-        .claim-btn:hover:not(:disabled) {
-            transform: translateY(-4px);
-            box-shadow: 0 10px 40px rgba(212, 175, 55, 0.8);
-            background: linear-gradient(135deg, #ffd700 0%, var(--gold) 100%);
         }
 
         .claim-btn:disabled {
@@ -371,81 +243,9 @@
             cursor: not-allowed;
         }
 
-        .wallet-info {
-            background: linear-gradient(135deg, rgba(0, 0, 0, 0.4) 0%, rgba(10, 22, 40, 0.6) 100%);
-            border: 2px solid rgba(192, 192, 192, 0.2);
-            padding: 2rem;
-            margin: 3rem 0;
-        }
-
-        .wallet-info h2 {
-            font-family: 'Cinzel', serif;
-            font-size: 2rem;
-            margin-bottom: 1.5rem;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-        }
-
-        .info-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-        }
-
-        .info-item {
-            padding: 1rem;
-            background: rgba(255,255,255,0.03);
-            border-left: 3px solid var(--red);
-        }
-
-        .info-item-label {
-            font-size: 0.85rem;
-            color: var(--silver);
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            margin-bottom: 0.5rem;
-        }
-
-        .info-item-value {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: var(--white);
-        }
-
-        footer {
-            text-align: center;
-            padding: 3rem 0 2rem;
-            margin-top: 4rem;
-            border-top: 1px solid rgba(192, 192, 192, 0.2);
-            font-size: 0.9rem;
-            color: var(--silver);
-        }
-
-        .footer-links {
-            display: flex;
-            justify-content: center;
-            gap: 2rem;
-            margin-bottom: 1rem;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: var(--gold);
-            text-decoration: none;
-            text-transform: uppercase;
-            letter-spacing: 0.1em;
-            font-weight: 500;
-            transition: color 0.3s ease;
-        }
-
-        .footer-links a:hover {
-            color: var(--white);
-        }
-
         .error {
             color: #ff6b6b;
             background: rgba(255, 107, 107, 0.1);
-            border: 1px solid rgba(255, 107, 107, 0.3);
             padding: 1rem;
             border-radius: 4px;
             margin: 1rem 0;
@@ -454,7 +254,6 @@
         .success {
             color: #51cf66;
             background: rgba(81, 207, 102, 0.1);
-            border: 1px solid rgba(81, 207, 102, 0.3);
             padding: 1rem;
             border-radius: 4px;
             margin: 1rem 0;
@@ -465,7 +264,6 @@
             .flag { font-size: 3rem; }
             h1 { font-size: 2.5rem; }
             .stats-grid { grid-template-columns: 1fr; }
-            .claim-section { padding: 2rem 1rem; }
         }
     </style>
 </head>
@@ -476,13 +274,13 @@
         <header>
             <div class="title-container">
                 <span class="flag">🇺🇸</span>
-                <h1>Old Glory Rise</h1>
+                <h1>Old Glory RISE</h1>
                 <span class="flag">🇺🇸</span>
             </div>
-            <p class="tagline">Autonomous Treasury • Immutable • Sovereign</p>
+            <p class="tagline">V9.2 • pSunDAI Rewards • Autonomous</p>
             
             <div class="contract-display">
-                <h3>📜 Official Contract Address (Click to Copy)</h3>
+                <h3>📜 RISE Contract (Click to Copy)</h3>
                 <div class="contract-address" onclick="copyContract()" title="Click to copy">
                     0x555679515BBF858290670d6a57543B0e4E09E89B
                 </div>
@@ -496,93 +294,52 @@
             <div class="stat-card">
                 <div class="stat-label">Total Supply</div>
                 <div class="stat-value" id="totalSupply">--</div>
-                <div class="stat-subtext">Rise Tokens</div>
+                <div class="stat-subtext">RISE Tokens</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Total Burned</div>
                 <div class="stat-value" id="totalBurned">--</div>
-                <div class="stat-subtext">Permanently Removed</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Deflation Rate</div>
-                <div class="stat-value" id="deflationRate">--</div>
-                <div class="stat-subtext">% Burned from Genesis</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Total Shareholders</div>
-                <div class="stat-value" id="totalHolders">--</div>
-                <div class="stat-subtext">Active Yield Earners</div>
+                <div class="stat-subtext">Sent to 0x369</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">pSunDAI Distributed</div>
                 <div class="stat-value" id="totalDistributed">--</div>
-                <div class="stat-subtext">Total Yields Paid</div>
+                <div class="stat-subtext">Total Rewards Paid</div>
             </div>
             <div class="stat-card">
-                <div class="stat-label">Treasury Fee Pool</div>
-                <div class="stat-value" id="treasuryBalance">--</div>
-                <div class="stat-subtext">Rise Fees Ready to Swap</div>
+                <div class="stat-label">Your Balance</div>
+                <div class="stat-value" id="userBalance">--</div>
+                <div class="stat-subtext">RISE Tokens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Your Shares</div>
+                <div class="stat-value" id="userShares">--</div>
+                <div class="stat-subtext">Includes 2x LP Bonus</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Your LP Balance</div>
+                <div class="stat-value" id="lpBalance">--</div>
+                <div class="stat-subtext">RISE/PLS LP Tokens</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Pending Yield</div>
+                <div class="stat-value" id="unpaidYield">--</div>
+                <div class="stat-subtext">pSunDAI Ready</div>
             </div>
         </div>
 
         <div class="claim-section" id="claimSection" style="display: none;">
-            <h2 class="claim-title">🇺🇸 Your pSunDAI Rewards 🇺🇸</h2>
-            <div class="claim-info">
-                <div class="claim-stat">
-                    <div class="claim-stat-label">Your Shares</div>
-                    <div class="claim-stat-value" id="userShares">--</div>
-                </div>
-                <div class="claim-stat">
-                    <div class="claim-stat-label">Pending Yield</div>
-                    <div class="claim-stat-value" id="unpaidYield">--</div>
-                </div>
-                <div class="claim-stat">
-                    <div class="claim-stat-label">Min Payout</div>
-                    <div class="claim-stat-value">0.369 pSunDAI</div>
-                </div>
+            <h2 style="font-family: 'Cinzel', serif; text-align: center; font-size: 2rem; margin-bottom: 2rem;">
+                🎁 CLAIM YOUR PSUNDAI REWARDS 🎁
+            </h2>
+            <div id="countdown" style="text-align: center; font-size: 1.2rem; margin-bottom: 1rem;">
+                💰 Minimum claim: 0.369 pSunDAI
             </div>
-            <div class="countdown" id="countdown">
-                💰 Rewards automatically distributed during token transfers
-            </div>
-            
             <button class="claim-btn" id="claimBtn" onclick="claimYield()" disabled>
-                 CLAIM PSUNDAI NOW
+                CLAIM PSUNDAI NOW
             </button>
-            
             <div id="claimStatus"></div>
         </div>
-
-        <div class="wallet-info" id="walletInfo" style="display: none;">
-            <h2>🇺🇸 Your Wallet Details 🇺🇸</h2>
-            <div class="info-grid">
-                <div class="info-item">
-                    <div class="info-item-label">RISE Balance</div>
-                    <div class="info-item-value" id="userBalance">--</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-item-label">LP Balance</div>
-                    <div class="info-item-value" id="lpBalance">--</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-item-label">LP Weight Bonus</div>
-                    <div class="info-item-value">2x Multiplier</div>
-                </div>
-                <div class="info-item">
-                    <div class="info-item-label">Auto-Payout Status</div>
-                    <div class="info-item-value" id="autoPayoutStatus">Active</div>
-                </div>
-            </div>
-        </div>
-
-        <footer>
-            <div class="footer-links">
-                <a href="https://scan.pulsechain.com/address/0x555679515BBF858290670d6a57543B0e4E09E89B" target="_blank">RISE Contract</a>
-                <a href="https://scan.pulsechain.com/address/0x3bC0CF435A8A2A18044505a1A9c6272B854338AB" target="_blank">Liquidity Pool</a>
-                <a href="https://scan.pulsechain.com/address/0x5529c1cb179b2c256501031adCDAfC22D9c6d236" target="_blank">pSunDAI</a>
-            </div>
-            <p>🇺🇸 Old Glory Rise • pSunDAI Rewards • Autonomous Treasury 🇺🇸</p>
-            <p style="margin-top: 0.5rem; font-size: 0.8rem;">PulseChain • No Admin Keys • Immutable • Self-Sovereign</p>
-        </footer>
     </div>
 
     <script>
@@ -592,35 +349,22 @@
         const BURN_ADDRESS = '0x0000000000000000000000000000000000000369';
         const PULSECHAIN_ID = 369;
         
+        // Correct ABI for RISE V9.2
         const CONTRACT_ABI = [
-            {"type":"function","name":"totalSupply","outputs":[{"type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"balanceOf","inputs":[{"name":"a","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"getUnpaidYield","inputs":[{"name":"wallet","type":"address"},{"name":"rewardToken","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"walletInfo","inputs":[{"name":"","type":"address"}],"outputs":[{"name":"share","type":"uint256"},{"name":"yieldDebt","type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"shareYieldRay","outputs":[{"type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"totalRewardsPaid","outputs":[{"type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"walletClaimTS","inputs":[{"name":"","type":"address"}],"outputs":[{"type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"minWaitSec","outputs":[{"type":"uint24"}],"stateMutability":"view"},
-            {"type":"function","name":"minYield","outputs":[{"type":"uint256"}],"stateMutability":"view"},
-            {"type":"function","name":"claimYield","outputs":[],"stateMutability":"nonpayable"}
+            "function totalSupply() view returns (uint256)",
+            "function balanceOf(address) view returns (uint256)",
+            "function getUnpaidYield(address wallet, address token) view returns (uint256)",
+            "function walletInfo(address) view returns (uint256 share, uint256 yieldDebt)",
+            "function totalRewardsPaid() view returns (uint256)",
+            "function walletClaimTS(address) view returns (uint256)",
+            "function minWaitSec() view returns (uint24)",
+            "function minYield() view returns (uint256)",
+            "function maxPayout() view returns (uint256)",
+            "function claimYield()",
+            "function plsV2LP() view returns (address)"
         ];
 
         let provider, signer, contract, userAddress;
-
-        function waitForEthers() {
-            return new Promise((resolve) => {
-                if (typeof ethers !== 'undefined') {
-                    resolve();
-                } else {
-                    const checkInterval = setInterval(() => {
-                        if (typeof ethers !== 'undefined') {
-                            clearInterval(checkInterval);
-                            resolve();
-                        }
-                    }, 100);
-                }
-            });
-        }
 
         function generateStars() {
             const starsContainer = document.getElementById('stars');
@@ -650,15 +394,12 @@
         async function connectWallet() {
             try {
                 if (typeof window.ethereum === 'undefined') {
-                    alert('Please install MetaMask or another Web3 wallet');
+                    alert('Please install MetaMask!');
                     return;
                 }
 
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-                
-                window.ethereum.on('accountsChanged', () => location.reload());
-                window.ethereum.on('chainChanged', () => location.reload());
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                provider = new ethers.providers.Web3Provider(window.ethereum);
                 
                 const network = await provider.getNetwork();
                 
@@ -668,28 +409,19 @@
                             method: 'wallet_switchEthereumChain',
                             params: [{ chainId: '0x171' }],
                         });
-                        provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
+                        provider = new ethers.providers.Web3Provider(window.ethereum);
                     } catch (switchError) {
                         if (switchError.code === 4902) {
-                            try {
-                                await window.ethereum.request({
-                                    method: 'wallet_addEthereumChain',
-                                    params: [{
-                                        chainId: '0x171',
-                                        chainName: 'PulseChain',
-                                        nativeCurrency: { name: 'Pulse', symbol: 'PLS', decimals: 18 },
-                                        rpcUrls: ['https://rpc.pulsechain.com'],
-                                        blockExplorerUrls: ['https://scan.pulsechain.com']
-                                    }]
-                                });
-                                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
-                            } catch (addError) {
-                                document.getElementById('status').innerHTML = '<div class="error">Please add PulseChain network</div>';
-                                return;
-                            }
-                        } else {
-                            document.getElementById('status').innerHTML = '<div class="error">Please switch to PulseChain</div>';
-                            return;
+                            await window.ethereum.request({
+                                method: 'wallet_addEthereumChain',
+                                params: [{
+                                    chainId: '0x171',
+                                    chainName: 'PulseChain',
+                                    nativeCurrency: { name: 'Pulse', symbol: 'PLS', decimals: 18 },
+                                    rpcUrls: ['https://rpc.pulsechain.com'],
+                                    blockExplorerUrls: ['https://scan.pulsechain.com']
+                                }]
+                            });
                         }
                     }
                 }
@@ -715,18 +447,11 @@
             try {
                 const totalSupply = await contract.totalSupply();
                 const burnBalance = await contract.balanceOf(BURN_ADDRESS);
-                const treasuryBalance = await contract.balanceOf(CONTRACT_ADDRESS);
                 const totalPaid = await contract.totalRewardsPaid();
                 
                 document.getElementById('totalSupply').textContent = formatNumber(ethers.utils.formatEther(totalSupply), 0);
                 document.getElementById('totalBurned').textContent = formatNumber(ethers.utils.formatEther(burnBalance), 0);
-                
-                const deflationRate = (parseFloat(ethers.utils.formatEther(burnBalance)) / 10000000) * 100;
-                document.getElementById('deflationRate').textContent = deflationRate.toFixed(2) + '%';
-                
-                document.getElementById('totalHolders').textContent = 'Loading...';
                 document.getElementById('totalDistributed').textContent = formatNumber(ethers.utils.formatEther(totalPaid), 2);
-                document.getElementById('treasuryBalance').textContent = formatNumber(ethers.utils.formatEther(treasuryBalance), 0);
 
                 if (userAddress) {
                     await loadUserData();
@@ -744,16 +469,17 @@
                 const lastClaimTS = await contract.walletClaimTS(userAddress);
                 const minWait = await contract.minWaitSec();
                 const minYieldAmt = await contract.minYield();
-                
+
+                // Get LP balance
                 const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
                 const lpBalance = await lpContract.balanceOf(userAddress);
 
                 document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
-                document.getElementById('lpBalance').textContent = formatNumber(ethers.utils.formatEther(lpBalance), 4);
                 document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(walletInfo.share), 0);
+                document.getElementById('lpBalance').textContent = formatNumber(ethers.utils.formatEther(lpBalance), 4);
                 
                 const unpaidAmt = parseFloat(ethers.utils.formatEther(unpaidYield));
-                document.getElementById('unpaidYield').textContent = formatNumber(unpaidAmt, 4) + ' pSunDAI';
+                document.getElementById('unpaidYield').textContent = formatNumber(unpaidAmt, 4);
 
                 const now = Math.floor(Date.now() / 1000);
                 const lastClaimNum = parseInt(lastClaimTS.toString());
@@ -767,20 +493,18 @@
                 claimBtn.disabled = !canClaim;
                 
                 if (canClaim) {
-                    document.getElementById('countdown').innerHTML = '✅ <strong style="color: #51cf66;">READY TO CLAIM!</strong><br>Click button below to claim ' + unpaidAmt.toFixed(4) + ' pSunDAI';
+                    document.getElementById('countdown').innerHTML = '✅ <strong style="color: #51cf66;">READY TO CLAIM!</strong><br>' + unpaidAmt.toFixed(4) + ' pSunDAI ready';
                     claimBtn.textContent = '🎁 CLAIM ' + unpaidAmt.toFixed(4) + ' PSUNDAI';
                 } else if (unpaidAmt < minRequired) {
-                    document.getElementById('countdown').innerHTML = '⏳ Accumulating yield... Need ' + minRequired.toFixed(3) + ' pSunDAI<br>Current: ' + unpaidAmt.toFixed(4) + ' pSunDAI';
+                    document.getElementById('countdown').innerHTML = '⏳ Accumulating... Need ' + minRequired.toFixed(3) + ' pSunDAI<br>Current: ' + unpaidAmt.toFixed(4) + ' pSunDAI';
                 } else {
                     const wait = nextClaim - now;
                     const hrs = Math.floor(wait / 3600);
                     const mins = Math.floor((wait % 3600) / 60);
-                    const secs = wait % 60;
-                    document.getElementById('countdown').innerHTML = '⏰ Next claim in: <strong>' + (hrs > 0 ? hrs + 'h ' : '') + mins + 'm ' + secs + 's</strong><br>' + unpaidAmt.toFixed(4) + ' pSunDAI ready';
+                    document.getElementById('countdown').innerHTML = '⏰ Next claim in: <strong>' + (hrs > 0 ? hrs + 'h ' : '') + mins + 'm</strong><br>' + unpaidAmt.toFixed(4) + ' pSunDAI ready';
                 }
 
                 document.getElementById('claimSection').style.display = 'block';
-                document.getElementById('walletInfo').style.display = 'block';
 
             } catch (error) {
                 console.error('Error loading user data:', error);
@@ -797,7 +521,7 @@
                 status.innerHTML = '<div class="status">Sending transaction...</div>';
                 
                 const tx = await contract.claimYield();
-                status.innerHTML = '<div class="status">⏳ Waiting for confirmation... Tx: ' + tx.hash.slice(0, 10) + '...</div>';
+                status.innerHTML = '<div class="status">⏳ Waiting for confirmation...</div>';
                 
                 await tx.wait();
                 
@@ -816,21 +540,13 @@
             }
         }
 
-        async function initialize() {
-            await waitForEthers();
-            document.getElementById('connectBtn').addEventListener('click', connectWallet);
+        window.addEventListener('load', () => {
             generateStars();
-            
+            document.getElementById('connectBtn').addEventListener('click', connectWallet);
             if (window.ethereum && window.ethereum.selectedAddress) {
                 connectWallet();
             }
-        }
-
-        if (document.readyState === 'loading') {
-            document.addEventListener('DOMContentLoaded', initialize);
-        } else {
-            initialize();
-        }
+        });
     </script>
 </body>
 </html>
