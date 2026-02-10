@@ -99,8 +99,8 @@
     <div class="container">
         <div class="header">
             <h1>🇺🇸 Old Glory RISE - Owner Dashboard</h1>
-            <p class="version">V10 (CST V6 Pattern) • PRODUCTION</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">Contract: <code style="color: #d4af37;">0x555679515BBF858290670d6a57543B0e4E09E89B</code></p>
+            <p class="version">V11 (VORTEX-SAFE) • PRODUCTION</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Contract: <code style="color: #d4af37;" id="contractAddr">UPDATE AFTER DEPLOY</code></p>
             <button class="connect-btn" id="connectBtn">Connect Wallet</button>
             <div id="walletStatus" style="margin-top: 10px;"></div>
         </div>
@@ -159,18 +159,14 @@
 
         <div class="card">
             <h2>🔄 Swap Parameters</h2>
-            <div class="warning-box">
-                💡 Disable swaps if WPLS/pSunDAI pool has low liquidity ($700 won't work!)
+            <div class="info-box">
+                ℹ️ V11: Swap sizing now automatic (MIN_SWAP: 1,000 RISE, MAX_SWAP: 25,000 RISE)
             </div>
             <div class="form-group">
                 <label>
-                    <input type="checkbox" id="swapEnabled" style="width: 20px; height: 20px;">
+                    <input type="checkbox" id="swapEnabled" checked style="width: 20px; height: 20px;">
                     Enable Swaps
                 </label>
-            </div>
-            <div class="form-group">
-                <label>LP Factor</label>
-                <input type="number" id="lpFactor" value="2000" min="50" max="200000">
             </div>
             <button class="action-btn" onclick="setSwapParams()">Update Swap Params</button>
             <div id="swapStatus"></div>
@@ -222,11 +218,13 @@
     </div>
 
     <script>
-        const CONTRACT_ADDRESS = '0x555679515BBF858290670d6a57543B0e4E09E89B';
+        // ⚠️ UPDATE THIS AFTER V11 DEPLOY!
+        const CONTRACT_ADDRESS = 'YOUR_V11_CONTRACT_ADDRESS_HERE';
+        
         const ABI = [
             "function setFees(uint16 bb, uint16 by, uint16 sb, uint16 sy)",
             "function setPayoutPolicy(bool en, uint24 minDur, uint256 newMin, uint24 gas_)",
-            "function setSwapParams(bool en, uint24 f)",
+            "function setSwapParams(bool en)",
             "function setAutoPayout(bool en)",
             "function setNoYield(address w, bool f)",
             "function transferOwnership(address newOwner)",
@@ -313,10 +311,9 @@
         async function setSwapParams() {
             try {
                 const enabled = document.getElementById('swapEnabled').checked;
-                const factor = parseInt(document.getElementById('lpFactor').value);
 
                 showStatus('swapStatus', 'Sending...', 'info');
-                const tx = await contract.setSwapParams(enabled, factor);
+                const tx = await contract.setSwapParams(enabled);
                 await tx.wait();
                 showStatus('swapStatus', '✅ Swap params updated!', 'success');
             } catch (error) {
