@@ -3,91 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Old Glory Rise Owner Dashboard</title>
+    <title>🇺🇸 Old Glory Rise V10 - Owner Dashboard</title>
+    <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
-            color: #333;
+            background: linear-gradient(135deg, #0a1628 0%, #1e3c72 100%);
+            color: white;
             padding: 20px;
             min-height: 100vh;
         }
         .container { max-width: 1200px; margin: 0 auto; }
         .header {
-            background: white;
+            background: rgba(255,255,255,0.1);
             padding: 30px;
             border-radius: 12px;
             margin-bottom: 30px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 2px solid #d4af37;
         }
-        .header h1 { color: #1e3c72; font-size: 2em; margin-bottom: 10px; }
-        .header .subtitle { color: #666; font-size: 1.1em; }
-        .version-badge {
-            display: inline-block;
-            background: #28a745;
-            color: white;
-            padding: 5px 12px;
-            border-radius: 15px;
-            font-size: 0.85em;
-            font-weight: 600;
-            margin-left: 10px;
-        }
-        .wallet-section {
-            background: white;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .wallet-info {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
-            gap: 15px;
-        }
-        .info-item { display: flex; flex-direction: column; }
-        .info-label { font-size: 0.9em; color: #666; margin-bottom: 5px; }
-        .info-value { font-size: 1.1em; font-weight: 600; color: #1e3c72; word-break: break-all; }
+        h1 { font-size: 2.5em; margin-bottom: 10px; }
+        .version { color: #d4af37; font-size: 1.2em; }
         .connect-btn {
-            background: #1e3c72;
+            background: #c41e3a;
             color: white;
-            border: none;
+            border: 2px solid #d4af37;
             padding: 12px 30px;
             border-radius: 8px;
             font-size: 1em;
             cursor: pointer;
-            transition: all 0.3s;
+            margin-top: 15px;
         }
-        .connect-btn:hover { background: #2a5298; transform: translateY(-2px); }
-        .connect-btn:disabled { background: #ccc; cursor: not-allowed; transform: none; }
+        .connect-btn:hover { background: #8b0000; }
         .card {
-            background: white;
+            background: rgba(255,255,255,0.05);
             padding: 25px;
             border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            border: 1px solid rgba(212, 175, 55, 0.3);
             margin-bottom: 20px;
         }
-        .card h2 {
-            color: #1e3c72;
-            margin-bottom: 15px;
-            font-size: 1.5em;
-            border-bottom: 2px solid #e0e0e0;
-            padding-bottom: 10px;
-        }
+        .card h2 { color: #d4af37; margin-bottom: 15px; }
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #333; font-weight: 600; }
-        .help-text { font-size: 0.85em; color: #666; margin-top: 5px; font-style: italic; }
-        input[type="number"], input[type="text"] {
+        .form-group label { display: block; margin-bottom: 8px; color: #c0c0c0; }
+        input[type="number"], input[type="text"], textarea {
             width: 100%;
             padding: 12px;
-            border: 2px solid #e0e0e0;
+            background: rgba(0,0,0,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
             border-radius: 8px;
+            color: white;
             font-size: 1em;
         }
-        input:focus { outline: none; border-color: #1e3c72; }
-        button.action-btn {
+        input:focus { outline: none; border-color: #d4af37; }
+        .action-btn {
             width: 100%;
             background: #1e3c72;
             color: white;
@@ -96,38 +64,30 @@
             border-radius: 8px;
             font-size: 1em;
             cursor: pointer;
-            font-weight: 600;
             margin-top: 10px;
         }
-        button.action-btn:hover:not(:disabled) {
-            background: #2a5298;
-            transform: translateY(-2px);
-        }
-        button.action-btn:disabled { background: #ccc; cursor: not-allowed; }
-        button.danger-btn { background: #dc3545; }
-        button.danger-btn:hover:not(:disabled) { background: #c82333; }
-        button.warning-btn { background: #ffc107; color: #333; }
-        button.warning-btn:hover:not(:disabled) { background: #e0a800; }
+        .action-btn:hover { background: #2a5298; }
+        .action-btn:disabled { background: #555; cursor: not-allowed; }
+        .danger-btn { background: #c41e3a; }
+        .danger-btn:hover { background: #8b0000; }
         .status-message {
             margin-top: 15px;
             padding: 12px;
             border-radius: 8px;
-            font-size: 0.95em;
         }
-        .status-message.success { background: #d4edda; color: #155724; border: 1px solid #c3e6cb; }
-        .status-message.error { background: #f8d7da; color: #721c24; border: 1px solid #f5c6cb; }
-        .status-message.info { background: #d1ecf1; color: #0c5460; border: 1px solid #bee5eb; }
-        .danger-zone { border: 2px solid #dc3545; padding: 20px; border-radius: 12px; margin-top: 20px; }
-        .danger-zone h3 { color: #dc3545; margin-bottom: 15px; }
+        .status-message.success { background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; }
+        .status-message.error { background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; }
+        .status-message.info { background: rgba(23, 162, 184, 0.2); border: 1px solid #17a2b8; }
         .warning-box {
-            background: #fff3cd;
+            background: rgba(255, 193, 7, 0.1);
             border: 1px solid #ffc107;
             padding: 15px;
             border-radius: 8px;
             margin-bottom: 15px;
+            color: #ffc107;
         }
         .info-box {
-            background: #d1ecf1;
+            background: rgba(23, 162, 184, 0.1);
             border: 1px solid #17a2b8;
             padding: 15px;
             border-radius: 8px;
@@ -138,188 +98,123 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🇺🇸 Old Glory Rise (RISE) Owner Dashboard<span class="version-badge">PRODUCTION</span></h1>
-            <p class="subtitle">CST-Proven Swap Pattern • No ethers.js Required</p>
-        </div>
-
-        <div class="wallet-section">
-            <div class="wallet-info">
-                <div class="info-item">
-                    <span class="info-label">Connected Wallet</span>
-                    <span class="info-value" id="walletAddress">Not connected</span>
-                </div>
-                <div class="info-item">
-                    <span class="info-label">Network</span>
-                    <span class="info-value" id="networkInfo">-</span>
-                </div>
-                <button class="connect-btn" id="connectBtn">Connect Wallet</button>
-            </div>
-            <div style="margin-top: 15px; padding: 10px; background: #d4edda; border-radius: 8px; border: 1px solid #c3e6cb;">
-                <strong>✅ Contract Address (V9.2):</strong> <code id="contractAddrDisplay" style="color: #155724; font-weight: 600;">0x617273786a3dE0dA120249cBaF1fb866CFA2CE6D</code>
-            </div>
-            <div style="margin-top: 10px; padding: 10px; background: #d1ecf1; border-radius: 8px; border: 1px solid #bee5eb;">
-                <strong>ℹ️ V9.2 Changes:</strong> Removed launchMode & slippage calculation • minOut = 0 always (CST pattern) • No WETH9 errors
-            </div>
+            <h1>🇺🇸 Old Glory RISE - Owner Dashboard</h1>
+            <p class="version">V10 (CST V6 Pattern) • PRODUCTION</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">Contract: <code style="color: #d4af37;">0x555679515BBF858290670d6a57543B0e4E09E89B</code></p>
+            <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+            <div id="walletStatus" style="margin-top: 10px;"></div>
         </div>
 
         <div class="card">
             <h2>💰 Fee Management</h2>
-            <p style="margin-bottom: 15px; color: #666;">Current fees will load after connection</p>
+            <div class="info-box">
+                ℹ️ Fees in basis points (100 = 1%). Total buy/sell fees max 500 (5%)
+            </div>
             <div class="form-group">
-                <label>Buy Burn Fee (bps) - e.g., 10 = 0.1%</label>
+                <label>Buy Burn Fee (bps)</label>
                 <input type="number" id="buyBurnFee" value="10" min="0" max="500">
             </div>
             <div class="form-group">
-                <label>Buy Yield Fee (bps) - e.g., 35 = 0.35%</label>
+                <label>Buy Yield Fee (bps)</label>
                 <input type="number" id="buyYieldFee" value="35" min="0" max="500">
             </div>
             <div class="form-group">
-                <label>Sell Burn Fee (bps) - e.g., 100 = 1%</label>
+                <label>Sell Burn Fee (bps)</label>
                 <input type="number" id="sellBurnFee" value="100" min="0" max="500">
             </div>
             <div class="form-group">
-                <label>Sell Yield Fee (bps) - e.g., 300 = 3%</label>
+                <label>Sell Yield Fee (bps)</label>
                 <input type="number" id="sellYieldFee" value="300" min="0" max="500">
             </div>
-            <button class="action-btn" id="setFeesBtn">Update Fees</button>
-            <button class="action-btn" id="refreshFeesBtn" style="background: #28a745; margin-top: 5px;">🔄 Refresh Current Fees</button>
+            <button class="action-btn" onclick="setFees()">Update Fees</button>
             <div id="feesStatus"></div>
         </div>
 
         <div class="card">
             <h2>💸 Payout Policy</h2>
-            <p style="margin-bottom: 15px; color: #666;">Configure automatic pSunDAI yield distribution</p>
-            
+            <div class="warning-box">
+                ⚠️ V10 Note: maxPayout removed from setPayoutPolicy function
+            </div>
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 10px;">
+                <label>
                     <input type="checkbox" id="payoutEnabled" checked style="width: 20px; height: 20px;">
-                    <span>Enable Automatic Payouts</span>
+                    Enable Payouts
                 </label>
-                <div class="help-text">Allow automatic yield distribution during transfers</div>
             </div>
-
             <div class="form-group">
-                <label>Minimum Wait Time (seconds)</label>
+                <label>Min Wait (seconds)</label>
                 <input type="number" id="minWaitSec" value="3600" min="1800">
-                <div class="help-text">Time between claims (3600 = 1 hour, min 1800)</div>
             </div>
-
             <div class="form-group">
-                <label>Minimum Yield (pSunDAI)</label>
-                <input type="number" id="minYield" value="0.369" step="0.001" min="0.0001">
-                <div class="help-text">🎯 Easter Egg: 0.369 = PulseChain ID! (Contract allows ≥ 0.0001)</div>
+                <label>Min Yield (pSunDAI)</label>
+                <input type="number" id="minYield" value="0.369" step="0.001">
             </div>
-
             <div class="form-group">
-                <label>Maximum Payout (pSunDAI)</label>
-                <input type="number" id="maxPayout" value="5000" min="100">
-                <div class="help-text">Maximum single payout (default: 5,000 pSunDAI)</div>
+                <label>Max Gas</label>
+                <input type="number" id="maxGas" value="300000" max="500000">
             </div>
-
-            <div class="form-group">
-                <label>Max Gas per Payout</label>
-                <input type="number" id="maxGas" value="300000" min="50000" max="500000">
-                <div class="help-text">Gas limit for payouts (max 500,000)</div>
-            </div>
-
-            <button class="action-btn" id="setPayoutPolicyBtn">Update Payout Policy</button>
+            <button class="action-btn" onclick="setPayoutPolicy()">Update Payout Policy</button>
             <div id="payoutStatus"></div>
         </div>
 
         <div class="card">
             <h2>🔄 Swap Parameters</h2>
-            <div class="info-box">
-                <strong>ℹ️ V9.2 Swap Pattern:</strong> Uses CST-proven minOut = 0 pattern • No slippage calculation • No WETH9 errors • Works with any liquidity depth
+            <div class="warning-box">
+                💡 Disable swaps if WPLS/pSunDAI pool has low liquidity ($700 won't work!)
             </div>
-            
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 10px;">
-                    <input type="checkbox" id="swapEnabled" checked style="width: 20px; height: 20px;">
-                    <span>Enable Token Swaps (Rise → WPLS → pSunDAI)</span>
+                <label>
+                    <input type="checkbox" id="swapEnabled" style="width: 20px; height: 20px;">
+                    Enable Swaps
                 </label>
-                <div class="help-text">Automatic swaps create constant pSunDAI buying pressure</div>
             </div>
-
             <div class="form-group">
                 <label>LP Factor</label>
                 <input type="number" id="lpFactor" value="2000" min="50" max="200000">
-                <div class="help-text">Swap size divisor (2000 = swap 1/2000 of LP balance ~ $1.20 per swap at $2.4k LP)</div>
             </div>
-
-            <button class="action-btn" id="setSwapParamsBtn">Update Swap Parameters</button>
+            <button class="action-btn" onclick="setSwapParams()">Update Swap Params</button>
             <div id="swapStatus"></div>
         </div>
 
         <div class="card">
-            <h2>⚡ Auto Payout Toggle</h2>
-            <p style="margin-bottom: 15px; color: #666;">Enable/disable automatic payouts during transfers</p>
-            
+            <h2>⚡ Auto Payout</h2>
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 10px;">
+                <label>
                     <input type="checkbox" id="autoPayout" checked style="width: 20px; height: 20px;">
-                    <span>Auto Payout Enabled</span>
+                    Auto Payout Enabled
                 </label>
-                <div class="help-text">Process payouts automatically during token transfers</div>
             </div>
-
-            <button class="action-btn" id="setAutoPayoutBtn">Update Auto Payout</button>
+            <button class="action-btn" onclick="setAutoPayout()">Update Auto Payout</button>
             <div id="autoPayoutStatus"></div>
         </div>
 
         <div class="card">
             <h2>🚫 Yield Exclusions</h2>
-            <p style="margin-bottom: 15px; color: #666;">Exclude addresses from earning pSunDAI yield</p>
-            
             <div class="form-group">
-                <label>Address to Exclude/Include</label>
+                <label>Address</label>
                 <input type="text" id="excludeAddress" placeholder="0x...">
-                <div class="help-text">Wallet address to modify yield eligibility</div>
             </div>
-
             <div class="form-group">
-                <label style="display: flex; align-items: center; gap: 10px;">
+                <label>
                     <input type="checkbox" id="excludeFlag" checked style="width: 20px; height: 20px;">
-                    <span>Exclude from Yield</span>
+                    Exclude from Yield
                 </label>
-                <div class="help-text">Checked = exclude, Unchecked = include</div>
             </div>
-
-            <button class="action-btn" id="setNoYieldBtn">Update Yield Exclusion</button>
+            <button class="action-btn" onclick="setNoYield()">Update Exclusion</button>
             <div id="excludeStatus"></div>
         </div>
 
-        <div class="card">
-            <h2>🎁 Airdrop Tokens</h2>
-            <p style="margin-bottom: 15px; color: #666;">Send Rise to multiple addresses at once</p>
-            
-            <div class="form-group">
-                <label>Recipients (one address per line)</label>
-                <textarea id="airdropAddresses" rows="5" placeholder="0x123...&#10;0x456...&#10;0x789..." style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: monospace; font-size: 0.9em;"></textarea>
-                <div class="help-text">Enter wallet addresses, one per line</div>
-            </div>
-
-            <div class="form-group">
-                <label>Amounts (one per line, matching addresses)</label>
-                <textarea id="airdropAmounts" rows="5" placeholder="100&#10;200&#10;150" style="width: 100%; padding: 12px; border: 2px solid #e0e0e0; border-radius: 8px; font-family: monospace; font-size: 0.9em;"></textarea>
-                <div class="help-text">Enter amounts in Rise tokens (e.g., 100 = 100 Rise)</div>
-            </div>
-
-            <button class="action-btn" id="airdropBtn">Execute Airdrop</button>
-            <div id="airdropStatus"></div>
-        </div>
-
-        <div class="card danger-zone">
-            <h3>⚠️ DANGER ZONE</h3>
+        <div class="card" style="border-color: #c41e3a;">
+            <h2 style="color: #c41e3a;">⚠️ DANGER ZONE</h2>
             <div class="warning-box">
-                <strong>⚠️ WARNING: These actions are PERMANENT</strong>
-                <p>Renouncing ownership cannot be undone!</p>
+                These actions are PERMANENT and cannot be undone!
             </div>
             <div class="form-group">
-                <label>Transfer Ownership To (optional)</label>
+                <label>Transfer Ownership To</label>
                 <input type="text" id="newOwner" placeholder="0x...">
             </div>
-            <button class="action-btn" id="transferBtn">Transfer Ownership</button>
-            <button class="action-btn danger-btn" id="renounceBtn" style="margin-top: 20px;">
+            <button class="action-btn" onclick="transferOwnership()">Transfer Ownership</button>
+            <button class="action-btn danger-btn" onclick="renounceOwnership()" style="margin-top: 20px;">
                 RENOUNCE OWNERSHIP (PERMANENT!)
             </button>
             <div id="ownershipStatus"></div>
@@ -327,429 +222,180 @@
     </div>
 
     <script>
-        const CONTRACT_ADDRESS = '0x555679515BBF858290670d6a57543B0e4E09E89B'; // ✅ V6.1 CONTRACT
-        
-        const ABI = [{"type":"constructor","inputs":[],"stateMutability":"nonpayable"},{"name":"AirdropExecuted","type":"event","inputs":[{"name":"recipients","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"totalAmount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"Approval","type":"event","inputs":[{"name":"owner","type":"address","indexed":true,"internalType":"address"},{"name":"spender","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"FeesUpdated","type":"event","inputs":[{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"},{"name":"","type":"uint16","indexed":false,"internalType":"uint16"}],"anonymous":false},{"name":"NoYieldSet","type":"event","inputs":[{"name":"","type":"address","indexed":true,"internalType":"address"},{"name":"","type":"bool","indexed":false,"internalType":"bool"}],"anonymous":false},{"name":"OwnershipTransferred","type":"event","inputs":[{"name":"prev","type":"address","indexed":true,"internalType":"address"},{"name":"next","type":"address","indexed":true,"internalType":"address"}],"anonymous":false},{"name":"PayoutPolicyUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"},{"name":"","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"SwapExecuted","type":"event","inputs":[{"name":"riseIn","type":"uint256","indexed":false,"internalType":"uint256"},{"name":"pSunDAIOut","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"SwapParamsUpdated","type":"event","inputs":[{"name":"","type":"bool","indexed":false,"internalType":"bool"},{"name":"","type":"uint24","indexed":false,"internalType":"uint24"}],"anonymous":false},{"name":"Transfer","type":"event","inputs":[{"name":"from","type":"address","indexed":true,"internalType":"address"},{"name":"to","type":"address","indexed":true,"internalType":"address"},{"name":"v","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"YieldPaid","type":"event","inputs":[{"name":"wallet","type":"address","indexed":true,"internalType":"address"},{"name":"rewardAmount","type":"uint256","indexed":false,"internalType":"uint256"}],"anonymous":false},{"name":"MAX_GAS_LIMIT","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"MAX_ITERS","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"MIN_YIELD_BALANCE","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"PSUNDAI","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"PULSEX_V2_ROUTER","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"airdrop","type":"function","inputs":[{"name":"to","type":"address[]","internalType":"address[]"},{"name":"amts","type":"uint256[]","internalType":"uint256[]"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"allowance","type":"function","inputs":[{"name":"o","type":"address","internalType":"address"},{"name":"s","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"approve","type":"function","inputs":[{"name":"s","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"autoPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"balanceOf","type":"function","inputs":[{"name":"a","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"claimYield","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"currIndex","type":"function","inputs":[],"outputs":[{"name":"","type":"uint32","internalType":"uint32"}],"stateMutability":"view"},{"name":"decimals","type":"function","inputs":[],"outputs":[{"name":"","type":"uint8","internalType":"uint8"}],"stateMutability":"pure"},{"name":"dexRouter","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Router02"}],"stateMutability":"view"},{"name":"fees","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"uint16","internalType":"uint16"}],"stateMutability":"view"},{"name":"getUnpaidYield","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"rewardTokenAddr","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"lpFactor","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"lpWeightBips","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxGas","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"maxPayout","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"minWaitSec","type":"function","inputs":[],"outputs":[{"name":"","type":"uint24","internalType":"uint24"}],"stateMutability":"view"},{"name":"minYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"name","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"view"},{"name":"noFee","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"noYield","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"owner","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"payoutEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"plsV2LP","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IUniswapV2Pair"}],"stateMutability":"view"},{"name":"renounceOwnership","type":"function","inputs":[],"outputs":[],"stateMutability":"nonpayable"},{"name":"rewardToken","type":"function","inputs":[],"outputs":[{"name":"","type":"address","internalType":"contract IERC20"}],"stateMutability":"view"},{"name":"rewardTokens","type":"function","inputs":[{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"address","internalType":"contract IERC20"},{"name":"","type":"uint8","internalType":"uint8"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"},{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"setAutoPayout","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setFees","type":"function","inputs":[{"name":"bb","type":"uint16","internalType":"uint16"},{"name":"by","type":"uint16","internalType":"uint16"},{"name":"sb","type":"uint16","internalType":"uint16"},{"name":"sy","type":"uint16","internalType":"uint16"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setNoYield","type":"function","inputs":[{"name":"w","type":"address","internalType":"address"},{"name":"f","type":"bool","internalType":"bool"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setPayoutPolicy","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"minDur","type":"uint24","internalType":"uint24"},{"name":"newMin","type":"uint256","internalType":"uint256"},{"name":"newMax","type":"uint256","internalType":"uint256"},{"name":"gas_","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"setSwapParams","type":"function","inputs":[{"name":"en","type":"bool","internalType":"bool"},{"name":"f","type":"uint24","internalType":"uint24"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"shareYieldRay","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"swapEnabled","type":"function","inputs":[],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"view"},{"name":"symbol","type":"function","inputs":[],"outputs":[{"name":"","type":"string","internalType":"string"}],"stateMutability":"pure"},{"name":"totalRewardsPaid","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalRewardsYield","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalShares","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"totalSupply","type":"function","inputs":[],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"transfer","type":"function","inputs":[{"name":"to","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferFrom","type":"function","inputs":[{"name":"f","type":"address","internalType":"address"},{"name":"t","type":"address","internalType":"address"},{"name":"v","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"bool","internalType":"bool"}],"stateMutability":"nonpayable"},{"name":"transferOwnership","type":"function","inputs":[{"name":"newOwner","type":"address","internalType":"address"}],"outputs":[],"stateMutability":"nonpayable"},{"name":"walletClaimTS","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletIndex","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"walletInfo","type":"function","inputs":[{"name":"","type":"address","internalType":"address"}],"outputs":[{"name":"share","type":"uint256","internalType":"uint256"},{"name":"yieldDebt","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"name":"wallets","type":"function","inputs":[{"name":"","type":"uint256","internalType":"uint256"}],"outputs":[{"name":"","type":"address","internalType":"address"}],"stateMutability":"view"},{"name":"yieldDebt","type":"function","inputs":[{"name":"wallet","type":"address","internalType":"address"},{"name":"token","type":"address","internalType":"address"}],"outputs":[{"name":"","type":"uint256","internalType":"uint256"}],"stateMutability":"view"},{"type":"receive","stateMutability":"payable"}];
+        const CONTRACT_ADDRESS = '0x555679515BBF858290670d6a57543B0e4E09E89B';
+        const ABI = [
+            "function setFees(uint16 bb, uint16 by, uint16 sb, uint16 sy)",
+            "function setPayoutPolicy(bool en, uint24 minDur, uint256 newMin, uint24 gas_)",
+            "function setSwapParams(bool en, uint24 f)",
+            "function setAutoPayout(bool en)",
+            "function setNoYield(address w, bool f)",
+            "function transferOwnership(address newOwner)",
+            "function renounceOwnership()",
+            "function owner() view returns (address)"
+        ];
 
-        let provider, signer, account;
-
-        function keccak256(str) {
-            const selectors = {
-                'setFees(uint16,uint16,uint16,uint16)': '0x42f7723f',
-                'setPayoutPolicy(bool,uint24,uint256,uint256,uint24)': '0x174bffba',
-                'setSwapParams(bool,uint24)': '0x1835587e',
-                'setAutoPayout(bool)': '0x925ed8f2',
-                'setNoYield(address,bool)': '0xe173a7f5',
-                'airdrop(address[],uint256[])': '0x67243482',
-                'transferOwnership(address)': '0xf2fde38b',
-                'renounceOwnership()': '0x715018a6',
-                'owner()': '0x8da5cb5b',
-                'fees(uint256)': '0x4acc79ed'
-            };
-            return selectors[str] || '0x00000000';
-        }
-
-        function padHex(value, bytes) {
-            let hex;
-            
-            if (typeof value === 'string' && value.startsWith('0x')) {
-                hex = value.slice(2).toLowerCase();
-            } else {
-                hex = value.toString(16);
-            }
-            
-            return hex.padStart(bytes * 2, '0');
-        }
+        let contract, signer, userAddress;
 
         async function connectWallet() {
-            const btn = document.getElementById('connectBtn');
-            btn.textContent = 'Connecting...';
-            btn.disabled = true;
-
             try {
-                if (typeof window.ethereum === 'undefined') {
-                    throw new Error('No wallet found! Install MetaMask or Rabby');
+                if (!window.ethereum) {
+                    alert('Install MetaMask!');
+                    return;
                 }
 
-                const accounts = await window.ethereum.request({
-                    method: 'eth_requestAccounts'
-                });
-
-                account = accounts[0];
-                document.getElementById('walletAddress').textContent = 
-                    account.slice(0, 6) + '...' + account.slice(-4);
-
-                const chainId = await window.ethereum.request({ method: 'eth_chainId' });
-                const chainIdNum = parseInt(chainId, 16);
+                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                await provider.send("eth_requestAccounts", []);
                 
-                if (chainIdNum !== 369) {
-                    document.getElementById('networkInfo').textContent = 
-                        'Wrong network! Need PulseChain (369)';
-                    document.getElementById('networkInfo').style.color = '#dc3545';
-                    throw new Error('Please switch to PulseChain');
+                const network = await provider.getNetwork();
+                if (network.chainId !== 369) {
+                    alert('Switch to PulseChain (369)!');
+                    return;
                 }
 
-                document.getElementById('networkInfo').textContent = 'PulseChain ✓';
-                btn.textContent = 'Connected ✓';
+                signer = provider.getSigner();
+                userAddress = await signer.getAddress();
+                contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
+
+                document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
+                document.getElementById('connectBtn').disabled = true;
                 
-                await checkOwner();
-                await loadCurrentFees();
-                
-                showStatus('ownershipStatus', 'Wallet connected! Ready to manage V9.2 contract.', 'success');
+                const owner = await contract.owner();
+                if (owner.toLowerCase() === userAddress.toLowerCase()) {
+                    showStatus('walletStatus', '✅ Connected as owner', 'success');
+                } else {
+                    showStatus('walletStatus', '⚠️ You are NOT the owner! Owner: ' + owner, 'error');
+                }
             } catch (error) {
-                console.error(error);
-                btn.textContent = 'Connect Wallet';
-                btn.disabled = false;
+                showStatus('walletStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function setFees() {
+            try {
+                const bb = parseInt(document.getElementById('buyBurnFee').value);
+                const by = parseInt(document.getElementById('buyYieldFee').value);
+                const sb = parseInt(document.getElementById('sellBurnFee').value);
+                const sy = parseInt(document.getElementById('sellYieldFee').value);
+
+                if (bb + by > 500 || sb + sy > 500) {
+                    showStatus('feesStatus', 'Total fees cannot exceed 500 (5%)!', 'error');
+                    return;
+                }
+
+                showStatus('feesStatus', 'Sending...', 'info');
+                const tx = await contract.setFees(bb, by, sb, sy);
+                showStatus('feesStatus', 'Waiting for confirmation...', 'info');
+                await tx.wait();
+                showStatus('feesStatus', '✅ Fees updated!', 'success');
+            } catch (error) {
+                showStatus('feesStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function setPayoutPolicy() {
+            try {
+                const enabled = document.getElementById('payoutEnabled').checked;
+                const minWait = parseInt(document.getElementById('minWaitSec').value);
+                const minYieldValue = parseFloat(document.getElementById('minYield').value);
+                const gas = parseInt(document.getElementById('maxGas').value);
+
+                const minYieldWei = ethers.utils.parseEther(minYieldValue.toString());
+
+                showStatus('payoutStatus', 'Sending...', 'info');
+                const tx = await contract.setPayoutPolicy(enabled, minWait, minYieldWei, gas);
+                await tx.wait();
+                showStatus('payoutStatus', '✅ Payout policy updated!', 'success');
+            } catch (error) {
+                showStatus('payoutStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function setSwapParams() {
+            try {
+                const enabled = document.getElementById('swapEnabled').checked;
+                const factor = parseInt(document.getElementById('lpFactor').value);
+
+                showStatus('swapStatus', 'Sending...', 'info');
+                const tx = await contract.setSwapParams(enabled, factor);
+                await tx.wait();
+                showStatus('swapStatus', '✅ Swap params updated!', 'success');
+            } catch (error) {
+                showStatus('swapStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function setAutoPayout() {
+            try {
+                const enabled = document.getElementById('autoPayout').checked;
+
+                showStatus('autoPayoutStatus', 'Sending...', 'info');
+                const tx = await contract.setAutoPayout(enabled);
+                await tx.wait();
+                showStatus('autoPayoutStatus', '✅ Auto payout updated!', 'success');
+            } catch (error) {
+                showStatus('autoPayoutStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function setNoYield() {
+            try {
+                const address = document.getElementById('excludeAddress').value;
+                const exclude = document.getElementById('excludeFlag').checked;
+
+                if (!ethers.utils.isAddress(address)) {
+                    showStatus('excludeStatus', 'Invalid address!', 'error');
+                    return;
+                }
+
+                showStatus('excludeStatus', 'Sending...', 'info');
+                const tx = await contract.setNoYield(address, exclude);
+                await tx.wait();
+                showStatus('excludeStatus', '✅ Exclusion updated!', 'success');
+            } catch (error) {
+                showStatus('excludeStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function transferOwnership() {
+            try {
+                const newOwner = document.getElementById('newOwner').value;
+
+                if (!ethers.utils.isAddress(newOwner)) {
+                    showStatus('ownershipStatus', 'Invalid address!', 'error');
+                    return;
+                }
+
+                if (!confirm('Transfer ownership to ' + newOwner + '?')) return;
+
+                showStatus('ownershipStatus', 'Sending...', 'info');
+                const tx = await contract.transferOwnership(newOwner);
+                await tx.wait();
+                showStatus('ownershipStatus', '✅ Ownership transferred!', 'success');
+            } catch (error) {
                 showStatus('ownershipStatus', 'Error: ' + error.message, 'error');
             }
         }
 
-        async function checkOwner() {
-            try {
-                const data = '0x8da5cb5b';
-                
-                const result = await window.ethereum.request({
-                    method: 'eth_call',
-                    params: [{
-                        to: CONTRACT_ADDRESS,
-                        data: data
-                    }, 'latest']
-                });
-                
-                const owner = '0x' + result.slice(-40);
-                console.log('Contract owner:', owner);
-                console.log('Your address:', account);
-                
-                if (owner.toLowerCase() !== account.toLowerCase()) {
-                    showStatus('ownershipStatus', '⚠️ WARNING: You are NOT the owner! Owner is: ' + owner, 'error');
-                } else {
-                    showStatus('ownershipStatus', '✅ Confirmed: You are the owner of V9.2', 'success');
-                }
-            } catch (error) {
-                console.error('Failed to check owner:', error);
-            }
-        }
-
-        async function loadCurrentFees() {
-            try {
-                const feePromises = [0, 1, 2, 3].map(index => 
-                    window.ethereum.request({
-                        method: 'eth_call',
-                        params: [{
-                            to: CONTRACT_ADDRESS,
-                            data: '0x4acc79ed' + padHex(index, 32)
-                        }, 'latest']
-                    })
-                );
-                
-                const results = await Promise.all(feePromises);
-                const fees = results.map(r => parseInt(r, 16));
-                
-                console.log('Current fees:', fees);
-                
-                document.getElementById('buyBurnFee').value = fees[0];
-                document.getElementById('buyYieldFee').value = fees[1];
-                document.getElementById('sellBurnFee').value = fees[2];
-                document.getElementById('sellYieldFee').value = fees[3];
-            } catch (error) {
-                console.error('Failed to load fees:', error);
-            }
-        }
-
-        async function sendTransaction(data) {
-            const txParams = {
-                from: account,
-                to: CONTRACT_ADDRESS,
-                data: data,
-                gas: '0x493e0'
-            };
-            
-            return await window.ethereum.request({
-                method: 'eth_sendTransaction',
-                params: [txParams]
-            });
-        }
-
-        document.getElementById('connectBtn').addEventListener('click', connectWallet);
-
-        document.getElementById('refreshFeesBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('feesStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-            
-            showStatus('feesStatus', 'Loading current fees from contract...', 'info');
-            await loadCurrentFees();
-            showStatus('feesStatus', '✅ Fees refreshed from blockchain!', 'success');
-        });
-
-        window.addEventListener('load', () => {
-            const addrDisplay = document.getElementById('contractAddrDisplay');
-            addrDisplay.textContent = CONTRACT_ADDRESS;
-        });
-
-        document.getElementById('setFeesBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('feesStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const bb = parseInt(document.getElementById('buyBurnFee').value);
-            const by = parseInt(document.getElementById('buyYieldFee').value);
-            const sb = parseInt(document.getElementById('sellBurnFee').value);
-            const sy = parseInt(document.getElementById('sellYieldFee').value);
-
-            if (bb + by > 500) {
-                showStatus('feesStatus', 'Buy fees total cannot exceed 500 bps (5%)!', 'error');
-                return;
-            }
-            
-            if (sb + sy > 500) {
-                showStatus('feesStatus', 'Sell fees total cannot exceed 500 bps (5%)!', 'error');
-                return;
-            }
-
-            try {
-                showStatus('feesStatus', 'Preparing transaction...', 'info');
-                
-                const selector = '0x42f7723f';
-                const data = selector + 
-                             padHex(bb, 32) + 
-                             padHex(by, 32) + 
-                             padHex(sb, 32) + 
-                             padHex(sy, 32);
-                
-                showStatus('feesStatus', 'Waiting for wallet confirmation...', 'info');
-                const txHash = await sendTransaction(data);
-                showStatus('feesStatus', '✅ Transaction sent! Hash: ' + txHash, 'success');
-                
-                setTimeout(async () => {
-                    await loadCurrentFees();
-                    showStatus('feesStatus', '✅ Fees updated!', 'success');
-                }, 3000);
-            } catch (error) {
-                let errorMsg = error.message;
-                if (error.message.includes('user rejected')) errorMsg = 'Transaction rejected';
-                showStatus('feesStatus', '❌ Error: ' + errorMsg, 'error');
-            }
-        });
-
-        document.getElementById('setPayoutPolicyBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('payoutStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const enabled = document.getElementById('payoutEnabled').checked;
-            const minWait = parseInt(document.getElementById('minWaitSec').value);
-            const minYieldValue = parseFloat(document.getElementById('minYield').value);
-            const maxPayoutValue = parseFloat(document.getElementById('maxPayout').value);
-            const gas = parseInt(document.getElementById('maxGas').value);
-
-            if (minWait < 1800) {
-                showStatus('payoutStatus', 'Min wait must be at least 1800 seconds!', 'error');
-                return;
-            }
-
-            try {
-                showStatus('payoutStatus', 'Preparing transaction...', 'info');
-                
-                const minYieldWei = BigInt(Math.floor(minYieldValue * 1e18));
-                const maxPayoutWei = BigInt(Math.floor(maxPayoutValue * 1e18));
-                
-                const selector = '0x174bffba';
-                const data = selector +
-                             padHex(enabled ? 1 : 0, 32) +
-                             padHex(minWait, 32) +
-                             padHex(minYieldWei.toString(16), 32) +
-                             padHex(maxPayoutWei.toString(16), 32) +
-                             padHex(gas, 32);
-                
-                const txHash = await sendTransaction(data);
-                showStatus('payoutStatus', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
-            } catch (error) {
-                showStatus('payoutStatus', '❌ Error: ' + error.message, 'error');
-            }
-        });
-
-        document.getElementById('setSwapParamsBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('swapStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const enabled = document.getElementById('swapEnabled').checked;
-            const factor = parseInt(document.getElementById('lpFactor').value);
-
-            try {
-                showStatus('swapStatus', 'Sending transaction...', 'info');
-                
-                const selector = '0x1835587e';
-                const data = selector +
-                             padHex(enabled ? 1 : 0, 32) +
-                             padHex(factor, 32);
-                
-                const txHash = await sendTransaction(data);
-                showStatus('swapStatus', '✅ Transaction sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
-            } catch (error) {
-                showStatus('swapStatus', '❌ Error: ' + error.message, 'error');
-            }
-        });
-
-        document.getElementById('setAutoPayoutBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('autoPayoutStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const enabled = document.getElementById('autoPayout').checked;
-
-            try {
-                showStatus('autoPayoutStatus', 'Sending transaction...', 'info');
-                
-                const selector = '0x925ed8f2';
-                const data = selector + padHex(enabled ? 1 : 0, 32);
-                
-                const txHash = await sendTransaction(data);
-                showStatus('autoPayoutStatus', '✅ Transaction sent!', 'success');
-            } catch (error) {
-                showStatus('autoPayoutStatus', '❌ Error: ' + error.message, 'error');
-            }
-        });
-
-        document.getElementById('setNoYieldBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('excludeStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const address = document.getElementById('excludeAddress').value.trim();
-            const exclude = document.getElementById('excludeFlag').checked;
-
-            if (!address || !address.startsWith('0x') || address.length !== 42) {
-                showStatus('excludeStatus', 'Invalid address!', 'error');
-                return;
-            }
-
-            try {
-                showStatus('excludeStatus', 'Sending transaction...', 'info');
-                
-                const selector = '0xe173a7f5';
-                const data = selector +
-                             padHex(address, 32) +
-                             padHex(exclude ? 1 : 0, 32);
-                
-                const txHash = await sendTransaction(data);
-                showStatus('excludeStatus', '✅ Transaction sent!', 'success');
-            } catch (error) {
-                showStatus('excludeStatus', '❌ Error: ' + error.message, 'error');
-            }
-        });
-
-        document.getElementById('airdropBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('airdropStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const addressesText = document.getElementById('airdropAddresses').value.trim();
-            const amountsText = document.getElementById('airdropAmounts').value.trim();
-
-            const addresses = addressesText.split('\n').map(a => a.trim()).filter(a => a);
-            const amounts = amountsText.split('\n').map(a => a.trim()).filter(a => a);
-
-            if (addresses.length === 0 || amounts.length === 0) {
-                showStatus('airdropStatus', 'Please enter addresses and amounts!', 'error');
-                return;
-            }
-
-            if (addresses.length !== amounts.length) {
-                showStatus('airdropStatus', 'Addresses and amounts must match!', 'error');
-                return;
-            }
-
-            try {
-                showStatus('airdropStatus', 'Encoding airdrop...', 'info');
-                
-                const selector = '0x67243482';
-                let data = selector + padHex(64, 32);
-                
-                const firstArrayOffset = 64 + 32 + (addresses.length * 32);
-                data += padHex(firstArrayOffset, 32);
-                data += padHex(addresses.length, 32);
-                
-                for (let addr of addresses) {
-                    data += padHex(addr, 32);
-                }
-                
-                data += padHex(amounts.length, 32);
-                
-                for (let amt of amounts) {
-                    const amtWei = BigInt(Math.floor(parseFloat(amt) * 1e18));
-                    data += padHex(amtWei.toString(16), 32);
-                }
-                
-                showStatus('airdropStatus', 'Sending transaction...', 'info');
-                const txHash = await sendTransaction(data);
-                showStatus('airdropStatus', '✅ Airdrop sent! Hash: ' + txHash.slice(0, 10) + '...', 'success');
-            } catch (error) {
-                showStatus('airdropStatus', '❌ Error: ' + error.message, 'error');
-            }
-        });
-
-        document.getElementById('transferBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('ownershipStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
-            const newOwner = document.getElementById('newOwner').value;
-            if (!newOwner || !newOwner.startsWith('0x') || newOwner.length !== 42) {
-                showStatus('ownershipStatus', 'Invalid address!', 'error');
-                return;
-            }
-
-            if (!confirm('Transfer ownership to ' + newOwner + '?')) return;
-
-            try {
-                showStatus('ownershipStatus', 'Sending transaction...', 'info');
-                const data = keccak256('transferOwnership(address)') + padHex(newOwner, 32);
-                
-                const txHash = await sendTransaction(data);
-                showStatus('ownershipStatus', '✅ Ownership transferred!', 'success');
-            } catch (error) {
-                showStatus('ownershipStatus', '❌ Error: ' + error.message, 'error');
-            }
-        });
-
-        document.getElementById('renounceBtn').addEventListener('click', async () => {
-            if (!account) {
-                showStatus('ownershipStatus', 'Please connect wallet first!', 'error');
-                return;
-            }
-
+        async function renounceOwnership() {
             if (!confirm('⚠️ WARNING: This is PERMANENT! Continue?')) return;
-            if (prompt('Type "RENOUNCE" to confirm:') !== 'RENOUNCE') {
-                showStatus('ownershipStatus', 'Cancelled.', 'info');
-                return;
-            }
+            if (prompt('Type "RENOUNCE" to confirm:') !== 'RENOUNCE') return;
 
             try {
-                showStatus('ownershipStatus', 'Renouncing ownership...', 'info');
-                const data = keccak256('renounceOwnership()');
-                
-                const txHash = await sendTransaction(data);
+                showStatus('ownershipStatus', 'Renouncing...', 'info');
+                const tx = await contract.renounceOwnership();
+                await tx.wait();
                 showStatus('ownershipStatus', '✅ Ownership renounced! Contract is now immutable.', 'success');
             } catch (error) {
-                showStatus('ownershipStatus', '❌ Error: ' + error.message, 'error');
+                showStatus('ownershipStatus', 'Error: ' + error.message, 'error');
             }
-        });
+        }
 
         function showStatus(elementId, message, type) {
             const element = document.getElementById(elementId);
             element.innerHTML = '<div class="status-message ' + type + '">' + message + '</div>';
-            setTimeout(() => { element.innerHTML = ''; }, 10000);
         }
+
+        document.getElementById('connectBtn').addEventListener('click', connectWallet);
     </script>
 </body>
 </html>
