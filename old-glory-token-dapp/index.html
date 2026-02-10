@@ -314,6 +314,10 @@
             </div>
         </div>
 
+        <div style="text-align: center; color: var(--silver); margin: 2rem 0; font-size: 1.1rem;" id="claimHint">
+            🎁 Connect wallet to see claim section
+        </div>
+
         <div class="claim-section" id="claimSection" style="display: none;">
             <h2 style="font-family: 'Cinzel', serif; text-align: center; font-size: 2rem; margin-bottom: 2rem;">
                 🎁 CLAIM YOUR PSUNDAI 🎁
@@ -499,6 +503,7 @@
                 }
 
                 document.getElementById('claimSection').style.display = 'block';
+                document.getElementById('claimHint').style.display = 'none';
             } catch (error) {
                 console.error('User data error:', error);
             }
