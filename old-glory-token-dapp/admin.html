@@ -422,6 +422,25 @@
             </div>
             <button class="action-btn" onclick="setAutoPayout()">Update Auto Payout</button>
             <div id="autoPayoutStatus"></div>
+
+            <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.1);">
+
+            <h3 style="color: #d4af37; margin-bottom: 15px;">🚫 Yield Exclusions</h3>
+            <div class="info-box">
+                Exclude addresses from earning yield (CEX wallets, treasury, dead wallets). This reduces the wallets array size and improves gas efficiency.
+            </div>
+            <div class="form-group">
+                <label>Address to Exclude/Include</label>
+                <input type="text" id="excludeAddress" placeholder="0x...">
+            </div>
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" id="excludeFlag" checked style="width: 20px; height: 20px;">
+                    Exclude from Yield (uncheck to include back)
+                </label>
+            </div>
+            <button class="action-btn" onclick="setNoYield()">Update Exclusion</button>
+            <div id="excludeStatus"></div>
         </div>
 
         <!-- DANGER ZONE -->
@@ -450,6 +469,7 @@
             "function setPayoutPolicy(bool en, uint24 minDur, uint256 newMin, uint24 gas_)",
             "function setSwapParams(bool en)",
             "function setAutoPayout(bool en)",
+            "function setNoYield(address w, bool f)",
             "function transferOwnership(address newOwner)",
             "function renounceOwnership()",
             "function owner() view returns (address)"
@@ -628,6 +648,29 @@
                 showStatus('autoPayoutStatus', '✅ Auto payout updated!', 'success');
             } catch (error) {
                 showStatus('autoPayoutStatus', 'Error: ' + error.message, 'error');
+            }
+        }
+
+        async function setNoYield() {
+            if (!contract) {
+                showStatus('excludeStatus', '⚠️ Connect wallet first!', 'error');
+                return;
+            }
+            try {
+                const address = document.getElementById('excludeAddress').value;
+                const exclude = document.getElementById('excludeFlag').checked;
+
+                if (!ethers.utils.isAddress(address)) {
+                    showStatus('excludeStatus', 'Invalid address!', 'error');
+                    return;
+                }
+
+                showStatus('excludeStatus', 'Sending...', 'info');
+                const tx = await contract.setNoYield(address, exclude);
+                await tx.wait();
+                showStatus('excludeStatus', '✅ Exclusion updated!', 'success');
+            } catch (error) {
+                showStatus('excludeStatus', 'Error: ' + error.message, 'error');
             }
         }
 
