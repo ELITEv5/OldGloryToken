@@ -159,7 +159,7 @@
             <h1>🇺🇸 Old Glory RISE - Command Center</h1>
             <p class="version">V11 (VORTEX-SAFE) • PRODUCTION READY</p>
             <p style="margin-top: 10px; font-size: 0.9em;">
-                Contract: <code style="color: #d4af37;" id="contractAddr">0x3b36Cf34bFcbA9822DF69829F71D5e142796B79d</code>
+                Contract: <code style="color: #d4af37;" id="contractAddr">UPDATE AFTER DEPLOY</code>
             </p>
             
             <div class="phase-selector">
@@ -462,7 +462,7 @@
     </div>
 
     <script>
-        const CONTRACT_ADDRESS = '0x3b36Cf34bFcbA9822DF69829F71D5e142796B79d';
+        const CONTRACT_ADDRESS = 'YOUR_V11_CONTRACT_ADDRESS_HERE';
         
         const ABI = [
             "function setFees(uint16 bb, uint16 by, uint16 sb, uint16 sy)",
@@ -550,10 +550,6 @@
                 userAddress = await signer.getAddress();
                 
                 // Check if contract address is set
-                if (CONTRACT_ADDRESS === '0x3b36Cf34bFcbA9822DF69829F71D5e142796B79d') {
-                    showStatus('walletStatus', '⚠️ Update CONTRACT_ADDRESS in code first!', 'error');
-                    return;
-                }
                 
                 contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
