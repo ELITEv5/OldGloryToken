@@ -496,9 +496,10 @@
                 // Update LP bonus display
                 if (hasLP) {
                     document.getElementById('lpBonusText').innerHTML = '✨ Includes LP 2x Bonus! ✨';
-                    document.getElementById('lpBonusText').style.color = var(--gold);
+                    document.getElementById('lpBonusText').style.color = '#d4af37';
                 } else {
                     document.getElementById('lpBonusText').textContent = 'Add liquidity for 2x rewards!';
+                    document.getElementById('lpBonusText').style.color = 'rgba(255,255,255,0.6)';
                 }
                 
                 const unpaidAmt = parseFloat(ethers.utils.formatEther(unpaid));
