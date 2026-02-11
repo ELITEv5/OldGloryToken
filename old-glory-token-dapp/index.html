@@ -388,54 +388,59 @@
         }
 
         async function connectWallet() {
+            console.log('Connect wallet clicked');
             try {
                 if (typeof window.ethereum === 'undefined') {
-                    alert('Install MetaMask or Rabby!');
+                    document.getElementById('status').innerHTML = '<div class="error">Please install MetaMask or Rabby wallet!</div>';
                     return;
                 }
 
-                await window.ethereum.request({ method: 'eth_requestAccounts' });
+                document.getElementById('status').textContent = '🔄 Connecting...';
+                
+                console.log('Requesting accounts...');
+                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+                console.log('Accounts:', accounts);
+                
                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                 
+                console.log('Checking network...');
                 const network = await provider.getNetwork();
+                console.log('Current chain ID:', network.chainId);
+                
                 if (network.chainId !== PULSECHAIN_ID) {
-                    try {
-                        await window.ethereum.request({
-                            method: 'wallet_switchEthereumChain',
-                            params: [{ chainId: '0x171' }],
-                        });
-                    } catch (e) {
-                        if (e.code === 4902) {
-                            await window.ethereum.request({
-                                method: 'wallet_addEthereumChain',
-                                params: [{
-                                    chainId: '0x171',
-                                    chainName: 'PulseChain',
-                                    nativeCurrency: { name: 'PLS', symbol: 'PLS', decimals: 18 },
-                                    rpcUrls: ['https://rpc.pulsechain.com'],
-                                    blockExplorerUrls: ['https://scan.pulsechain.com']
-                                }]
-                            });
-                        }
-                    }
+                    document.getElementById('status').innerHTML = '<div class="error">⚠️ Please switch to PulseChain (369) in your wallet!</div>';
+                    return;
                 }
 
+                console.log('Getting signer...');
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
+                console.log('User address:', userAddress);
+                
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
+                console.log('Contract initialized');
 
                 // Get LP address from contract
-                lpAddress = await contract.plsV2LP();
+                console.log('Getting LP address...');
+                try {
+                    lpAddress = await contract.plsV2LP();
+                    console.log('LP address:', lpAddress);
+                } catch (e) {
+                    console.log('Could not get LP address:', e);
+                    lpAddress = null;
+                }
 
                 document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 document.getElementById('connectBtn').disabled = true;
-                document.getElementById('status').textContent = '✅ Connected to PulseChain';
+                document.getElementById('status').innerHTML = '<div class="success">✅ Connected to PulseChain</div>';
 
+                console.log('Loading data...');
                 await loadData();
                 setInterval(loadData, 15000);
                 
             } catch (error) {
-                document.getElementById('status').innerHTML = '<div class="error">' + error.message + '</div>';
+                console.error('Connection error:', error);
+                document.getElementById('status').innerHTML = '<div class="error">❌ Error: ' + error.message + '</div>';
             }
         }
 
