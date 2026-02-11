@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🇺🇸 Old Glory Rise V10 - Owner Dashboard</title>
+    <title>🇺🇸 Old Glory RISE V11 - Owner Command Center</title>
     <script src="https://unpkg.com/ethers@5.7.2/dist/ethers.umd.min.js"></script>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -14,7 +14,7 @@
             padding: 20px;
             min-height: 100vh;
         }
-        .container { max-width: 1200px; margin: 0 auto; }
+        .container { max-width: 1400px; margin: 0 auto; }
         .header {
             background: rgba(255,255,255,0.1);
             padding: 30px;
@@ -23,7 +23,27 @@
             border: 2px solid #d4af37;
         }
         h1 { font-size: 2.5em; margin-bottom: 10px; }
-        .version { color: #d4af37; font-size: 1.2em; }
+        .version { color: #d4af37; font-size: 1.2em; margin-bottom: 15px; }
+        .phase-selector {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+        .phase-btn {
+            flex: 1;
+            min-width: 200px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid #d4af37;
+            padding: 15px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .phase-btn:hover { background: rgba(212, 175, 55, 0.2); transform: translateY(-2px); }
+        .phase-btn.active { background: rgba(212, 175, 55, 0.3); border-color: #ffd700; }
+        .phase-title { font-size: 1.2em; font-weight: bold; color: #d4af37; margin-bottom: 5px; }
+        .phase-desc { font-size: 0.9em; color: #c0c0c0; }
         .connect-btn {
             background: #c41e3a;
             color: white;
@@ -43,9 +63,26 @@
             margin-bottom: 20px;
         }
         .card h2 { color: #d4af37; margin-bottom: 15px; }
+        .preset-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        .preset-card {
+            background: rgba(23, 162, 184, 0.1);
+            border: 2px solid #17a2b8;
+            padding: 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .preset-card:hover { transform: translateY(-4px); border-color: #d4af37; }
+        .preset-card h3 { color: #17a2b8; margin-bottom: 10px; }
+        .preset-details { font-size: 0.85em; line-height: 1.6; }
         .form-group { margin-bottom: 20px; }
-        .form-group label { display: block; margin-bottom: 8px; color: #c0c0c0; }
-        input[type="number"], input[type="text"], textarea {
+        .form-group label { display: block; margin-bottom: 8px; color: #c0c0c0; font-weight: 600; }
+        input[type="number"], input[type="text"] {
             width: 100%;
             padding: 12px;
             background: rgba(0,0,0,0.3);
@@ -65,15 +102,17 @@
             font-size: 1em;
             cursor: pointer;
             margin-top: 10px;
+            font-weight: 600;
         }
-        .action-btn:hover { background: #2a5298; }
-        .action-btn:disabled { background: #555; cursor: not-allowed; }
+        .action-btn:hover { background: #2a5298; transform: translateY(-2px); }
+        .action-btn:disabled { background: #555; cursor: not-allowed; transform: none; }
         .danger-btn { background: #c41e3a; }
         .danger-btn:hover { background: #8b0000; }
         .status-message {
             margin-top: 15px;
             padding: 12px;
             border-radius: 8px;
+            font-weight: 600;
         }
         .status-message.success { background: rgba(40, 167, 69, 0.2); border: 1px solid #28a745; }
         .status-message.error { background: rgba(220, 53, 69, 0.2); border: 1px solid #dc3545; }
@@ -93,25 +132,235 @@
             border-radius: 8px;
             margin-bottom: 15px;
         }
+        .quick-apply {
+            background: #28a745;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-top: 10px;
+        }
+        .quick-apply:hover { background: #218838; }
+        .phase-content { display: none; }
+        .phase-content.active { display: block; }
+        .checkpoint { 
+            background: rgba(212, 175, 55, 0.1); 
+            padding: 10px 15px; 
+            border-left: 4px solid #d4af37; 
+            margin: 10px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <div class="header">
-            <h1>🇺🇸 Old Glory RISE - Owner Dashboard</h1>
-            <p class="version">V11 (VORTEX-SAFE) • PRODUCTION</p>
-            <p style="margin-top: 10px; font-size: 0.9em;">Contract: <code style="color: #d4af37;" id="contractAddr">UPDATE AFTER DEPLOY</code></p>
+            <h1>🇺🇸 Old Glory RISE - Command Center</h1>
+            <p class="version">V11 (VORTEX-SAFE) • PRODUCTION READY</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Contract: <code style="color: #d4af37;" id="contractAddr">UPDATE AFTER DEPLOY</code>
+            </p>
+            
+            <div class="phase-selector">
+                <div class="phase-btn active" onclick="selectPhase(1)">
+                    <div class="phase-title">🚀 PHASE 1: LAUNCH</div>
+                    <div class="phase-desc">0-100 holders</div>
+                </div>
+                <div class="phase-btn" onclick="selectPhase(2)">
+                    <div class="phase-title">📈 PHASE 2: GROWTH</div>
+                    <div class="phase-desc">100-500 holders</div>
+                </div>
+                <div class="phase-btn" onclick="selectPhase(3)">
+                    <div class="phase-title">🏆 PHASE 3: SCALE</div>
+                    <div class="phase-desc">500-1,000 holders</div>
+                </div>
+                <div class="phase-btn" onclick="selectPhase(4)">
+                    <div class="phase-title">💎 PHASE 4: MATURE</div>
+                    <div class="phase-desc">1,000+ holders</div>
+                </div>
+            </div>
+            
             <button class="connect-btn" id="connectBtn">Connect Wallet</button>
             <div id="walletStatus" style="margin-top: 10px;"></div>
         </div>
 
-        <div class="card">
-            <h2>💰 Fee Management</h2>
-            <div class="info-box">
-                ℹ️ Fees in basis points (100 = 1%). Total buy/sell fees max 500 (5%)
+        <!-- PHASE 1: LAUNCH -->
+        <div id="phase1" class="phase-content active">
+            <div class="card">
+                <h2>🚀 PHASE 1: LAUNCH MODE (0-100 Holders)</h2>
+                <div class="info-box">
+                    <strong>Goal:</strong> Smooth launch, build initial community, prove auto-swaps work<br>
+                    <strong>Strategy:</strong> Conservative settings, maximum automation, active monitoring
+                </div>
+
+                <div class="preset-grid">
+                    <div class="preset-card" onclick="applyPreset('launch-conservative')">
+                        <h3>✅ RECOMMENDED: Conservative Launch</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">Buy: 0.1% burn + 0.35% yield = 0.45%</div>
+                            <div class="checkpoint">Sell: 1% burn + 3% yield = 4%</div>
+                            <div class="checkpoint">Swaps: ENABLED</div>
+                            <div class="checkpoint">Auto-payout: ENABLED</div>
+                            <div class="checkpoint">Min Yield: 0.369 pSunDAI</div>
+                            <div class="checkpoint">Wait: 1 hour</div>
+                        </div>
+                        <button class="quick-apply">Apply Settings</button>
+                    </div>
+
+                    <div class="preset-card" onclick="applyPreset('launch-aggressive')">
+                        <h3>⚡ Aggressive Rewards</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">Buy: 0.1% burn + 0.4% yield = 0.5%</div>
+                            <div class="checkpoint">Sell: 0.5% burn + 4.5% yield = 5%</div>
+                            <div class="checkpoint">Swaps: ENABLED</div>
+                            <div class="checkpoint">Auto-payout: ENABLED</div>
+                            <div class="checkpoint">Min Yield: 0.369 pSunDAI</div>
+                        </div>
+                        <button class="quick-apply">Apply Settings</button>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    ⚠️ <strong>Launch Checklist:</strong><br>
+                    1. Verify swaps work (test small sell)<br>
+                    2. Check pSunDAI accumulation in contract<br>
+                    3. Test manual claim with test wallet<br>
+                    4. Monitor first 24h gas costs for auto-payouts
+                </div>
             </div>
+        </div>
+
+        <!-- PHASE 2: GROWTH -->
+        <div id="phase2" class="phase-content">
+            <div class="card">
+                <h2>📈 PHASE 2: GROWTH (100-500 Holders)</h2>
+                <div class="info-box">
+                    <strong>Goal:</strong> Optimize performance, reduce gas waste<br>
+                    <strong>Strategy:</strong> Longer claim waits, higher minimums, maintain automation
+                </div>
+
+                <div class="preset-grid">
+                    <div class="preset-card" onclick="applyPreset('growth-optimized')">
+                        <h3>✅ RECOMMENDED: Optimized Growth</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">Fees: KEEP CURRENT</div>
+                            <div class="checkpoint">Min Yield: 1.0 pSunDAI (higher)</div>
+                            <div class="checkpoint">Wait: 2 hours (reduce spam)</div>
+                            <div class="checkpoint">Max Gas: 250,000 (optimize)</div>
+                            <div class="checkpoint">Auto-payout: STILL ENABLED</div>
+                        </div>
+                        <button class="quick-apply">Apply Settings</button>
+                    </div>
+
+                    <div class="preset-card" onclick="applyPreset('growth-performance')">
+                        <h3>⚡ High Performance</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">Min Yield: 2.0 pSunDAI</div>
+                            <div class="checkpoint">Wait: 4 hours</div>
+                            <div class="checkpoint">Max Gas: 200,000</div>
+                            <div class="checkpoint">Fewer but bigger payouts</div>
+                        </div>
+                        <button class="quick-apply">Apply Settings</button>
+                    </div>
+                </div>
+
+                <div class="info-box">
+                    💡 <strong>Phase 2 Tips:</strong> Auto-payouts still work great with 100-500 holders. Focus on reducing gas waste by increasing minimum yields and wait times.
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 3: SCALE -->
+        <div id="phase3" class="phase-content">
+            <div class="card">
+                <h2>🏆 PHASE 3: SCALE (500-1,000 Holders)</h2>
+                <div class="info-box">
+                    <strong>Goal:</strong> Transition to sustainable model<br>
+                    <strong>Strategy:</strong> Prepare for manual-only claims, optimize heavily
+                </div>
+
+                <div class="preset-grid">
+                    <div class="preset-card" onclick="applyPreset('scale-hybrid')">
+                        <h3>🔄 Hybrid Model</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">Min Yield: 5.0 pSunDAI (much higher)</div>
+                            <div class="checkpoint">Wait: 6 hours</div>
+                            <div class="checkpoint">Max Gas: 150,000 (limited)</div>
+                            <div class="checkpoint">Auto-payout: STILL ON (limited)</div>
+                            <div class="checkpoint">Active traders auto-paid, others manual</div>
+                        </div>
+                        <button class="quick-apply">Apply Settings</button>
+                    </div>
+
+                    <div class="preset-card" onclick="applyPreset('scale-manual')">
+                        <h3>✅ RECOMMENDED: Manual Only</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">Auto-payout: DISABLED</div>
+                            <div class="checkpoint">Min Yield: 0.369 (low for manual)</div>
+                            <div class="checkpoint">Wait: 1 hour (quick claims)</div>
+                            <div class="checkpoint">100% manual claims</div>
+                            <div class="checkpoint">Scales infinitely</div>
+                        </div>
+                        <button class="quick-apply">Apply Settings</button>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    ⚠️ <strong>Scaling Checkpoint:</strong> At 500+ holders, auto-payouts become inefficient. Manual-only is the mature, scalable model. Announce transition to community first!
+                </div>
+            </div>
+        </div>
+
+        <!-- PHASE 4: MATURE -->
+        <div id="phase4" class="phase-content">
+            <div class="card">
+                <h2>💎 PHASE 4: MATURE (1,000+ Holders)</h2>
+                <div class="info-box">
+                    <strong>Goal:</strong> Fully autonomous, community-owned<br>
+                    <strong>Strategy:</strong> Manual claims only, consider renouncing ownership
+                </div>
+
+                <div class="preset-grid">
+                    <div class="preset-card" onclick="applyPreset('mature-autonomous')">
+                        <h3>✅ RECOMMENDED: Autonomous</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">Auto-payout: DISABLED</div>
+                            <div class="checkpoint">Swaps: ENABLED (or disabled if needed)</div>
+                            <div class="checkpoint">Fees: Community-approved final settings</div>
+                            <div class="checkpoint">Manual claims: User controlled</div>
+                            <div class="checkpoint">Ready for renouncement</div>
+                        </div>
+                        <button class="quick-apply">Apply Settings</button>
+                    </div>
+
+                    <div class="preset-card" style="border-color: #c41e3a;">
+                        <h3 style="color: #c41e3a;">🔒 Pre-Renounce Checklist</h3>
+                        <div class="preset-details">
+                            <div class="checkpoint">✓ Settings community-approved</div>
+                            <div class="checkpoint">✓ Contract tested extensively</div>
+                            <div class="checkpoint">✓ No bugs/issues for 30+ days</div>
+                            <div class="checkpoint">✓ Community vote passed</div>
+                            <div class="checkpoint">⚠️ IRREVERSIBLE</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="warning-box">
+                    💎 <strong>Success!</strong> At 1,000+ holders you've built something special. Consider community governance vote before renouncing. This makes RISE truly community-owned forever.
+                </div>
+            </div>
+        </div>
+
+        <!-- MANUAL CONTROLS (Always visible) -->
+        <div class="card">
+            <h2>🎛️ Manual Controls</h2>
+            <div class="info-box">
+                Use these to fine-tune settings manually or make emergency adjustments
+            </div>
+
             <div class="form-group">
-                <label>Buy Burn Fee (bps)</label>
+                <label>Buy Burn Fee (bps - 100 = 1%)</label>
                 <input type="number" id="buyBurnFee" value="10" min="0" max="500">
             </div>
             <div class="form-group">
@@ -128,17 +377,13 @@
             </div>
             <button class="action-btn" onclick="setFees()">Update Fees</button>
             <div id="feesStatus"></div>
-        </div>
 
-        <div class="card">
-            <h2>💸 Payout Policy</h2>
-            <div class="warning-box">
-                ⚠️ V10 Note: maxPayout removed from setPayoutPolicy function
-            </div>
+            <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.1);">
+
             <div class="form-group">
                 <label>
                     <input type="checkbox" id="payoutEnabled" checked style="width: 20px; height: 20px;">
-                    Enable Payouts
+                    Payouts Enabled
                 </label>
             </div>
             <div class="form-group">
@@ -155,51 +400,31 @@
             </div>
             <button class="action-btn" onclick="setPayoutPolicy()">Update Payout Policy</button>
             <div id="payoutStatus"></div>
-        </div>
 
-        <div class="card">
-            <h2>🔄 Swap Parameters</h2>
-            <div class="info-box">
-                ℹ️ V11: Swap sizing now automatic (MIN_SWAP: 1,000 RISE, MAX_SWAP: 25,000 RISE)
-            </div>
+            <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.1);">
+
             <div class="form-group">
                 <label>
                     <input type="checkbox" id="swapEnabled" checked style="width: 20px; height: 20px;">
-                    Enable Swaps
+                    Swaps Enabled
                 </label>
             </div>
             <button class="action-btn" onclick="setSwapParams()">Update Swap Params</button>
             <div id="swapStatus"></div>
-        </div>
 
-        <div class="card">
-            <h2>⚡ Auto Payout</h2>
+            <hr style="margin: 30px 0; border-color: rgba(255,255,255,0.1);">
+
             <div class="form-group">
                 <label>
                     <input type="checkbox" id="autoPayout" checked style="width: 20px; height: 20px;">
-                    Auto Payout Enabled
+                    Auto-Payout Enabled
                 </label>
             </div>
             <button class="action-btn" onclick="setAutoPayout()">Update Auto Payout</button>
             <div id="autoPayoutStatus"></div>
         </div>
 
-        <div class="card">
-            <h2>🚫 Yield Exclusions</h2>
-            <div class="form-group">
-                <label>Address</label>
-                <input type="text" id="excludeAddress" placeholder="0x...">
-            </div>
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="excludeFlag" checked style="width: 20px; height: 20px;">
-                    Exclude from Yield
-                </label>
-            </div>
-            <button class="action-btn" onclick="setNoYield()">Update Exclusion</button>
-            <div id="excludeStatus"></div>
-        </div>
-
+        <!-- DANGER ZONE -->
         <div class="card" style="border-color: #c41e3a;">
             <h2 style="color: #c41e3a;">⚠️ DANGER ZONE</h2>
             <div class="warning-box">
@@ -218,7 +443,6 @@
     </div>
 
     <script>
-        // ⚠️ UPDATE THIS AFTER V11 DEPLOY!
         const CONTRACT_ADDRESS = 'YOUR_V11_CONTRACT_ADDRESS_HERE';
         
         const ABI = [
@@ -226,18 +450,70 @@
             "function setPayoutPolicy(bool en, uint24 minDur, uint256 newMin, uint24 gas_)",
             "function setSwapParams(bool en)",
             "function setAutoPayout(bool en)",
-            "function setNoYield(address w, bool f)",
             "function transferOwnership(address newOwner)",
             "function renounceOwnership()",
             "function owner() view returns (address)"
         ];
 
+        const PRESETS = {
+            'launch-conservative': {
+                buyBurn: 10, buyYield: 35, sellBurn: 100, sellYield: 300,
+                payoutEnabled: true, minWait: 3600, minYield: 0.369, maxGas: 300000,
+                swapEnabled: true, autoPayout: true
+            },
+            'launch-aggressive': {
+                buyBurn: 10, buyYield: 40, sellBurn: 50, sellYield: 450,
+                payoutEnabled: true, minWait: 3600, minYield: 0.369, maxGas: 300000,
+                swapEnabled: true, autoPayout: true
+            },
+            'growth-optimized': {
+                minWait: 7200, minYield: 1.0, maxGas: 250000
+            },
+            'growth-performance': {
+                minWait: 14400, minYield: 2.0, maxGas: 200000
+            },
+            'scale-hybrid': {
+                minWait: 21600, minYield: 5.0, maxGas: 150000, autoPayout: true
+            },
+            'scale-manual': {
+                minWait: 3600, minYield: 0.369, autoPayout: false
+            },
+            'mature-autonomous': {
+                autoPayout: false, minWait: 3600, minYield: 0.369
+            }
+        };
+
         let contract, signer, userAddress;
+
+        function selectPhase(phase) {
+            document.querySelectorAll('.phase-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.phase-content').forEach(content => content.classList.remove('active'));
+            
+            event.target.closest('.phase-btn').classList.add('active');
+            document.getElementById('phase' + phase).classList.add('active');
+        }
+
+        function applyPreset(presetName) {
+            const preset = PRESETS[presetName];
+            
+            if (preset.buyBurn !== undefined) document.getElementById('buyBurnFee').value = preset.buyBurn;
+            if (preset.buyYield !== undefined) document.getElementById('buyYieldFee').value = preset.buyYield;
+            if (preset.sellBurn !== undefined) document.getElementById('sellBurnFee').value = preset.sellBurn;
+            if (preset.sellYield !== undefined) document.getElementById('sellYield').value = preset.sellYield;
+            if (preset.payoutEnabled !== undefined) document.getElementById('payoutEnabled').checked = preset.payoutEnabled;
+            if (preset.minWait !== undefined) document.getElementById('minWaitSec').value = preset.minWait;
+            if (preset.minYield !== undefined) document.getElementById('minYield').value = preset.minYield;
+            if (preset.maxGas !== undefined) document.getElementById('maxGas').value = preset.maxGas;
+            if (preset.swapEnabled !== undefined) document.getElementById('swapEnabled').checked = preset.swapEnabled;
+            if (preset.autoPayout !== undefined) document.getElementById('autoPayout').checked = preset.autoPayout;
+            
+            alert('✅ Preset applied! Review settings below, then click Update buttons to save to contract.');
+        }
 
         async function connectWallet() {
             try {
                 if (!window.ethereum) {
-                    alert('Install MetaMask!');
+                    alert('Install MetaMask or Rabby!');
                     return;
                 }
 
@@ -311,7 +587,6 @@
         async function setSwapParams() {
             try {
                 const enabled = document.getElementById('swapEnabled').checked;
-
                 showStatus('swapStatus', 'Sending...', 'info');
                 const tx = await contract.setSwapParams(enabled);
                 await tx.wait();
@@ -324,7 +599,6 @@
         async function setAutoPayout() {
             try {
                 const enabled = document.getElementById('autoPayout').checked;
-
                 showStatus('autoPayoutStatus', 'Sending...', 'info');
                 const tx = await contract.setAutoPayout(enabled);
                 await tx.wait();
@@ -334,34 +608,13 @@
             }
         }
 
-        async function setNoYield() {
-            try {
-                const address = document.getElementById('excludeAddress').value;
-                const exclude = document.getElementById('excludeFlag').checked;
-
-                if (!ethers.utils.isAddress(address)) {
-                    showStatus('excludeStatus', 'Invalid address!', 'error');
-                    return;
-                }
-
-                showStatus('excludeStatus', 'Sending...', 'info');
-                const tx = await contract.setNoYield(address, exclude);
-                await tx.wait();
-                showStatus('excludeStatus', '✅ Exclusion updated!', 'success');
-            } catch (error) {
-                showStatus('excludeStatus', 'Error: ' + error.message, 'error');
-            }
-        }
-
         async function transferOwnership() {
             try {
                 const newOwner = document.getElementById('newOwner').value;
-
                 if (!ethers.utils.isAddress(newOwner)) {
                     showStatus('ownershipStatus', 'Invalid address!', 'error');
                     return;
                 }
-
                 if (!confirm('Transfer ownership to ' + newOwner + '?')) return;
 
                 showStatus('ownershipStatus', 'Sending...', 'info');
