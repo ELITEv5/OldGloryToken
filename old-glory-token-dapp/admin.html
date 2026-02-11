@@ -556,11 +556,15 @@
                 document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 document.getElementById('connectBtn').disabled = true;
                 
-                const owner = await contract.owner();
-                if (owner.toLowerCase() === userAddress.toLowerCase()) {
-                    showStatus('walletStatus', '✅ Connected as owner', 'success');
-                } else {
-                    showStatus('walletStatus', '⚠️ You are NOT the owner! Owner: ' + owner, 'error');
+                try {
+                    const owner = await contract.owner();
+                    if (owner.toLowerCase() === userAddress.toLowerCase()) {
+                        showStatus('walletStatus', '✅ Connected as owner', 'success');
+                    } else {
+                        showStatus('walletStatus', '⚠️ You are NOT the owner! Owner: ' + owner, 'error');
+                    }
+                } catch (ownerError) {
+                    showStatus('walletStatus', '✅ Connected! (Could not verify owner)', 'info');
                 }
             } catch (error) {
                 showStatus('walletStatus', 'Error: ' + error.message, 'error');
