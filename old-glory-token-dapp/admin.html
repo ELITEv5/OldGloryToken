@@ -537,7 +537,11 @@
                     return;
                 }
 
-                const provider = new ethers.providers.Web3Provider(window.ethereum);
+                const provider = new ethers.providers.Web3Provider(window.ethereum, {
+                    chainId: 369,
+                    name: 'pulsechain',
+                    ensAddress: null
+                });
                 await provider.send("eth_requestAccounts", []);
                 
                 const network = await provider.getNetwork();
