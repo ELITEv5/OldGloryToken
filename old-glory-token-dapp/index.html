@@ -250,6 +250,14 @@
             border-radius: 4px;
         }
 
+        .lp-bonus {
+            background: rgba(212, 175, 55, 0.1);
+            border-left: 4px solid var(--gold);
+            padding: 0.5rem;
+            margin-top: 0.5rem;
+            font-size: 0.75rem;
+        }
+
         @media (max-width: 768px) {
             .title-container { flex-direction: column; gap: 0.5rem; }
             .flag { font-size: 3rem; }
@@ -268,12 +276,12 @@
                 <h1>Old Glory RISE</h1>
                 <span class="flag">🇺🇸</span>
             </div>
-            <p class="tagline">V10 • pSunDAI Rewards • Autonomous</p>
+            <p class="tagline">V11 • pSunDAI Rewards • Autonomous</p>
             
             <div class="contract-display">
                 <h3>📜 RISE Contract (Click to Copy)</h3>
                 <div class="contract-address" onclick="copyContract()">
-                    0xA23F3Bee98E5B866cFfCF8c722649100e8B97b37
+                    0x3b36Cf34bFcbA9822DF69829F71D5e142796B79d
                 </div>
             </div>
             
@@ -305,7 +313,7 @@
             <div class="stat-card">
                 <div class="stat-label">Your Shares</div>
                 <div class="stat-value" id="userShares">--</div>
-                <div class="stat-subtext">With 2x LP Bonus</div>
+                <div class="stat-subtext" id="lpBonusText">Includes LP 2x Bonus</div>
             </div>
             <div class="stat-card">
                 <div class="stat-label">Pending Yield</div>
@@ -333,13 +341,12 @@
     </div>
 
     <script>
-        const CONTRACT_ADDRESS = '0xA23F3Bee98E5B866cFfCF8c722649100e8B97b37';
+        const CONTRACT_ADDRESS = '0x3b36Cf34bFcbA9822DF69829F71D5e142796B79d';
         const PSUNDAI_ADDRESS = '0x5529c1cb179b2c256501031adCDAfC22D9c6d236';
-        const LP_ADDRESS = '0x6FAF74e042837Bb899e883Bf01283cdD5fbF14e6';
         const BURN_ADDRESS = '0x0000000000000000000000000000000000000369';
         const PULSECHAIN_ID = 369;
         
-        // V10 (CST V6 Pattern) ABI
+        // V11 ABI
         const CONTRACT_ABI = [
             "function totalSupply() view returns (uint256)",
             "function balanceOf(address) view returns (uint256)",
@@ -353,7 +360,7 @@
             "function plsV2LP() view returns (address)"
         ];
 
-        let provider, signer, contract, userAddress;
+        let provider, signer, contract, userAddress, lpAddress;
 
         function generateStars() {
             const starsContainer = document.getElementById('stars');
@@ -369,7 +376,7 @@
 
         function copyContract() {
             navigator.clipboard.writeText(CONTRACT_ADDRESS);
-            alert('✅ Copied!');
+            alert('✅ Contract address copied!');
         }
 
         function formatNumber(num, decimals = 2) {
@@ -383,12 +390,12 @@
         async function connectWallet() {
             try {
                 if (typeof window.ethereum === 'undefined') {
-                    alert('Install MetaMask!');
+                    alert('Install MetaMask or Rabby!');
                     return;
                 }
 
                 await window.ethereum.request({ method: 'eth_requestAccounts' });
-                provider = new ethers.providers.Web3Provider(window.ethereum);
+                provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                 
                 const network = await provider.getNetwork();
                 if (network.chainId !== PULSECHAIN_ID) {
@@ -417,9 +424,12 @@
                 userAddress = await signer.getAddress();
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
 
+                // Get LP address from contract
+                lpAddress = await contract.plsV2LP();
+
                 document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 document.getElementById('connectBtn').disabled = true;
-                document.getElementById('status').textContent = '✅ Connected';
+                document.getElementById('status').textContent = '✅ Connected to PulseChain';
 
                 await loadData();
                 setInterval(loadData, 15000);
@@ -431,15 +441,12 @@
 
         async function loadData() {
             try {
-                // Total supply
                 const supply = await contract.totalSupply();
                 document.getElementById('totalSupply').textContent = formatNumber(ethers.utils.formatEther(supply), 0);
                 
-                // Burned
                 const burned = await contract.balanceOf(BURN_ADDRESS);
                 document.getElementById('totalBurned').textContent = formatNumber(ethers.utils.formatEther(burned), 0);
                 
-                // Total paid (from rewardTokens mapping)
                 const rewardInfo = await contract.rewardTokens(PSUNDAI_ADDRESS);
                 document.getElementById('totalPaid').textContent = formatNumber(ethers.utils.formatEther(rewardInfo.totalPaid), 2);
 
@@ -453,29 +460,41 @@
             try {
                 const balance = await contract.balanceOf(userAddress);
                 
-                // walletInfo might return struct or just uint256
                 let share;
                 try {
                     const walletInfo = await contract.walletInfo(userAddress);
-                    // Try as struct first
                     share = walletInfo.share || walletInfo[0] || walletInfo;
                 } catch (e) {
                     console.error('walletInfo error:', e);
                     share = ethers.BigNumber.from(0);
                 }
                 
-                console.log('Share:', share.toString());
-                
                 const unpaid = await contract.getUnpaidYield(userAddress, PSUNDAI_ADDRESS);
                 const lastClaim = await contract.walletClaimTS(userAddress, PSUNDAI_ADDRESS);
                 const minWait = await contract.minWaitSec();
                 const minYieldAmt = await contract.minYield();
 
-                const lpContract = new ethers.Contract(LP_ADDRESS, ['function balanceOf(address) view returns (uint256)'], provider);
-                const lpBal = await lpContract.balanceOf(userAddress);
+                // Get LP balance
+                let lpBal = ethers.BigNumber.from(0);
+                let hasLP = false;
+                try {
+                    const lpContract = new ethers.Contract(lpAddress, ['function balanceOf(address) view returns (uint256)'], provider);
+                    lpBal = await lpContract.balanceOf(userAddress);
+                    hasLP = lpBal.gt(0);
+                } catch (e) {
+                    console.log('No LP tokens');
+                }
 
                 document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
                 document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(share), 0);
+                
+                // Update LP bonus display
+                if (hasLP) {
+                    document.getElementById('lpBonusText').innerHTML = '✨ Includes LP 2x Bonus! ✨';
+                    document.getElementById('lpBonusText').style.color = var(--gold);
+                } else {
+                    document.getElementById('lpBonusText').textContent = 'Add liquidity for 2x rewards!';
+                }
                 
                 const unpaidAmt = parseFloat(ethers.utils.formatEther(unpaid));
                 document.getElementById('unpaidYield').textContent = formatNumber(unpaidAmt, 4);
@@ -513,14 +532,14 @@
             try {
                 document.getElementById('claimBtn').disabled = true;
                 document.getElementById('claimBtn').textContent = '⏳ CLAIMING...';
-                document.getElementById('claimStatus').innerHTML = '<div class="status">Sending...</div>';
+                document.getElementById('claimStatus').innerHTML = '<div class="status">Sending transaction...</div>';
                 
                 const tx = await contract.claimYield();
-                document.getElementById('claimStatus').innerHTML = '<div class="status">⏳ Confirming...</div>';
+                document.getElementById('claimStatus').innerHTML = '<div class="status">⏳ Confirming on blockchain...</div>';
                 
                 await tx.wait();
                 
-                document.getElementById('claimStatus').innerHTML = '<div class="success">✅ Success!</div>';
+                document.getElementById('claimStatus').innerHTML = '<div class="success">✅ pSunDAI claimed successfully!</div>';
                 
                 setTimeout(() => {
                     document.getElementById('claimStatus').innerHTML = '';
