@@ -528,6 +528,13 @@
 
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
+                
+                // Check if contract address is set
+                if (CONTRACT_ADDRESS === 'YOUR_V11_CONTRACT_ADDRESS_HERE') {
+                    showStatus('walletStatus', '⚠️ Update CONTRACT_ADDRESS in code first!', 'error');
+                    return;
+                }
+                
                 contract = new ethers.Contract(CONTRACT_ADDRESS, ABI, signer);
 
                 document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
@@ -545,6 +552,10 @@
         }
 
         async function setFees() {
+            if (!contract) {
+                showStatus('feesStatus', '⚠️ Connect wallet first!', 'error');
+                return;
+            }
             try {
                 const bb = parseInt(document.getElementById('buyBurnFee').value);
                 const by = parseInt(document.getElementById('buyYieldFee').value);
@@ -567,6 +578,10 @@
         }
 
         async function setPayoutPolicy() {
+            if (!contract) {
+                showStatus('payoutStatus', '⚠️ Connect wallet first!', 'error');
+                return;
+            }
             try {
                 const enabled = document.getElementById('payoutEnabled').checked;
                 const minWait = parseInt(document.getElementById('minWaitSec').value);
@@ -585,6 +600,10 @@
         }
 
         async function setSwapParams() {
+            if (!contract) {
+                showStatus('swapStatus', '⚠️ Connect wallet first!', 'error');
+                return;
+            }
             try {
                 const enabled = document.getElementById('swapEnabled').checked;
                 showStatus('swapStatus', 'Sending...', 'info');
@@ -597,6 +616,10 @@
         }
 
         async function setAutoPayout() {
+            if (!contract) {
+                showStatus('autoPayoutStatus', '⚠️ Connect wallet first!', 'error');
+                return;
+            }
             try {
                 const enabled = document.getElementById('autoPayout').checked;
                 showStatus('autoPayoutStatus', 'Sending...', 'info');
@@ -609,6 +632,10 @@
         }
 
         async function transferOwnership() {
+            if (!contract) {
+                showStatus('ownershipStatus', '⚠️ Connect wallet first!', 'error');
+                return;
+            }
             try {
                 const newOwner = document.getElementById('newOwner').value;
                 if (!ethers.utils.isAddress(newOwner)) {
@@ -627,6 +654,10 @@
         }
 
         async function renounceOwnership() {
+            if (!contract) {
+                alert('⚠️ Connect wallet first!');
+                return;
+            }
             if (!confirm('⚠️ WARNING: This is PERMANENT! Continue?')) return;
             if (prompt('Type "RENOUNCE" to confirm:') !== 'RENOUNCE') return;
 
