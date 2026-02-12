@@ -600,7 +600,7 @@
                 
                 if (canClaim) {
                     document.getElementById('countdown').innerHTML = '✅ <strong style="color: #51cf66;">READY!</strong><br>' + unpaidAmt.toFixed(4) + ' pSunDAI';
-                    document.getElementById('claimBtn').textContent = '🎁 CLAIM ' + unpaidAmt.toFixed(4) + ' PSUNDAI';
+                    document.getElementById('claimBtn').textContent = 'CLAIM ' + unpaidAmt.toFixed(4) + ' PSUNDAI';
                 } else if (unpaidAmt < minRequired) {
                     document.getElementById('countdown').innerHTML = '⏳ Need ' + minRequired.toFixed(3) + '<br>Current: ' + unpaidAmt.toFixed(4);
                 } else {
@@ -638,7 +638,7 @@
             } catch (error) {
                 document.getElementById('claimStatus').innerHTML = '<div class="error">❌ ' + error.message + '</div>';
                 document.getElementById('claimBtn').disabled = false;
-                document.getElementById('claimBtn').textContent = '🎁 CLAIM PSUNDAI';
+                document.getElementById('claimBtn').textContent = 'CLAIM PSUNDAI';
             }
         }
 
