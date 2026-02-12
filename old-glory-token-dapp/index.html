@@ -146,6 +146,30 @@
             border-color: var(--gold);
         }
 
+        .links-container {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            margin-top: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .link-btn {
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid var(--gold);
+            padding: 0.5rem 1.5rem;
+            border-radius: 4px;
+            color: var(--gold);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+        }
+
+        .link-btn:hover {
+            background: rgba(212, 175, 55, 0.4);
+            transform: translateY(-2px);
+        }
+
         .connect-btn {
             background: linear-gradient(135deg, var(--red) 0%, #8b0000 100%);
             color: white;
@@ -161,6 +185,21 @@
 
         .connect-btn:hover {
             transform: translateY(-2px);
+        }
+
+        .refresh-btn {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid var(--silver);
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            color: var(--silver);
+            cursor: pointer;
+            font-size: 0.9rem;
+            margin-left: 1rem;
+        }
+
+        .refresh-btn:hover {
+            background: rgba(255,255,255,0.2);
         }
 
         .status {
@@ -182,6 +221,7 @@
             border: 2px solid rgba(192, 192, 192, 0.3);
             padding: 2rem;
             transition: all 0.3s ease;
+            border-radius: 8px;
         }
 
         .stat-card:hover {
@@ -206,6 +246,7 @@
         .stat-subtext {
             font-size: 0.85rem;
             color: rgba(255,255,255,0.6);
+            margin-top: 0.5rem;
         }
 
         .claim-section {
@@ -213,6 +254,7 @@
             border: 3px solid var(--red);
             padding: 3rem;
             margin: 3rem 0;
+            border-radius: 12px;
         }
 
         .claim-btn {
@@ -229,11 +271,18 @@
             font-family: 'Cinzel', serif;
             text-transform: uppercase;
             cursor: pointer;
+            border-radius: 8px;
+        }
+
+        .claim-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(212, 175, 55, 0.5);
         }
 
         .claim-btn:disabled {
             opacity: 0.4;
             cursor: not-allowed;
+            transform: none;
         }
 
         .error {
@@ -241,6 +290,7 @@
             background: rgba(255, 107, 107, 0.1);
             padding: 1rem;
             border-radius: 4px;
+            border: 1px solid #ff6b6b;
         }
 
         .success {
@@ -248,14 +298,7 @@
             background: rgba(81, 207, 102, 0.1);
             padding: 1rem;
             border-radius: 4px;
-        }
-
-        .lp-bonus {
-            background: rgba(212, 175, 55, 0.1);
-            border-left: 4px solid var(--gold);
-            padding: 0.5rem;
-            margin-top: 0.5rem;
-            font-size: 0.75rem;
+            border: 1px solid #51cf66;
         }
 
         @media (max-width: 768px) {
@@ -283,13 +326,24 @@
                 <div class="contract-address" onclick="copyContract()">
                     0xE558edc934FDbB65cdF4868617D5F0D80595aD11
                 </div>
+                <div class="links-container">
+                    <a href="https://scan.pulsechain.com/address/0xE558edc934FDbB65cdF4868617D5F0D80595aD11" target="_blank" class="link-btn">📊 View on PulseScan</a>
+                    <a href="https://app.pulsex.com/swap?outputCurrency=0xE558edc934FDbB65cdF4868617D5F0D80595aD11" target="_blank" class="link-btn">💱 Buy on PulseX</a>
+                    <a href="https://app.pulsex.com/add/PLS/0xE558edc934FDbB65cdF4868617D5F0D80595aD11" target="_blank" class="link-btn">💧 Add Liquidity</a>
+                </div>
             </div>
             
             <button class="connect-btn" id="connectBtn">Connect Wallet</button>
+            <button class="refresh-btn" id="refreshBtn" onclick="loadData()" style="display: none;">🔄 Refresh</button>
             <div class="status" id="status">Connect to PulseChain</div>
         </header>
 
         <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-label">RISE Price</div>
+                <div class="stat-value" id="risePrice">--</div>
+                <div class="stat-subtext">USD per RISE</div>
+            </div>
             <div class="stat-card">
                 <div class="stat-label">Total Supply</div>
                 <div class="stat-value" id="totalSupply">--</div>
@@ -320,6 +374,11 @@
                 <div class="stat-value" id="unpaidYield">--</div>
                 <div class="stat-subtext">pSunDAI Ready</div>
             </div>
+            <div class="stat-card">
+                <div class="stat-label">Your LP Tokens</div>
+                <div class="stat-value" id="userLP">--</div>
+                <div class="stat-subtext" id="lpPercent">% of Pool</div>
+            </div>
         </div>
 
         <div style="text-align: center; color: var(--silver); margin: 2rem 0; font-size: 1.1rem;" id="claimHint">
@@ -343,10 +402,10 @@
     <script>
         const CONTRACT_ADDRESS = '0xE558edc934FDbB65cdF4868617D5F0D80595aD11';
         const PSUNDAI_ADDRESS = '0x5529c1cb179b2c256501031adCDAfC22D9c6d236';
+        const LP_ADDRESS = '0xE54489f764D7a1ABaE829a2d4ae280Deae726511';
         const BURN_ADDRESS = '0x0000000000000000000000000000000000000369';
         const PULSECHAIN_ID = 369;
         
-        // V11 ABI
         const CONTRACT_ABI = [
             "function totalSupply() view returns (uint256)",
             "function balanceOf(address) view returns (uint256)",
@@ -356,11 +415,18 @@
             "function walletClaimTS(address, address) view returns (uint256)",
             "function minWaitSec() view returns (uint24)",
             "function minYield() view returns (uint256)",
-            "function claimYield()",
-            "function plsV2LP() view returns (address)"
+            "function claimYield()"
         ];
 
-        let provider, signer, contract, userAddress, lpAddress;
+        const LP_ABI = [
+            "function balanceOf(address) view returns (uint256)",
+            "function totalSupply() view returns (uint256)",
+            "function getReserves() view returns (uint112 reserve0, uint112 reserve1, uint32 blockTimestampLast)",
+            "function token0() view returns (address)",
+            "function token1() view returns (address)"
+        ];
+
+        let provider, signer, contract, userAddress, lpContract;
 
         function generateStars() {
             const starsContainer = document.getElementById('stars');
@@ -388,7 +454,6 @@
         }
 
         async function connectWallet() {
-            console.log('Connect wallet clicked');
             try {
                 if (typeof window.ethereum === 'undefined') {
                     document.getElementById('status').innerHTML = '<div class="error">Please install MetaMask or Rabby wallet!</div>';
@@ -397,46 +462,27 @@
 
                 document.getElementById('status').textContent = '🔄 Connecting...';
                 
-                console.log('Requesting accounts...');
-                const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-                console.log('Accounts:', accounts);
-                
+                await window.ethereum.request({ method: 'eth_requestAccounts' });
                 provider = new ethers.providers.Web3Provider(window.ethereum, 'any');
                 
-                console.log('Checking network...');
                 const network = await provider.getNetwork();
-                console.log('Current chain ID:', network.chainId);
-                
                 if (network.chainId !== PULSECHAIN_ID) {
                     document.getElementById('status').innerHTML = '<div class="error">⚠️ Please switch to PulseChain (369) in your wallet!</div>';
                     return;
                 }
 
-                console.log('Getting signer...');
                 signer = provider.getSigner();
                 userAddress = await signer.getAddress();
-                console.log('User address:', userAddress);
-                
                 contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
-                console.log('Contract initialized');
-
-                // Get LP address from contract
-                console.log('Getting LP address...');
-                try {
-                    lpAddress = await contract.plsV2LP();
-                    console.log('LP address:', lpAddress);
-                } catch (e) {
-                    console.log('Could not get LP address:', e);
-                    lpAddress = null;
-                }
+                lpContract = new ethers.Contract(LP_ADDRESS, LP_ABI, provider);
 
                 document.getElementById('connectBtn').textContent = userAddress.slice(0, 6) + '...' + userAddress.slice(-4);
                 document.getElementById('connectBtn').disabled = true;
+                document.getElementById('refreshBtn').style.display = 'inline-block';
                 document.getElementById('status').innerHTML = '<div class="success">✅ Connected to PulseChain</div>';
 
-                console.log('Loading data...');
                 await loadData();
-                setInterval(loadData, 15000);
+                setInterval(loadData, 30000); // Refresh every 30 seconds
                 
             } catch (error) {
                 console.error('Connection error:', error);
@@ -446,6 +492,29 @@
 
         async function loadData() {
             try {
+                // Get price from LP
+                try {
+                    const reserves = await lpContract.getReserves();
+                    const token0 = await lpContract.token0();
+                    
+                    let riseReserve, plsReserve;
+                    if (token0.toLowerCase() === CONTRACT_ADDRESS.toLowerCase()) {
+                        riseReserve = reserves.reserve0;
+                        plsReserve = reserves.reserve1;
+                    } else {
+                        riseReserve = reserves.reserve1;
+                        plsReserve = reserves.reserve0;
+                    }
+                    
+                    const priceInPLS = parseFloat(ethers.utils.formatEther(plsReserve)) / parseFloat(ethers.utils.formatEther(riseReserve));
+                    const plsPrice = 0.0000085; // Approximate PLS price in USD
+                    const risePrice = priceInPLS * plsPrice;
+                    
+                    document.getElementById('risePrice').textContent = '$' + risePrice.toFixed(6);
+                } catch (e) {
+                    document.getElementById('risePrice').textContent = 'N/A';
+                }
+
                 const supply = await contract.totalSupply();
                 document.getElementById('totalSupply').textContent = formatNumber(ethers.utils.formatEther(supply), 0);
                 
@@ -470,7 +539,6 @@
                     const walletInfo = await contract.walletInfo(userAddress);
                     share = walletInfo.share || walletInfo[0] || walletInfo;
                 } catch (e) {
-                    console.error('walletInfo error:', e);
                     share = ethers.BigNumber.from(0);
                 }
                 
@@ -482,16 +550,22 @@
                 // Get LP balance
                 let lpBal = ethers.BigNumber.from(0);
                 let hasLP = false;
+                let lpPercent = 0;
                 try {
-                    const lpContract = new ethers.Contract(lpAddress, ['function balanceOf(address) view returns (uint256)'], provider);
                     lpBal = await lpContract.balanceOf(userAddress);
+                    const lpTotalSupply = await lpContract.totalSupply();
                     hasLP = lpBal.gt(0);
+                    if (hasLP) {
+                        lpPercent = (parseFloat(ethers.utils.formatEther(lpBal)) / parseFloat(ethers.utils.formatEther(lpTotalSupply))) * 100;
+                    }
                 } catch (e) {
                     console.log('No LP tokens');
                 }
 
                 document.getElementById('userBalance').textContent = formatNumber(ethers.utils.formatEther(balance), 2);
                 document.getElementById('userShares').textContent = formatNumber(ethers.utils.formatEther(share), 0);
+                document.getElementById('userLP').textContent = hasLP ? formatNumber(ethers.utils.formatEther(lpBal), 4) : '0';
+                document.getElementById('lpPercent').textContent = hasLP ? lpPercent.toFixed(2) + '% of Pool' : 'Not providing liquidity';
                 
                 // Update LP bonus display
                 if (hasLP) {
