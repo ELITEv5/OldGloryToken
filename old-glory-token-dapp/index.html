@@ -507,10 +507,19 @@
                     }
                     
                     const priceInPLS = parseFloat(ethers.utils.formatEther(plsReserve)) / parseFloat(ethers.utils.formatEther(riseReserve));
-                    const plsPrice = 0.0000085; // Approximate PLS price in USD
-                    const risePrice = priceInPLS * plsPrice;
                     
-                    document.getElementById('risePrice').textContent = '$' + risePrice.toFixed(6);
+                    // Fetch live PLS price from CoinGecko
+                    try {
+                        const plsPriceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=pulsechain&vs_currencies=usd');
+                        const plsPriceData = await plsPriceResponse.json();
+                        const plsPrice = plsPriceData.pulsechain?.usd || 0.0000085; // Fallback
+                        
+                        const risePrice = priceInPLS * plsPrice;
+                        document.getElementById('risePrice').textContent = '$' + risePrice.toFixed(8);
+                    } catch (e) {
+                        // Fallback to showing price in PLS only
+                        document.getElementById('risePrice').textContent = priceInPLS.toFixed(8) + ' PLS';
+                    }
                 } catch (e) {
                     document.getElementById('risePrice').textContent = 'N/A';
                 }
