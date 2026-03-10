@@ -1,33 +1,35 @@
-# 🇺🇸 Old Glory Token DApp
+# 🇺🇸 Old Glory RISE Token DApp
 
-**Autonomous Treasury Protocol on PulseChain**
+**Deflationary Yield Protocol on PulseChain**
 
-A patriotic, sovereign DeFi interface for the Old Glory Token (OGT+) - featuring immutable smart contracts, autonomous CST yield distribution, and zero governance dependencies.
+A patriotic, sovereign DeFi interface for Old Glory RISE Token - featuring autonomous pSunDAI yield distribution, treasury-powered burns, and zero governance dependencies.
 
-![Old Glory Token](assets/OG_ELITE.png)
+![Old Glory RISE Token](assets/OG_ELITE.png)
 
 ## 🎯 Features
 
 - **Real-time Token Stats** - Supply, burns, deflation metrics, and treasury balance
-- **CST Yield Claiming** - Pull-based reward system with countdown timers
+- **pSunDAI Yield Claiming** - Pull-based stablecoin reward system with countdown timers
 - **LP Bonus Tracking** - 2x share multiplier for liquidity providers
-- **Autonomous Operation** - No admin keys, no governance, pure self-sovereignty
+- **Autonomous Treasury Burns** - 10% of supply dedicated to permanent deflation
+- **Immutable Operation** - No admin keys, no governance, pure self-sovereignty
 - **PulseChain Native** - Built specifically for the PulseChain ecosystem
 
 ## 🚀 Live Demo
 
-Visit: [https://oldglorytoken.com](https://oldglorytoken.com)
+Visit: [https://oldgloryrise.com](https://oldgloryrise.com) *(update with actual domain)*
 
 ## 📋 Contract Addresses
 
-- **OGT+ Token**: [`0x63aa45017513B9D5bD7252F0C4752f23f77f7043`](https://scan.pulsechain.com/address/0x63aa45017513B9D5bD7252F0C4752f23f77f7043)
-- **LP Pair (OGT+/WPLS)**: [`0x09Df81e6CD69F75c769402fa115c529BDc035507`](https://scan.pulsechain.com/address/0x09Df81e6CD69F75c769402fa115c529BDc035507)
-- **CST Reward Token**: [`0x600136dA8cc6D1Ea07449514604dc4ab7098dB82`](https://scan.pulsechain.com/address/0x600136dA8cc6D1Ea07449514604dc4ab7098dB82)
+- **OGT+ Token**: [`0x8C2e58F2923e34FBB95a0759d6A16641aB61810A`](https://scan.pulsechain.com/address/0x8C2e58F2923e34FBB95a0759d6A16641aB61810A)
+- **LP Pair (OGT+/WPLS)**: *[To be deployed]*
+- **pSunDAI Reward Token**: [`0x5529...`](https://scan.pulsechain.com/address/0x5529...) *(update with actual address)*
+- **Treasury Accelerator**: *[To be deployed]*
 
 ## 🛠️ Technology Stack
 
 - **Frontend**: Pure HTML5, CSS3, JavaScript (no framework dependencies)
-- **Web3 Integration**: ethers.js v5.7.2
+- **Web3 Integration**: ethers.js v6
 - **Blockchain**: PulseChain (Chain ID: 369)
 - **Design**: Patriotic theme with metallic accents and animated effects
 
@@ -37,8 +39,8 @@ Visit: [https://oldglorytoken.com](https://oldglorytoken.com)
 
 1. Clone this repository:
 ```bash
-git clone https://github.com/YOUR_USERNAME/old-glory-token-dapp.git
-cd old-glory-token-dapp
+git clone https://github.com/YOUR_USERNAME/old-glory-rise-dapp.git
+cd old-glory-rise-dapp
 ```
 
 2. Add the logo image to `/assets/OG_ELITE.png`
@@ -79,7 +81,8 @@ All styling is contained within `index.html` using CSS variables:
 - **No backend required** - Pure client-side application
 - **Read-only operations** - Only writes are user-initiated claims
 - **MetaMask integration** - Users maintain custody of their keys
-- **Immutable contracts** - No admin functions or upgradability
+- **Immutable contracts** - No admin functions after renunciation
+- **Two-step immutability** - Lock parameters first, renounce later
 
 ## 📊 Key Metrics Displayed
 
@@ -88,30 +91,113 @@ All styling is contained within `index.html` using CSS variables:
 - Total Burned (to address `0x369`)
 - Deflation Rate
 - Total Shareholders
-- CST Distributed
-- Treasury Balance
+- pSunDAI Distributed
+- Treasury Balance (1M OGT+)
+- Treasury Burns Status
 
 ### User Dashboard
 - OGT+ Balance
 - LP Token Balance
-- Share Count
-- Unpaid CST Yield
+- Share Count (with 2x LP bonus)
+- Unpaid pSunDAI Yield
 - Next Claim Countdown
 
 ## 🎯 How It Works
 
 1. **Connect Wallet** - MetaMask or Web3 wallet on PulseChain
 2. **View Stats** - Real-time protocol metrics
-3. **Claim Rewards** - Pull-based CST distribution (1 hour cooldown)
-4. **LP Bonus** - Liquidity providers receive 2x share weight
+3. **Earn Rewards** - Hold OGT+ or provide liquidity to earn pSunDAI
+4. **Claim Rewards** - Pull-based pSunDAI distribution (1 hour cooldown)
+5. **LP Bonus** - Liquidity providers receive 2x share weight
+6. **Watch Burns** - Treasury autonomously burns OGT+ supply forever
 
 ## 🏗️ Protocol Architecture
 
-Old Glory Token implements:
-- **Autonomous Treasury**: Self-executing buy-and-burn mechanism
-- **Pull-Based Rewards**: Gas-efficient claiming (90k gas vs 390k auto-payout)
-- **LP Incentivization**: 2x share multiplier for liquidity providers
-- **Immutable Design**: No governance tokens, no admin keys
+Old Glory RISE implements:
+
+### Tokenomics
+- **Supply**: 10,000,000 OGT+
+- **Treasury**: 1,000,000 OGT+ (10% - autonomous burning)
+- **Circulating**: 9,000,000 OGT+ (90% - distributed to community)
+- **Fees**: 0.45% buy / 4% sell (split between burns and yield)
+
+### Yield System
+- **Reward Token**: pSunDAI (yield-bearing stablecoin)
+- **Distribution**: Pull-based claiming (gas efficient)
+- **Min Balance**: 1 OGT+ to qualify for rewards
+- **LP Multiplier**: 2x share weight for liquidity providers
+- **Cooldown**: 1 hour between claims
+
+### Treasury Accelerator
+- **Allocation**: 1M OGT+ (10% of supply)
+- **Function**: Autonomous buy-and-burn mechanism
+- **Frequency**: Executes every hour when conditions met
+- **Deflation**: 17-490% annual burn rate (volume dependent)
+- **Rewards**: $0.50-$2 pSunDAI for executing burns
+- **Gas Management**: Self-sustaining (1.5% of yields reserved)
+
+### Deflationary Flywheel
+1. Trading volume generates pSunDAI rewards
+2. Treasury (10%) claims its share
+3. Treasury swaps pSunDAI → PLS → OGT+
+4. Purchased OGT+ burned to `0x369` address
+5. Supply decreases, scarcity increases
+6. Price appreciation attracts more volume
+7. **Repeat** ♻️
+
+## 🔥 Why "RISE"?
+
+**R**eward  
+**I**mmutable  
+**S**overeign  
+**E**cosystem  
+
+Old Glory RISE embodies:
+- ✅ **Rewards**: Stable pSunDAI yield for holders
+- ✅ **Immutable**: No admin keys, no governance
+- ✅ **Sovereign**: True self-custody, zero dependencies
+- ✅ **Ecosystem**: Circular SunDAI/pSunDAI/OGT+ economics
+
+## 📈 Deflationary Metrics
+
+### Expected Burn Rates (based on volume)
+
+| Daily Volume | Annual Deflation | Treasury Lifespan |
+|-------------|------------------|-------------------|
+| $5,000      | 17.3%           | 5.8 years         |
+| $10,000     | 34.7%           | 2.9 years         |
+| $50,000     | 173%            | 0.6 years         |
+| $100,000+   | 347%+           | <0.3 years        |
+
+*Note: Treasury depletes faster at higher volumes, creating intense scarcity*
+
+## 🎖️ Marketing Narrative
+
+> **"The only token where the treasury BURNS instead of SELLS"**
+
+Traditional tokens:
+- Team treasury sells tokens for funding
+- Creates perpetual sell pressure
+- Bearish tokenomics
+
+Old Glory RISE:
+- Treasury BUYS tokens with earned yield
+- Creates perpetual buy pressure
+- Burns purchased tokens permanently
+- Bullish deflationary mechanics
+
+## 📝 Launch Checklist
+
+- [x] Deploy OGT+ token contract
+- [ ] Create OGT+/WPLS liquidity pair
+- [ ] Deploy Treasury Accelerator contract
+- [ ] Transfer 1M OGT+ to treasury
+- [ ] Verify treasury NOT excluded from yield
+- [ ] Test execute() function
+- [ ] Lock parameters (after 6-12 months testing)
+- [ ] Renounce ownership (after proven operation)
+- [ ] Launch DApp frontend
+- [ ] Announce to community
 
 ## 📝 License
 
@@ -126,16 +212,28 @@ Contributions welcome! Please:
 
 ## 🔗 Links
 
-- **Website**: [oldglorytoken.com](https://oldglorytoken.com)
-- **Contract**: [PulseScan](https://scan.pulsechain.com/address/0x63aa45017513B9D5bD7252F0C4752f23f77f7043)
+- **Website**: [oldgloryrise.com](https://oldgloryrise.com) *(update)*
+- **Contract**: [PulseScan](https://scan.pulsechain.com/address/0x8C2e58F2923e34FBB95a0759d6A16641aB61810A)
 - **Developer**: ELITE TEAM6
+- **Ecosystem**: [SunDAI](https://sundaitoken.com)
 
 ## ⚠️ Disclaimer
 
 This DApp is provided as-is. Always DYOR (Do Your Own Research) before interacting with any smart contracts. The protocol operates autonomously without any central control or guarantees.
 
+**Not financial advice. Cryptocurrency investments carry risk.**
+
 ---
 
 **Built with 🇺🇸 for the PulseChain community**
 
-*Autonomous • Immutable • Sovereign*
+*Autonomous • Deflationary • Sovereign*
+
+## 🌟 Vision
+
+Old Glory RISE is building for the future:
+- **Phase 1 (Bear Market)**: Deploy infrastructure, test at low stakes
+- **Phase 2 (Recovery)**: Scale operations, lock parameters
+- **Phase 3 (Bull Market)**: Achieve immutability, dominate ecosystem
+
+We're early. We're building. We're RISING. 🚀
