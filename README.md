@@ -17,13 +17,13 @@ A patriotic, sovereign DeFi interface for Old Glory RISE Token - featuring auton
 
 ## 🚀 Live Demo
 
-Visit: [https://oldglorytoken.com](https://oldglorytoken.com) *(update with actual domain)*
+Visit: [https://oldglorytoken.com](https://oldglorytoken.com)
 
 ## 📋 Contract Addresses
 
 - **RISE Token**: [`0xE558edc934FDbB65cdF4868617D5F0D80595aD11`](https://scan.pulsechain.com/address/0xE558edc934FDbB65cdF4868617D5F0D80595aD11)
 - **LP Pair (RISE/WPLS)**: *[To be deployed]*
-- **pSunDAI Reward Token**: [`0x5529...`](https://scan.pulsechain.com/address/0x5529...) *(update with actual address)*
+- **pSunDAI Reward Token**: [`0x5529...`](https://scan.pulsechain.com/address/0xE558edc934FDbB65cdF4868617D5F0D80595aD11)
 - **Treasury Accelerator**: *[To be deployed]*
 
 ## 🛠️ Technology Stack
