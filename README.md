@@ -17,7 +17,7 @@ A patriotic, sovereign DeFi interface for Old Glory RISE Token - featuring auton
 
 ## 🚀 Live Demo
 
-Visit: [https://oldgloryrise.com](https://oldgloryrise.com) *(update with actual domain)*
+Visit: [https://oldglorytoken.com](https://oldglorytoken.com) *(update with actual domain)*
 
 ## 📋 Contract Addresses
 
