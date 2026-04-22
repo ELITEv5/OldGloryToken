@@ -103,17 +103,17 @@
   }
 
   .eagle-badge {
-    width:90px; height:90px;
-    border-radius:50%;
-    border:3px solid var(--gold);
-    box-shadow: 0 0 30px rgba(201,150,58,.35), 0 0 0 6px rgba(201,150,58,.08);
-    margin-bottom:20px;
+    width:150px; height:150px;
+    border-radius:0;
+    border:none;
+    box-shadow:none;
+    margin-bottom:16px;
+    object-fit:contain;
     animation: badgePulse 4s ease-in-out infinite;
-    object-fit:cover;
   }
   @keyframes badgePulse {
-    0%,100% { box-shadow: 0 0 30px rgba(201,150,58,.35), 0 0 0 6px rgba(201,150,58,.08); }
-    50%      { box-shadow: 0 0 50px rgba(201,150,58,.6),  0 0 0 10px rgba(201,150,58,.14); }
+    0%,100% { filter: drop-shadow(0 0 14px rgba(201,150,58,.5)); }
+    50%      { filter: drop-shadow(0 0 32px rgba(201,150,58,.9)); }
   }
 
   h1 {
@@ -508,6 +508,11 @@
   .tx-status.ok  { color:#5ecf7a; }
   .tx-status.err { color:var(--red2); }
 
+  /* ── PILL STATUS ── */
+  .pill-val { font-weight:700; letter-spacing:.08em; }
+  .pill-val.on  { color:#5ecf7a; }
+  .pill-val.off { color:var(--red2); }
+
   /* ── FOOTER ── */
   footer {
     text-align:center;
@@ -552,6 +557,32 @@
     border-radius:2px;
     margin-top:8px;
   }
+
+  /* ── PROTOCOL STATUS ── */
+  .status-strip {
+    display:grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap:10px;
+    margin:0 0 28px;
+  }
+  @media(max-width:750px){ .status-strip { grid-template-columns: repeat(3,1fr); } }
+  @media(max-width:480px){ .status-strip { grid-template-columns: repeat(2,1fr); } }
+
+  .status-pill {
+    background: rgba(13,33,69,.6);
+    border:1px solid var(--border);
+    padding:10px 14px;
+    font-size:.68rem;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    display:flex;
+    flex-direction:column;
+    gap:4px;
+  }
+  .status-pill .pill-label { color:var(--silver); font-weight:300; }
+  .status-pill .pill-val   { font-family:'Share Tech Mono',monospace; font-size:.85rem; color:var(--gold2); }
+  .status-pill .pill-val.on  { color:#5ecf7a; }
+  .status-pill .pill-val.off { color:var(--red2); }
 
   /* ── MISSION STRIP ── */
   .mission-strip {
@@ -641,6 +672,37 @@
     </div>
   </div>
 
+  <!-- PROTOCOL STATUS -->
+  <div class="section-label">Protocol Status</div>
+  <div class="info-row">
+    <div class="info-tile">
+      <strong>Swaps</strong>
+      <span id="statusSwap">—</span>
+    </div>
+    <div class="info-tile">
+      <strong>Auto Payout</strong>
+      <span id="statusAuto">—</span>
+    </div>
+    <div class="info-tile">
+      <strong>Payout Engine</strong>
+      <span id="statusPayout">—</span>
+    </div>
+  </div>
+  <div class="info-row" style="margin-top:14px;">
+    <div class="info-tile">
+      <strong>Total Shares</strong>
+      <span id="statusShares" style="color:var(--gold2);">—</span>
+    </div>
+    <div class="info-tile">
+      <strong>Claim Cooldown</strong>
+      <span id="statusWait" style="color:var(--gold2);">—</span>
+    </div>
+    <div class="info-tile">
+      <strong>Min Claim</strong>
+      0.369 pSunDAI (★ Chain 369)
+    </div>
+  </div>
+
   <!-- HOLDER STATS -->
   <div class="section-label">Your Position</div>
   <div class="stats-grid">
@@ -693,12 +755,12 @@
   <!-- INFO TILES -->
   <div class="section-label" style="margin-top:36px;">Fee Structure</div>
   <div class="info-row">
-    <div class="info-tile">
+    <div class="info-tile" id="feeTileBuy">
       <strong>Buy Fees — 0.45%</strong>
       0.10% burned permanently<br>
       0.35% → pSunDAI rewards
     </div>
-    <div class="info-tile">
+    <div class="info-tile" id="feeTileSell">
       <strong>Sell Fees — 4.00%</strong>
       1.00% burned permanently<br>
       3.00% → pSunDAI rewards
@@ -883,6 +945,48 @@ async function loadGlobal(){
 
     const ri = await contract.rewardTokens(PSUNDAI_ADDRESS);
     document.getElementById('totalPaid').textContent = fmt(ethers.utils.formatEther(ri.totalPaid),2);
+
+    // Protocol status — only when contract is available
+    if(!contract) return;
+    const [swapEn, payoutEn, autoP, shares, mwait, bb, by, sb, sy] = await Promise.all([
+      contract.swapEnabled(),
+      contract.payoutEnabled(),
+      contract.autoPayout(),
+      contract.totalShares(),
+      contract.minWaitSec(),
+      contract.fees(0),  // BuyBurnFee
+      contract.fees(1),  // BuyYieldFee
+      contract.fees(2),  // SellBurnFee
+      contract.fees(3),  // SellYieldFee
+    ]);
+
+    function pill(id, val, onLabel='Active', offLabel='Paused'){
+      const el = document.getElementById(id);
+      el.textContent = val ? onLabel : offLabel;
+      el.className   = 'pill-val ' + (val ? 'on' : 'off');
+    }
+    pill('statusSwap',   swapEn);
+    pill('statusPayout', payoutEn);
+    pill('statusAuto',   autoP);
+
+    document.getElementById('statusShares').textContent = fmt(ethers.utils.formatEther(shares),0);
+
+    const waitMin = Math.round(parseInt(mwait.toString()) / 60);
+    document.getElementById('statusWait').textContent   = waitMin >= 60 ? (waitMin/60).toFixed(1)+'h' : waitMin+'m';
+
+    // Update fee tiles with live on-chain values
+    const buyTotal  = (parseInt(bb.toString()) + parseInt(by.toString())) / 100;
+    const sellTotal = (parseInt(sb.toString()) + parseInt(sy.toString())) / 100;
+    const bbPct  = (parseInt(bb.toString())/100).toFixed(2);
+    const byPct  = (parseInt(by.toString())/100).toFixed(2);
+    const sbPct  = (parseInt(sb.toString())/100).toFixed(2);
+    const syPct  = (parseInt(sy.toString())/100).toFixed(2);
+
+    const buyTile  = document.getElementById('feeTileBuy');
+    const sellTile = document.getElementById('feeTileSell');
+    if(buyTile)  buyTile.innerHTML  = `<strong>Buy Fees — ${buyTotal.toFixed(2)}%</strong><br>${bbPct}% burned permanently<br>${byPct}% → pSunDAI rewards`;
+    if(sellTile) sellTile.innerHTML = `<strong>Sell Fees — ${sellTotal.toFixed(2)}%</strong><br>${sbPct}% burned permanently<br>${syPct}% → pSunDAI rewards`;
+
   } catch(e){ console.warn('global load err',e); }
 }
 
